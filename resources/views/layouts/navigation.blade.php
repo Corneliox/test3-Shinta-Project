@@ -39,8 +39,8 @@
                         </x-dropdown-link>
                         
                         <!-- Back to Home -->
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
+                        <x-dropdown-link href="/">
+                            {{ __('Home') }}
                         </x-dropdown-link>
 
                         <!-- Authentication -->
