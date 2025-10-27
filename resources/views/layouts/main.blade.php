@@ -29,6 +29,12 @@ TemplateMo 590 topic listing
 https://templatemo.com/tm-590-topic-listing
 
 -->
+        <!-- <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
+        <link href="{{ asset('css/bootstrap-icons.css') }}" rel="stylesheet">
+        <link href="{{ asset('css/templatemo-topic-listing.css') }}" rel="stylesheet">
+
+        @vite(['resources/css/app.css', 'resources/js/app.js']) -->
+
     </head>
     
     <body id="top">
@@ -83,9 +89,65 @@ https://templatemo.com/tm-590-topic-listing
                             </li>
                         </ul>
 
-                        <div class="d-none d-lg-block">
-                            <a href="#top" class="navbar-icon bi-person smoothscroll"></a>
+                    @auth
+                        {{-- USER IS LOGGED IN --}}
+                        
+                        {{-- This is the Bootstrap 5 Dropdown --}}
+                        <div class="nav-item dropdown ms-auto">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarLightDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="navbar-icon dropdown-item bi-person smoothscroll me-2"></i>
+                                    <span  style="color:#ffffff; font-family:Montserrat, sans-serif; font-size:15px; contrast:1.78;">
+                                    Hai, {{ explode(' ', Auth::user()->name)[0] }}
+                                    </span>
+                            </a>
+
+                            <ul class="dropdown-menu dropdown-menu-light" aria-labelledby="navbarLightDropdownMenuLink">
+                                
+                                {{-- 1. Profile Link (for everyone) --}}
+                                @if (Auth::check())
+                                    @if (Auth::user()->is_admin)
+                                        <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>
+                                    @else
+                                        <li><a class="dropdown-item" href="{{ route('profile.user.show') }}">Profile</a></li>
+                                    @endif
+                                @endif
+
+                                {{-- 2. Dashboard Link (Admins ONLY) --}}
+                                @if (Auth::user()->is_admin)
+                                    <li><a class="dropdown-item" href="{{ route('dashboard') }}">Dashboard</a></li>
+                                @endif
+
+                                <li><hr class="dropdown-divider"></li>
+
+                                {{-- 3. Logout Link (for everyone) --}}
+                                <li>
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <a class="dropdown-item" href="{{ route('logout') }}"
+                                                onclick="event.preventDefault();
+                                                            this.closest('form').submit();">
+                                            {{ __('Log Out') }}
+                                        </a>
+                                    </form>
+                                </li>
+                            </ul>
                         </div>
+
+                    @else
+                        {{-- USER IS A GUEST --}}
+                        {{-- Put your original "Login" button/icon here --}}
+                        {{-- This links to the login page --}}
+
+                        <div class="d-none d-lg-block ms-auto">
+                            <a href="{{ route('login') }}" class="navbar-icon bi-person smoothscroll"></a>
+                        </div>
+                        
+                        {{-- This is the mobile one you found --}}
+                        <div class="d-lg-none ms-auto me-4">
+                            <a href="{{ route('login') }}" class="navbar-icon bi-person smoothscroll"></a>
+                        </div>
+
+                    @endauth
                     </div>
                 </div>
             </nav>
