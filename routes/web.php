@@ -107,6 +107,11 @@ Route::get('/my-profile', function (Request $request) {
     ]);
 })->middleware('auth')->name('profile.user.show');
 
+// NEW route for the artist form
+Route::patch('/my-profile/artist', [ProfileController::class, 'updateArtistProfile'])
+    ->middleware('auth')
+    ->name('artist.profile.update');
+
 // Admin Dashboard (Admin Layout)
 Route::get('/dashboard', function () {
     return view('dashboard');
