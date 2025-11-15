@@ -46,4 +46,16 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    
+        // A User (who is an artist) has one profile
+    public function artistProfile(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(ArtistProfile::class);
+    }
+
+    // A User (who is an artist) has many artworks
+    public function artworks(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Artwork::class);
+    }
 }
