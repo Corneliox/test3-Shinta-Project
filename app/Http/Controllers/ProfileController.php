@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Illuminate\Validation\Rules\File;
+use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
 {
