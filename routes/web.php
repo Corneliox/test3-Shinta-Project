@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Artwork;
+use App\Models\ArtistProfile;
 
 /*
 |--------------------------------------------------------------------------
@@ -92,8 +93,17 @@ Route::get('/pelukis/{user}', function (User $user) {
 
 // User Profile (Public Layout)
 Route::get('/my-profile', function (Request $request) {
+    
+    // Get the currently logged-in user
+    $user = $request->user();
+    
+    // Find their artist profile, or create a new empty one if it doesn't exist
+    // This makes sure the view always has a $profile object
+    $artistProfile = $user->artistProfile ?? new ArtistProfile();
+
     return view('profile.show', [
-        'user' => $request->user()
+        'user' => $user,
+        'profile' => $artistProfile // <-- Pass the artist profile to the view
     ]);
 })->middleware('auth')->name('profile.user.show');
 
