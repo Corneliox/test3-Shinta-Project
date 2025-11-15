@@ -555,8 +555,136 @@
                 </div>
             </section>
 
+            <section class="section-padding" id="section_5">
+                <div class="container">
 
-            <section class="contact-section section-padding section-bg" id="section_5">
+                    {{-- MAIN TITLE --}}
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <h2 class="mb-5">Creative</h2>
+                        </div>
+                    </div>
+
+                    {{-- ROW 1: LUKISAN --}}
+                    <div class="row mb-4 align-items-center">
+                        
+                        {{-- Title on the left --}}
+                        <div class="col-lg-2 col-md-3 col-12">
+                            <h3 class="mb-3 mb-md-0">Lukisan</h3>
+                        </div>
+                        
+                        {{-- Scrolling items --}}
+                        <div class="col-lg-10 col-md-9 col-12">
+                            <div class="horizontal-scroll-wrapper">
+                                {{-- This 'd-flex flex-nowrap' is the key to the horizontal layout --}}
+                                <div class="d-flex flex-nowrap">
+                                    
+                                    {{-- This is a placeholder item. We will @foreach this later --}}
+                                    <!-- @for ($i = 0; $i < 10; $i++)
+                                    <div class="scroll-item">
+                                        {{-- We use your template's .custom-block --}}
+                                        <div class="custom-block bg-white shadow-lg">
+                                            <a href="#">
+                                                {{-- Placeholder for the image --}}
+                                                                                    <img src="{{ asset('images/topics/undraw_Compose_music_re_wpiw.png') }}" class="custom-block-image img-fluid" alt="">
+                                                
+                                                <div class="p-3">
+                                                    <p class="mb-0">Artwork Title</p>
+                                                    <small>by Artist Name</small>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    @endfor -->
+                                    {{-- Replace the @for loop with this --}}
+                                    @foreach ($lukisan_artworks as $artwork)
+                                    <div class="scroll-item">
+                                        <div class="custom-block bg-white shadow-lg">
+                                            <a href="#">
+                                                {{-- Use Storage::url() to get the path --}}
+                                                <img src="{{ Storage::url($artwork->image_path) }}" class="custom-block-image img-fluid" alt="{{ $artwork->title }}">
+                                                
+                                                <div class="p-3">
+                                                    <p class="mb-0">{{ $artwork->title }}</p>
+                                                    <small>by {{ $artwork->user->name }}</small>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                    {{-- End of placeholder loop --}}
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- ROW 2: CRAFT --}}
+                    <div class="row mb-4 align-items-center">
+                        
+                        {{-- Scrolling items (comes first in HTML) --}}
+                        {{-- 'order-md-1' makes it appear first on medium+ screens --}}
+                        <div class="col-lg-10 col-md-9 col-12 order-md-1">
+                            <div class="horizontal-scroll-wrapper">
+                                <div class="d-flex flex-nowrap">
+
+                                    {{-- Placeholder item loop --}}
+                                    <!-- @for ($i = 0; $i < 10; $i++)
+                                    <div class="scroll-item">
+                                        <div class="custom-block bg-white shadow-lg">
+                                            <a href="#">
+                                                {{-- Placeholder for the image --}}
+                                                                                    <img src="{{ asset('images/topics/undraw_Redesign_feedback_re_jvm0.png') }}" class="custom-block-image img-fluid" alt="">
+                                                
+                                                <div class="p-3">
+                                                    <p class="mb-0">Craft Title</p>
+                                                    <small>by Crafter Name</small>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    @endfor -->
+                                    {{-- Replace the @for loop with this --}}
+                                    @foreach ($lukisan_artworks as $artwork)
+                                    <div class="scroll-item">
+                                        <div class="custom-block bg-white shadow-lg">
+                                            <a href="#">
+                                                {{-- Use Storage::url() to get the path --}}
+                                                <img src="{{ Storage::url($artwork->image_path) }}" class="custom-block-image img-fluid" alt="{{ $artwork->title }}">
+                                                
+                                                <div class="p-3">
+                                                    <p class="mb-0">{{ $artwork->title }}</p>
+                                                    <small>by {{ $artwork->user->name }}</small>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                    {{-- End of placeholder loop --}}
+
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Title on the right --}}
+                        {{-- 'order-md-2' makes it appear second on medium+ screens --}}
+                        <div class="col-lg-2 col-md-3 col-12 order-md-2 text-md-end">
+                            <h3 class="mb-3 mb-md-0">Craft</h3>
+                        </div>
+                    </div>
+
+                    {{-- "SEE MORE" BUTTON --}}
+                    <div class="row">
+                        <div class="col-12 text-center mt-4">
+                            {{-- We use your template's .custom-btn --}}
+                            <a href="{{ route('creative') }}" class="custom-btn">See More</a>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="contact-section section-padding section-bg" id="section_6">
                 <div class="container">
                     <div class="row">
 
@@ -614,6 +742,10 @@
                                     info@company.com
                                 </a>
                             </p>
+                        </div>
+                            
+                        <div class="col-12 text-center mt-5">
+                            <a href="{{ route('contact') }}" class="btn custom-btn custom-border-btn justify-content-center ms-3">Fill our form</a>
                         </div>
 
                     </div>
