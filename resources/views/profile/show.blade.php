@@ -123,7 +123,70 @@
         </div>
     </section>
 
+    {{-- =================================== --}}
+    {{-- 4. ARTIST PROFILE SECTION (NEW!)  --}}
+    {{-- =================================== --}}
+    @if (Auth::user()->is_artist)
+        <section class="section-padding pt-0">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 offset-lg-2 col-12">
+                        
+                        <hr class="my-5">
 
+                        <h2 class="mb-3">My Artist Profile</h2>
+                        <p class="mb-4">This information is visible to everyone on your public "Pelukis" page.</p>
+
+                        {{-- This form MUST have 'enctype' for file uploads --}}
+                        <form method="post" action="{{ route('artist.profile.update') }}" class="custom-form" enctype="multipart/form-data">
+                            @csrf
+                            @method('patch')
+
+                            {{-- Profile Picture --}}
+                            <div class="mb-4 text-center">
+                                <label for="profile_picture" class="form-label d-block">Current Profile Picture</label>
+                                @if ($profile->profile_picture)
+                                    <img src="{{ Storage::url($profile->profile_picture) }}" class="artist-profile-frame" style="width: 150px; height: 150px;" alt="Current Profile Picture">
+                                @else
+                                    <img src="{{ asset('images/topics/undraw_happy_music_g6wc.png') }}" class="artist-profile-frame" style="width: 150px; height: 150px;" alt="Default Profile Picture">
+                                @endif
+                                <input class="form-control mt-3" type="file" id="profile_picture" name="profile_picture">
+                                @error('profile_picture')
+                                    <p class="text-danger mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            {{-- About Section --}}
+                            <div class="form-floating mb-3">
+                                <textarea class="form-control" id="about" name="about" style="height: 200px" placeholder="About Me">{{ old('about', $profile->about) }}</textarea>
+                                <label for="about">About Me</label>
+                                @error('about')
+                                    <p class="text-danger mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            
+                            {{-- "Saved" Message --}}
+                            <div class="d-flex align-items-center">
+                                <button type="submit" class="custom-btn">Save Artist Profile</button>
+                                @if (session('status') === 'artist-profile-updated')
+                                    <p class="text-success ms-3 mb-0">Saved.</p>
+                                @endif
+                            </div>
+                        </form>
+
+                        <hr class="my-5">
+
+                        {{-- Artwork Management Section --}}
+                        <h2 class="mb-3">My Artworks</h2>
+                        <p>Manage your "Lukisan" and "Craft" galleries here. This will lead to a new page where you can upload, edit, and delete your artwork.</p>
+                        <a href="#" class="custom-btn">Manage My Artworks</a>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+    @endif
+    
     <div class="modal fade" id="confirmUserDeletionModal" tabindex="-1" aria-labelledby="confirmUserDeletionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
