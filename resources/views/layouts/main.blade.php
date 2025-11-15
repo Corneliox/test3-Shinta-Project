@@ -44,8 +44,8 @@ https://templatemo.com/tm-590-topic-listing
             <nav class="navbar navbar-expand-lg">
                 <div class="container">
                     <a class="navbar-brand" href="/">
-                        <i class="bi-back"></i>
-                        <span>Topic</span>
+                        <img src="images/wopanco2.png" style="max-width:35px"></i>
+                        <span>WOPANCO</span>
                     </a>
 
                     <div class="d-lg-none ms-auto me-4">
@@ -63,17 +63,19 @@ https://templatemo.com/tm-590-topic-listing
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link click-scroll" href="#section_2">Browse Topics</a>
+                                <a class="nav-link click-scroll" href="#section_2">Profil Pelukis</a>
                             </li>
     
                             <li class="nav-item">
-                                <a class="nav-link click-scroll" href="#section_3">How it works</a>
+                                <a class="nav-link click-scroll" href="#section_3">Event</a>
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link click-scroll" href="#section_4">FAQs</a>
+                                <a class="nav-link click-scroll" href="#section_4">Lukisan</a>
                             </li>
-    
+
+                            <!-- Buat Section 5 untuk Craft dan buat section craft menjadi section 6 -->
+
                             <li class="nav-item">
                                 <a class="nav-link click-scroll" href="#section_5">Contact</a>
                             </li>
@@ -82,9 +84,8 @@ https://templatemo.com/tm-590-topic-listing
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarLightDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">Pages</a>
 
                                 <ul class="dropdown-menu dropdown-menu-light" aria-labelledby="navbarLightDropdownMenuLink">
-                                    <li><a class="dropdown-item" href="/topics-listing">Topics Listing</a></li>
-
-                                    <li><a class="dropdown-item" href="/contact">Contact Form</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('event') }}">Topics Listing</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('contact') }}">Contact Form</a></li>
                                 </ul>
                             </li>
                         </ul>
@@ -162,8 +163,8 @@ https://templatemo.com/tm-590-topic-listing
 
                     <div class="col-lg-3 col-12 mb-4 pb-2">
                         <a class="navbar-brand mb-2" href="/">
-                            <i class="bi-back"></i>
-                            <span>Topic</span>
+                            <img src="images/wopanco2.png" style="max-width:35px"></i>
+                            <span>WOPANCO</span>
                         </a>
                     </div>
 
@@ -211,15 +212,17 @@ https://templatemo.com/tm-590-topic-listing
                             English</button>
 
                             <ul class="dropdown-menu">
+                                <li><button class="dropdown-item" type="button">Indonesia</button></li>
+<!-- 
                                 <li><button class="dropdown-item" type="button">Thai</button></li>
 
                                 <li><button class="dropdown-item" type="button">Myanmar</button></li>
 
-                                <li><button class="dropdown-item" type="button">Arabic</button></li>
+                                <li><button class="dropdown-item" type="button">Arabic</button></li> -->
                             </ul>
                         </div>
 
-                        <p class="copyright-text mt-lg-5 mt-4">Copyright © 2048 Topic Listing Center. All rights reserved.
+                        <p class="copyright-text mt-lg-5 mt-4">Copyright © 2025 Woman Painter Community. All rights reserved.
                         <br><br>Design: <a rel="nofollow" href="https://templatemo.com" target="_blank">TemplateMo</a></p>
                         
                     </div>
