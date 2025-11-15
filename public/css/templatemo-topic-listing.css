@@ -1153,3 +1153,40 @@ blockquote {
   }
 }
 
+/*
+---------------------------------------------
+CUSTOM CREATIVE SECTION
+---------------------------------------------
+*/
+.horizontal-scroll-wrapper {
+  overflow-x: auto;
+  /* Adds some space for the scrollbar so it doesn't overlap content */
+  padding-bottom: 20px; 
+}
+
+.scroll-item {
+  /* Set a fixed width for each card */
+  width: 260px; 
+  flex-shrink: 0;
+  margin-right: 20px;
+}
+
+.scroll-item:last-child {
+  margin-right: 0;
+}
+
+/* Custom Scrollbar Effect */
+.horizontal-scroll-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+.horizontal-scroll-wrapper::-webkit-scrollbar-track {
+  background: var(--section-bg-color); /* From your CSS */
+  border-radius: 10px;
+}
+.horizontal-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: var(--secondary-color); /* From your CSS */
+  border-radius: 10px;
+}
+.horizontal-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color); /* From your CSS */
+}
