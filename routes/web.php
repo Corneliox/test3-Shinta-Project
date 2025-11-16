@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ArtworkController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
@@ -113,6 +114,19 @@ Route::patch('/my-profile/artist', [ProfileController::class, 'updateArtistProfi
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified', 'admin'])->name('dashboard');
+
+// ARTWORK MANAGEMENT ROUTES (NEW!)
+Route::get('/my-artworks', [ArtworkController::class, 'index'])
+    ->middleware('auth')
+    ->name('artworks.index'); // The page to view and upload
+
+Route::post('/my-artworks', [ArtworkController::class, 'store'])
+    ->middleware('auth')
+    ->name('artworks.store'); // The action of uploading
+
+Route::delete('/my-artworks/{artwork}', [ArtworkController::class, 'destroy'])
+    ->middleware('auth')
+    ->name('artworks.destroy'); // The action of deleting
 
 // All other Breeze routes (login, register, profile.edit, etc.)
 require __DIR__.'/auth.php';

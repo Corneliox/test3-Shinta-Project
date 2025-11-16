@@ -158,7 +158,7 @@
                         {{-- Artwork Management Section --}}
                         <h2 class="mb-3">My Artworks</h2>
                         <p>Manage your "Lukisan" and "Craft" galleries here.</p>
-                        <a href="#" class="custom-btn">Manage My Artworks</a>
+                        <a href="{{ route('artworks.index') }}" class="custom-btn">Manage My Artworks</a>
                     @endif
 
 
