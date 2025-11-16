@@ -13,15 +13,15 @@
         </div>
     </section>
 
-    {{-- 2. THE NEW TEMPLATE-STYLED FORMS --}}
+    {{-- 2. THE CORRECTED FORMS --}}
     <section class="section-padding">
         <div class="container">
             <div class="row">
                 
-                {{-- Center the content --}}
+                {{-- Column for the forms --}}
                 <div class="col-lg-8 offset-lg-2 col-12">
 
-                    <div class="mb-5">
+                    <div class="mb-5" id="update-profile-information">
                         <h2 class="mb-3">Profile Information</h2>
                         <p class="mb-4">Update your account's profile information and email address.</p>
 
@@ -29,29 +29,27 @@
                             @csrf
                             @method('patch')
 
-                            {{-- Name Field --}}
-                            <div class="form-floating mb-3">
-                                <input type="text" name="name" id="name" class="form-control" placeholder="Name" value="{{ old('name', $user->name) }}" required autofocus autocomplete="name">
-                                <label for="name">Name</label>
+                            {{-- Name Field (FIXED) --}}
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Name</label>
+                                <input id="name" name="name" type="text" class="form-control" value="{{ old('name', $user->name) }}" required autofocus autocomplete="name" placeholder="Your Name">
                             </div>
                             @error('name')
-                                <p class="text-danger mt-n3 mb-3">{{ $message }}</p>
+                                <p class="text-danger mb-3">{{ $message }}</p>
                             @enderror
 
-                            {{-- Email Field --}}
-                            <div class="form-floating mb-3">
-                                <input type="email" name="email" id="email" class="form-control" placeholder="Email Address" value="{{ old('email', $user->email) }}" required autocomplete="username">
-                                <label for="email">Email Address</label>
+                            {{-- Email Field (FIXED) --}}
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email Address</label>
+                                <input id="email" name="email" type="email" class="form-control" value="{{ old('email', $user->email) }}" required autocomplete="username" placeholder="your@email.com">
                             </div>
                             @error('email')
-                                <p class="text-danger mt-n3 mb-3">{{ $message }}</p>
+                                <p class="text-danger mb-3">{{ $message }}</p>
                             @enderror
                             
                             {{-- "Saved" Message --}}
                             <div class="d-flex align-items-center">
-                                {{-- This button uses your template's "custom-btn" class --}}
                                 <button type="submit" class="custom-btn">Save</button>
-
                                 @if (session('status') === 'profile-updated')
                                     <p class="text-success ms-3 mb-0">Saved.</p>
                                 @endif
@@ -61,7 +59,7 @@
 
                     <hr class="my-5">
 
-                    <div class="mb-5">
+                    <div class="mb-5" id="update-password-information">
                         <h2 class="mb-3">Update Password</h2>
                         <p class="mb-4">Ensure your account is using a long, random password to stay secure.</p>
 
@@ -69,31 +67,31 @@
                             @csrf
                             @method('put')
 
-                            {{-- Current Password --}}
-                            <div class="form-floating mb-3">
-                                <input type="password" name="current_password" id="current_password" class="form-control" placeholder="Current Password" autocomplete="current-password">
-                                <label for="current_password">Current Password</label>
+                            {{-- Current Password (FIXED) --}}
+                            <div class="mb-3">
+                                <label for="current_password" class="form-label">Current Password</label>
+                                <input id="current_password" name="current_password" type="password" class="form-control" autocomplete="current-password" placeholder="Your Current Password">
                             </div>
                             @error('current_password', 'updatePassword')
-                                <p class="text-danger mt-n3 mb-3">{{ $message }}</p>
+                                <p class="text-danger mb-3">{{ $message }}</p>
                             @enderror
 
-                            {{-- New Password --}}
-                            <div class="form-floating mb-3">
-                                <input type="password" name="password" id="password" class="form-control" placeholder="New Password" autocomplete="new-password">
-                                <label for="password">New Password</label>
+                            {{-- New Password (FIXED) --}}
+                            <div class="mb-3">
+                                <label for="password" class="form-label">New Password</label>
+                                <input id="password" name="password" type="password" class="form-control" autocomplete="new-password" placeholder="New Secure Password">
                             </div>
                             @error('password', 'updatePassword')
-                                <p class="text-danger mt-n3 mb-3">{{ $message }}</p>
+                                <p class="text-danger mb-3">{{ $message }}</p>
                             @enderror
 
-                            {{-- Confirm Password --}}
-                            <div class="form-floating mb-3">
-                                <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="Confirm Password" autocomplete="new-password">
-                                <label for="password_confirmation">Confirm Password</label>
+                            {{-- Confirm Password (FIXED) --}}
+                            <div class="mb-3">
+                                <label for="password_confirmation" class="form-label">Confirm Password</label>
+                                <input id="password_confirmation" name="password_confirmation" type="password" class="form-control" autocomplete="new-password" placeholder="Confirm New Password">
                             </div>
                             @error('password_confirmation', 'updatePassword')
-                                <p class="text-danger mt-n3 mb-3">{{ $message }}</p>
+                                <p class="text-danger mb-3">{{ $message }}</p>
                             @enderror
 
                             {{-- "Saved" Message --}}
@@ -106,64 +104,45 @@
                         </form>
                     </div>
 
-                    <hr class="my-5">
-
-                    <div>
-                        <h2 class="mb-3 text-danger">Delete Account</h2>
-                        <p>Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.</p>
-                        
-                        {{-- We use btn-danger here as your template doesn't have a red button class --}}
-                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmUserDeletionModal">
-                            Delete Account
-                        </button>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {{-- =================================== --}}
-    {{-- 4. ARTIST PROFILE SECTION (NEW!)  --}}
-    {{-- =================================== --}}
-    @if (Auth::user()->is_artist)
-        <section class="section-padding pt-0">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8 offset-lg-2 col-12">
-                        
+                    {{-- =================================== --}}
+                    {{-- 3. ARTIST PROFILE SECTION (FIXED!)  --}}
+                    {{-- =================================== --}}
+                    @if (Auth::user()->is_artist)
                         <hr class="my-5">
 
-                        <h2 class="mb-3">My Artist Profile</h2>
+                        <h2 class="mb-3" id="artist-profile-form">My Artist Profile</h2>
                         <p class="mb-4">This information is visible to everyone on your public "Pelukis" page.</p>
 
-                        {{-- This form MUST have 'enctype' for file uploads --}}
                         <form method="post" action="{{ route('artist.profile.update') }}" class="custom-form" enctype="multipart/form-data">
                             @csrf
                             @method('patch')
 
-                            {{-- Profile Picture --}}
-                            <div class="mb-4 text-center">
-                                <label for="profile_picture" class="form-label d-block">Current Profile Picture</label>
+                            {{-- Profile Picture (FIXED ALIGNMENT) --}}
+                            <div class="mb-4">
+                                <label class="form-label d-block">Current Profile Picture</label>
                                 @if ($profile->profile_picture)
-                                    <img src="{{ Storage::url($profile->profile_picture) }}" class="artist-profile-frame" style="width: 150px; height: 150px;" alt="Current Profile Picture">
+                                    <img src="{{ Storage::url($profile->profile_picture) }}" class="artist-profile-frame" style="width: 150px; height: 150px; margin-bottom: 15px;" alt="Current Profile Picture">
                                 @else
-                                    <img src="{{ asset('images/topics/undraw_happy_music_g6wc.png') }}" class="artist-profile-frame" style="width: 150px; height: 150px;" alt="Default Profile Picture">
+                                    <img src="{{ asset('images/topics/undraw_happy_music_g6wc.png') }}" class="artist-profile-frame" style="width: 150px; height: 150px; margin-bottom: 15px;" alt="Default Profile Picture">
                                 @endif
-                                <input class="form-control mt-3" type="file" id="profile_picture" name="profile_picture">
+                                
+                                </br>
+                                
+                                <label for="profile_picture" class="form-label">Upload New Picture</label>
+                                <input class="form-control" type="file" id="profile_picture" name="profile_picture">
                                 @error('profile_picture')
                                     <p class="text-danger mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
 
-                            {{-- About Section --}}
-                            <div class="form-floating mb-3">
-                                <textarea class="form-control" id="about" name="about" style="height: 200px" placeholder="About Me">{{ old('about', $profile->about) }}</textarea>
-                                <label for="about">About Me</label>
-                                @error('about')
-                                    <p class="text-danger mt-1">{{ $message }}</p>
-                                @enderror
+                            {{-- About Section (FIXED) --}}
+                            <div class="mb-3">
+                                <label for="about" class="form-label">About Me</label>
+                                <textarea class="form-control" id="about" name="about" style="height: 200px; padding-left: 65px; padding-right: 65px" placeholder="Tell everyone about yourself...">{{ old('about', $profile->about) }}</textarea>
                             </div>
+                            @error('about')
+                                <p class="text-danger mb-3">{{ $message }}</p>
+                            @enderror
                             
                             {{-- "Saved" Message --}}
                             <div class="d-flex align-items-center">
@@ -178,19 +157,30 @@
 
                         {{-- Artwork Management Section --}}
                         <h2 class="mb-3">My Artworks</h2>
-                        <p>Manage your "Lukisan" and "Craft" galleries here. This will lead to a new page where you can upload, edit, and delete your artwork.</p>
+                        <p>Manage your "Lukisan" and "Craft" galleries here.</p>
                         <a href="#" class="custom-btn">Manage My Artworks</a>
+                    @endif
 
+
+                    <hr class="my-5">
+
+                    <div>
+                        <h2 class="mb-3 text-danger">Delete Account</h2>
+                        <p>Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.</p>
+                        
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmUserDeletionModal">
+                            Delete Account
+                        </button>
                     </div>
+
                 </div>
             </div>
-        </section>
-    @endif
-    
+        </div>
+    </section>
+
     <div class="modal fade" id="confirmUserDeletionModal" tabindex="-1" aria-labelledby="confirmUserDeletionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                {{-- We use .custom-form here to style the modal's input --}}
                 <form method="post" action="{{ route('profile.destroy') }}" class="custom-form p-4">
                     @csrf
                     @method('delete')
@@ -202,12 +192,13 @@
                     <div class="modal-body">
                         <p>Once your account is deleted, all data will be permanently lost. Please enter your password to confirm you would like to permanently delete your account.</p>
                         
-                        <div class="form-floating mb-3">
-                            <input type="password" name="password" id="password_delete" class="form-control" placeholder="Password" autocomplete="current-password">
-                            <label for="password_delete">Password</label>
+                        {{-- Password (FIXED) --}}
+                        <div class="mb-3">
+                            <label for="password_delete" class="form-label">Password</label>
+                            <input id="password_delete" name="password" type="password" class="form-control" placeholder="Password" autocomplete="current-password">
                         </div>
                         @error('password', 'userDeletion')
-                            <p class="text-danger mt-n3 mb-3">{{ $message }}</p>
+                            <p class="text-danger mb-3">{{ $message }}</p>
                         @enderror
                     </div>
                     <div class="modal-footer border-0">
@@ -219,3 +210,45 @@
         </div>
     </div>
 @endsection
+
+{{-- This must be at the very end of the file, after @endsection --}}
+@push('scripts')
+<script>
+    // We must wait for the *entire* window (all images, scripts, etc.) to finish loading.
+    window.addEventListener('load', function() {
+        
+        // Check if there's a hash in the URL (e.g., #update-password-information)
+        if (window.location.hash) {
+            
+            // Give all other scripts (like click-scroll.js) time to finish.
+            // 300ms is usually long enough.
+            setTimeout(function() {
+                try {
+                    // Find the element we want to scroll to
+                    var element = document.querySelector(window.location.hash);
+                    
+                    if (element) {
+                        // Get the height of your sticky header.
+                        // Your navbar is about 80px high, so we'll add 20px of padding.
+                        var headerOffset = 100; 
+                        
+                        // Get the element's position on the page
+                        var elementPosition = element.getBoundingClientRect().top;
+                        
+                        // Calculate the final scroll position (element's top + current scroll - header height)
+                        var offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                        
+                        // Manually scroll to that exact position
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                } catch(e) {
+                    console.error("Error scrolling to fragment:", e);
+                }
+            }, 300); // 300ms delay
+        }
+    });
+</script>
+@endpush

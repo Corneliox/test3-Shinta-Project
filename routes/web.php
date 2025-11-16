@@ -65,27 +65,24 @@ Route::get('/contact', function () {
 // ===================================
 // 3. ARTIST (PELUKIS) PAGE ROUTE
 // ===================================
-Route::get('/pelukis/{user}', function (User $user) {
+Route::get('/pelukis/{artist:slug}', function (User $artist) { // <-- CHANGED
     
-    // Make sure the person we're looking up is actually an artist
-    if (!$user->is_artist) {
+    if (!$artist->is_artist) { // <-- CHANGED
         abort(404);
     }
 
-    // Load the artist's profile and their artworks
-    $artistProfile = $user->artistProfile;
-    $lukisan = $user->artworks()->where('category', 'Lukisan')->get();
-    $crafts = $user->artworks()->where('category', 'Craft')->get();
+    $artistProfile = $artist->artistProfile; // <-- CHANGED
+    $lukisan = $artist->artworks()->where('category', 'Lukisan')->get(); // <-- CHANGED
+    $crafts = $artist->artworks()->where('category', 'Craft')->get(); // <-- CHANGED
 
     return view('pelukis.show', [
-        'artist' => $user,
+        'artist' => $artist, // This now matches
         'profile' => $artistProfile,
         'lukisan' => $lukisan,
         'crafts' => $crafts,
     ]);
 
 })->name('pelukis.show');
-
 
 // ===================================
 // 4. AUTHENTICATED ROUTES

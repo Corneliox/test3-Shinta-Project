@@ -124,6 +124,9 @@
                                     <div class="artist-scroll-item">
                                         {{-- This now links to the artist's page --}}
                                         <a href="{{ route('pelukis.show', $artist) }}">
+
+
+
                                             
                                             @if($artist->artistProfile && $artist->artistProfile->profile_picture)
                                                 <img src="{{ Storage::url($artist->artistProfile->profile_picture) }}" class="artist-profile-frame" alt="{{ $artist->name }}">

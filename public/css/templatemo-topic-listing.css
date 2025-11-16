@@ -106,6 +106,13 @@ p {
   font-weight: var(--font-weight-normal);
 }
 
+label {
+  color: var(--p-color);
+  font-size: var(--menu-font-size);
+  font-weight: var(--font-weight-normal);
+  padding-left: 10px;
+}
+
 ul li {
   color: var(--p-color);
   font-size: var(--p-font-size);
@@ -1216,4 +1223,39 @@ CUSTOM ARTIST PROFILE SECTION
   flex-shrink: 0;
   margin-right: 30px;
   text-align: center;
+}
+
+/*
+---------------------------------------------
+CUSTOM PROFILE FORM STYLING
+---------------------------------------------
+*/
+
+/* FIX 1: This rounds all form fields (including your "About Me" textarea) 
+  to match the template's style. 
+*/
+.custom-form .form-control {
+  border-radius: var(--border-radius-large);
+}
+
+/* FIX 2: This targets the "Choose File" button specifically.
+*/
+.custom-form input[type="file"]::file-selector-button {
+  background: var(--custom-btn-bg-color);  /* This is your #80d0c7 color */
+  border: 2px solid transparent;
+  border-radius: var(--border-radius-large); /* Same rounding */
+  color: var(--white-color);
+  font-family: var(--title-font-family);
+  font-weight: var(--font-weight-bold);
+  padding: 10px 20px; /* A bit smaller to fit */
+  margin-right: 15px;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+/* FIX 3: This adds the hover effect to the new button.
+*/
+.custom-form input[type="file"]::file-selector-button:hover {
+  background: var(--custom-btn-bg-hover-color);
+  color: var(--white-color);
 }

@@ -38,7 +38,14 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        // return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        // return back()->with('status', 'profile-updated');  
+        // return back()->with('status', 'profile-updated')->withFragment('update-profile-information');      
+        return redirect()
+            ->route('profile.user.show', [], 303)
+            ->with('status', 'profile-updated')
+            ->withFragment('update-profile-information');
+
     }
 
     /**
@@ -106,7 +113,11 @@ class ProfileController extends Controller
         $profile->save();
 
         // 6. Redirect back with a success message
-        return redirect()->route('profile.user.show')
-                        ->with('status', 'artist-profile-updated');
+        // return redirect()->route('profile.user.show')->with('status', 'artist-profile-updated')->withFragment('artist-profile-form');
+        return redirect()
+            ->route('profile.user.show', [], 303)
+            ->with('status', 'artist-profile-updated')
+            ->withFragment('artist-profile-form');
+
     }
 }
