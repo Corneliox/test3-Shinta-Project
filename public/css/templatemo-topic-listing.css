@@ -1259,3 +1259,18 @@ CUSTOM PROFILE FORM STYLING
   background: var(--custom-btn-bg-hover-color);
   color: var(--white-color);
 }
+
+/*
+---------------------------------------------
+CUSTOM ARTWORK SHOW PAGE
+---------------------------------------------
+*/
+.artwork-frame {
+  /* Uses your template's rounded corner variable */
+  border-radius: var(--border-radius-large); 
+  /* Ensures the image respects the rounded corners */
+  overflow: hidden; 
+  /* Fixes any weird spacing under the image */
+  line-height: 0; 
+  margin-bottom: 2rem;
+}

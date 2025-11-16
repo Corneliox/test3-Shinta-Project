@@ -56,6 +56,61 @@ class ArtworkController extends Controller
     }
 
     /**
+     * Show the form for editing the specified artwork.
+     */
+    public function edit(Artwork $artwork)
+    {
+        // AUTHORIZATION: Is the logged-in user the owner?
+        if (auth()->id() !== $artwork->user_id) {
+            abort(403); // Forbidden
+        }
+
+        return view('artworks.edit', [
+            'artwork' => $artwork
+        ]);
+    }
+
+    /**
+     * Update the specified artwork in storage.
+     */
+    public function update(Request $request, Artwork $artwork)
+    {
+        // AUTHORIZATION: Is the logged-in user the owner?
+        if (auth()->id() !== $artwork->user_id) {
+            abort(403); // Forbidden
+        }
+
+        // 1. Validate the data (image is 'nullable')
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string|max:5000',
+            'category' => 'required|string|in:Lukisan,Craft',
+            'image' => 'nullable|image|max:5120', // 5MB max
+        ]);
+
+        // 2. Update the simple fields
+        $artwork->title = $validated['title'];
+        $artwork->description = $validated['description'];
+        $artwork->category = $validated['category'];
+        
+        // 3. Handle the file upload (if a new one was provided)
+        if ($request->hasFile('image')) {
+            // Delete the old image
+            Storage::disk('public')->delete($artwork->image_path);
+
+            // Store the new image
+            $path = $request->file('image')->store('artworks', 'public');
+            $artwork->image_path = $path;
+        }
+
+        // 4. Save the artwork (this will also update the slug)
+        $artwork->save();
+
+        // 5. Redirect back to the artwork's public page
+        return redirect()->route('artworks.show', $artwork)->with('status', 'artwork-updated');
+    }
+
+    /**
      * Remove the specified artwork from storage.
      */
     public function destroy(Request $request, Artwork $artwork)
@@ -75,4 +130,19 @@ class ArtworkController extends Controller
         // 4. Redirect back with a success message
         return back()->with('status', 'artwork-deleted');
     }
+
+    /**
+     * Display the specified artwork.
+     */
+    public function show(Artwork $artwork)
+    {
+        // Eager load the artist's info
+        $artwork->load('user.artistProfile');
+
+        // Pass the single artwork to a new view
+        return view('artworks.show', [
+            'artwork' => $artwork
+        ]);
+    }
+
 }

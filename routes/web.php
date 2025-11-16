@@ -62,6 +62,10 @@ Route::get('/contact', function () {
     return view('contact');
 })->name('contact');
 
+// NEW: Artwork Show Page Route
+Route::get('/artworks/{artwork:slug}', [ArtworkController::class, 'show'])
+    ->name('artworks.show');
+
 
 // ===================================
 // 3. ARTIST (PELUKIS) PAGE ROUTE
@@ -128,5 +132,28 @@ Route::delete('/my-artworks/{artwork}', [ArtworkController::class, 'destroy'])
     ->middleware('auth')
     ->name('artworks.destroy'); // The action of deleting
 
+    // ARTWORK MANAGEMENT ROUTES
+Route::get('/my-artworks', [ArtworkController::class, 'index'])
+    ->middleware('auth')
+    ->name('artworks.index');
+
+Route::post('/my-artworks', [ArtworkController::class, 'store'])
+    ->middleware('auth')
+    ->name('artworks.store');
+
+Route::delete('/my-artworks/{artwork}', [ArtworkController::class, 'destroy'])
+    ->middleware('auth')
+    ->name('artworks.destroy');
+
+// NEW: Show the edit form
+Route::get('/artworks/{artwork:slug}/edit', [ArtworkController::class, 'edit'])
+    ->middleware('auth')
+    ->name('artworks.edit');
+
+// NEW: Handle the update logic
+Route::patch('/artworks/{artwork:slug}', [ArtworkController::class, 'update'])
+    ->middleware('auth')
+    ->name('artworks.update');
+    
 // All other Breeze routes (login, register, profile.edit, etc.)
 require __DIR__.'/auth.php';
