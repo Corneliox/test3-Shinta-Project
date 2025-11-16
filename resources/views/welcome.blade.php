@@ -297,7 +297,7 @@
                         <div class="col-lg-10 col-md-9 col-12">
                             <div class="horizontal-scroll-wrapper">
                                 {{-- This 'd-flex flex-nowrap' is the key to the horizontal layout --}}
-                                <div class="d-flex flex-nowrap">
+                                <div class="d-flex flex-nowrap" style="padding:20px">
                                     
                                     {{-- This is a placeholder item. We will @foreach this later --}}
                                     <!-- @for ($i = 0; $i < 10; $i++)
@@ -320,10 +320,9 @@
                                     @foreach ($lukisan_artworks as $artwork)
                                     <div class="scroll-item">
                                         <div class="custom-block bg-white shadow-lg">
-                                            <a href="#">
-                                                {{-- Use Storage::url() to get the path --}}
+                                            {{-- We link the whole block --}}
+                                            <a href="{{ route('artworks.show', $artwork) }}">
                                                 <img src="{{ Storage::url($artwork->image_path) }}" class="custom-block-image img-fluid" alt="{{ $artwork->title }}">
-                                                
                                                 <div class="p-3">
                                                     <p class="mb-0">{{ $artwork->title }}</p>
                                                     <small>by {{ $artwork->user->name }}</small>
@@ -339,59 +338,41 @@
                         </div>
                     </div>
 
-                    {{-- ROW 2: CRAFT --}}
-                    <div class="row mb-4 align-items-center">
+                {{-- ROW 2: CRAFT --}}
+                <div class="row mb-4 align-items-center">
+                    
+                    {{-- Scrolling items (comes first in HTML) --}}
+                    <div class="col-lg-10 col-md-9 col-12 order-md-1">
                         
-                        {{-- Scrolling items (comes first in HTML) --}}
-                        {{-- 'order-md-1' makes it appear first on medium+ screens --}}
-                        <div class="col-lg-10 col-md-9 col-12 order-md-1">
-                            <div class="horizontal-scroll-wrapper">
-                                <div class="d-flex flex-nowrap">
+                        {{-- FIX: Change the class here --}}
+                        <div class="horizontal-scroll-wrapper justify-content-end">
+                            
+                            <div class="d-flex flex-nowrap" style="padding:20px">
 
-                                    {{-- Placeholder item loop --}}
-                                    <!-- @for ($i = 0; $i < 10; $i++)
-                                    <div class="scroll-item">
-                                        <div class="custom-block bg-white shadow-lg">
-                                            <a href="#">
-                                                {{-- Placeholder for the image --}}
-                                                                                    <img src="{{ asset('images/topics/undraw_Redesign_feedback_re_jvm0.png') }}" class="custom-block-image img-fluid" alt="">
-                                                
-                                                <div class="p-3">
-                                                    <p class="mb-0">Craft Title</p>
-                                                    <small>by Crafter Name</small>
-                                                </div>
-                                            </a>
-                                        </div>
+                                {{-- This loop is now correct --}}
+                                @foreach ($craft_artworks as $artwork)
+                                <div class="scroll-item">
+                                    <div class="custom-block bg-white shadow-lg">
+                                        <a href="{{ route('artworks.show', $artwork) }}">
+                                            <img src="{{ Storage::url($artwork->image_path) }}" class="custom-block-image img-fluid" alt="{{ $artwork->title }}">
+                                            <div class="p-3">
+                                                <p class="mb-0">{{ $artwork->title }}</p>
+                                                <small>by {{ $artwork->user->name }}</small>
+                                            </div>
+                                        </a>
                                     </div>
-                                    @endfor -->
-                                    {{-- Replace the @for loop with this --}}
-                                    @foreach ($lukisan_artworks as $artwork)
-                                    <div class="scroll-item">
-                                        <div class="custom-block bg-white shadow-lg">
-                                            <a href="#">
-                                                {{-- Use Storage::url() to get the path --}}
-                                                <img src="{{ Storage::url($artwork->image_path) }}" class="custom-block-image img-fluid" alt="{{ $artwork->title }}">
-                                                
-                                                <div class="p-3">
-                                                    <p class="mb-0">{{ $artwork->title }}</p>
-                                                    <small>by {{ $artwork->user->name }}</small>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    @endforeach
-                                    {{-- End of placeholder loop --}}
-
                                 </div>
+                                @endforeach
+
                             </div>
                         </div>
-
-                        {{-- Title on the right --}}
-                        {{-- 'order-md-2' makes it appear second on medium+ screens --}}
-                        <div class="col-lg-2 col-md-3 col-12 order-md-2 text-md-end">
-                            <h3 class="mb-3 mb-md-0">Craft</h3>
-                        </div>
                     </div>
+
+                    {{-- Title on the right --}}
+                    <div class="col-lg-2 col-md-3 col-12 order-md-2 text-md-end">
+                        <h3 class="mb-3 mb-md-0">Craft</h3>
+                    </div>
+                </div>
 
                     {{-- "SEE MORE" BUTTON --}}
                     <div class="row">

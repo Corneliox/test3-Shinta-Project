@@ -54,9 +54,34 @@ Route::get('/event-details', function () {
     return view('event.details');
 })->name('event-details'); 
 
+// Route::get('/creative', function () {
+//    return view('creative');
+// })->name('creative'); 
 Route::get('/creative', function () {
-   return view('creative');
-})->name('creative'); 
+
+    $artists = App\Models\User::where('is_artist', true)
+        // 1. Only get artists who have at least one artwork
+        ->whereHas('artworks')
+
+        // 2. Load their profile AND their 10 latest artworks
+        ->with(['artistProfile', 'artworks' => function($query) {
+            $query->latest()->take(10);
+        }])
+
+        // 3. Find the 'created_at' timestamp of each artist's latest artwork
+        ->withMax('artworks', 'created_at')
+
+        // 4. Sort the *artists* by that timestamp, newest first
+        ->orderBy('artworks_max_created_at', 'desc')
+
+        // 5. Get the final list
+        ->get();
+
+   return view('creative', [
+        'artists' => $artists
+   ]);
+
+})->name('creative');
 
 Route::get('/contact', function () {
     return view('contact');
@@ -154,6 +179,6 @@ Route::get('/artworks/{artwork:slug}/edit', [ArtworkController::class, 'edit'])
 Route::patch('/artworks/{artwork:slug}', [ArtworkController::class, 'update'])
     ->middleware('auth')
     ->name('artworks.update');
-    
+
 // All other Breeze routes (login, register, profile.edit, etc.)
 require __DIR__.'/auth.php';

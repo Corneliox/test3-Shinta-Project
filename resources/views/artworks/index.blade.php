@@ -131,14 +131,20 @@
                             @forelse($crafts as $artwork)
                                 <div class="scroll-item">
                                     <div class="custom-block bg-white shadow-lg">
-                                        <img src="{{ Storage::url($artwork->image_path) }}" class="custom-block-image img-fluid" alt="{{ $artwork->title }}">
+                                        {{-- WRAPPED THE IMAGE IN A LINK --}}
+                                        <a href="{{ route('artworks.show', $artwork) }}">
+                                            <img src="{{ Storage::url($artwork->image_path) }}" class="custom-block-image img-fluid" alt="{{ $artwork->title }}">
+                                        </a>
                                         <div class="p-3">
-                                            <p class="mb-0">{{ $artwork->title }}</p>
-                                            
+                                            {{-- WRAPPED THE TITLE IN A LINK --}}
+                                            <a href="{{ route('artworks.show', $artwork) }}">
+                                                <p class="mb-0">{{ $artwork->title }}</p>
+                                            </a>
                                             {{-- DELETE BUTTON FORM --}}
                                             <form method="POST" action="{{ route('artworks.destroy', $artwork) }}" onsubmit="return confirm('Are you sure you want to delete this artwork?');">
                                                 @csrf
                                                 @method('DELETE')
+                                                {{-- We use btn-sm for a small button --}}
                                                 <button type="submit" class="btn btn-danger btn-sm mt-2">Delete</button>
                                             </form>
                                         </div>

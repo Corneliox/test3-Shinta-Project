@@ -1274,3 +1274,132 @@ CUSTOM ARTWORK SHOW PAGE
   line-height: 0; 
   margin-bottom: 2rem;
 }
+
+/*
+---------------------------------------------
+CUSTOM SCROLL ALIGNMENT
+---------------------------------------------
+*/
+.horizontal-scroll-wrapper {
+  /* This turns the wrapper into a flexbox */
+  display: flex; 
+  overflow-x: auto;
+  padding-bottom: 20px; 
+}
+
+/* This class will align the scrolling content to the right */
+.horizontal-scroll-wrapper.justify-content-end {
+  justify-content: flex-end;
+}
+
+/*
+
+/*
+---------------------------------------------
+CUSTOM ARTWORK HOVER & IMAGE FIX
+---------------------------------------------
+*/
+
+/* 1. Fixes uneven image height */
+.custom-block-image {
+  /* border-top-left-radius: var(--border-radius-large);
+  border-top-right-radius: var(--border-radius-large); */
+  height: 200px;       /* This forces all images to be 200px tall */
+  object-fit: cover;    /* This crops them nicely, no stretching */
+  width: 100%;
+}
+
+/* 2. Sets up the container for the hover effect */
+.custom-block-image-wrap {
+  position: relative; /* Allows absolute positioning inside */
+  overflow: hidden;   /* Hides the overlay when it's 'outside' */
+  display: block;
+  /* These radii must match the image
+  border-top-left-radius: var(--border-radius-large);
+  border-top-right-radius: var(--border-radius-large); */
+}
+
+/* 3. The overlay itself */
+.artwork-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6); /* Black with 60% opacity */
+  
+  /* Flexbox to center the description */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  
+  /* Animation setup */
+  transform: translateY(100%); /* Start hidden at the bottom */
+  transition: transform 0.3s ease-in-out;
+}
+
+/* 4. The hover trigger */
+.custom-block-image-wrap:hover .artwork-overlay {
+  transform: translateY(0%); /* Slide up into view */
+}
+
+/* 5. The description text inside the overlay */
+.artwork-overlay-text {
+  color: var(--white-color);
+  font-size: 14px;
+  text-align: center;
+  
+  /* This will cut off long descriptions with "..." */
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 5; /* Show 5 lines max */
+  -webkit-box-orient: vertical;
+}
+
+/* 6. Style for the bold title in the .p-3 box */
+.custom-block .p-3 .fw-bold {
+  font-weight: var(--font-weight-bold);
+  color: var(--dark-color); /* Make sure title text is dark */
+}
+
+/* 7. NEW: This makes the whole-card link work */
+.custom-block-link {
+  text-decoration: none; /* Remove underline from link */
+  transition: all 0.3s;
+}
+
+/* 8. NEW: Adds a subtle "lift" on hover to the whole card */
+.custom-block-link:hover .custom-block {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/*
+---------------------------------------------
+CUSTOM SCROLL ALIGNMENT
+---------------------------------------------
+*/
+.horizontal-scroll-wrapper {
+  /* This turns the wrapper into a flexbox */
+  display: flex; 
+  overflow-x: auto;
+  padding-bottom: 20px; 
+}
+
+/* This class will align the scrolling content to the right */
+.horizontal-scroll-wrapper.justify-content-end {
+  justify-content: flex-end;
+}
+
+.scroll-item {
+  /* This sets the card width */
+  width: 260px;
+  /* This prevents the card from shrinking */
+  flex-shrink: 0;
+  margin-right: 20px;
+}
+
+.scroll-item:last-child {
+  margin-right: 0;
+}
