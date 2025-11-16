@@ -6926,8 +6926,11 @@ fieldset:disabled .btn {
 .shadow-sm {
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
 }
-.shadow-lg {
+/* .shadow-lg {
   box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+} */
+.shadow-lg {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.125) !important;
 }
 .shadow-none {
   box-shadow: none !important;
