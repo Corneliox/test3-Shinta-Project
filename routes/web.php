@@ -1,11 +1,13 @@
 <?php
 
 use App\Http\Controllers\ArtworkController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-use App\Models\User;
 use App\Models\Artwork;
+use App\Models\Event;
+use App\Models\User;
 use App\Models\ArtistProfile;
 
 /*
@@ -33,11 +35,17 @@ Route::get('/', function () {
         ->with('artistProfile') // Eager load the profile info
         ->get();
 
+    // NEW: Add these queries for the events
+        $pinned_event = Event::where('is_pinned', true)->latest()->first();
+        $newest_events = Event::where('is_pinned', false)->latest()->take(3)->get();
+
     // Pass ALL data to the view
     return view('welcome', [
         'lukisan_artworks' => $lukisan_artworks,
         'craft_artworks' => $craft_artworks,
         'artists' => $artists,
+        'pinned_event' => $pinned_event,   // <-- ADD THIS
+        'newest_events' => $newest_events, // <-- ADD THIS
     ]);
 
 })->name('home');
@@ -46,13 +54,14 @@ Route::get('/', function () {
 // ===================================
 // 2. PUBLIC PAGE ROUTES
 // ===================================
-Route::get('/event', function () {
-    return view('event.main');
-})->name('event');
+// REPLACE your old static event routes with these:
+Route::get('/events', [
+    EventController::class, 'index'])
+    ->name('event');
 
-Route::get('/event-details', function () {
-    return view('event.details');
-})->name('event-details'); 
+Route::get('/events/{event:slug}', [
+    EventController::class, 'show'])
+    ->name('event.details');
 
 // Route::get('/creative', function () {
 //    return view('creative');

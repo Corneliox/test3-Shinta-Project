@@ -1,190 +1,73 @@
-{{-- This file now just tells Laravel to use the main layout --}}
-{{-- and injects the homepage content into the @yield('content') slot --}}
-
 @extends('layouts.main')
 
 @section('content')
 
-    {{-- Paste your ORIGINAL homepage content (the part --}}
-    {{-- you deleted from the layout) back in here. --}}
-    {{-- For example: --}}
+    {{-- 1. HERO SECTION (Event Image) --}}
+    <section class="hero-section" style="background-image: url('{{ Storage::url($event->image_path) }}'); background-size: cover; background-position: center; min-height: 450px;">
+        <div class="container">
+            <div class="row align-items-center" style="min-height: 450px;">
+                <div class="col-12">
+                    {{-- Spacer --}}
+                </div>
+            </div>
+        </div>
+    </section>
 
-               <section class="section-padding">
-                <div class="container">
-                    <div class="row">
+    {{-- 2. EVENT DETAILS (with text-wrap) --}}
+    <section class="section-padding">
+        <div class="container">
+            <div class="row">
 
-                        <div class="col-lg-12 col-12 text-center">
-                            <h3 class="mb-4">Popular Topics</h3>
-                        </div>
+                {{-- Main Content --}}
+                <div class="col-lg-8 col-12">
 
-                        <div class="col-lg-8 col-12 mt-3 mx-auto">
-                            <div class="custom-block custom-block-topics-listing bg-white shadow-lg mb-5">
-                                <div class="d-flex">
-                                    <img src="images/topics/undraw_Remote_design_team_re_urdx.png" class="custom-block-image img-fluid" alt="">
+                    {{-- Floated image for text-wrap effect --}}
+                    <img src="{{ Storage::url($event->image_path) }}" 
+                         class="img-fluid shadow-lg float-md-end ms-md-4 mb-3" 
+                         alt="{{ $event->title }}" 
+                         style="border-radius: var(--border-radius-large); max-width: 300px; width: 40%;">
 
-                                    <div class="custom-block-topics-listing-info d-flex">
-                                        <div>
-                                            <h5 class="mb-2">Web Design</h5>
+                    {{-- Event Title & Description --}}
+                    <h1 class="mb-3">{{ $event->title }}</h1>
+                    <h3 class="mt-5">About this event</h3>
+                    <hr class="my-4">
 
-                                            <p class="mb-0">Topic Listing includes home, listing, detail and contact pages. Feel free to modify this template for your custom websites.</p>
+                    {{-- Use {!! nl2br(e($event->description)) !!} to respect line breaks --}}
+                    <p>{!! nl2br(e($event->description)) !!}</p>
+                </div>
 
-                                            <a href="topics-detail.html" class="btn custom-btn mt-3 mt-lg-4">Learn More</a>
-                                        </div>
+                {{-- Sidebar (Event Details) --}}
+                <div class="col-lg-4 col-12 mt-5 mt-lg-0">
+                    <div class="custom-block bg-white shadow-lg p-4">
+                        <h4 class="mb-3">Event Details</h4>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <strong>Starts:</strong>
+                                <p class="text-muted">{{ $event->start_at->format('F d, Y - h:i A') }}</p>
+                            </li>
+                            <li class="mb-2">
+                                <strong>Ends:</strong>
+                                <p class="text-muted">{{ $event->end_at->format('F d, Y - h:i A') }}</p>
+                            </li>
+                            <li class="mb-2">
+                                <strong>Posted:</strong>
+                                <p class="text-muted">{{ $event->created_at->diffForHumans() }}</p>
+                            </li>
+                        </ul>
 
-                                        <span class="badge bg-design rounded-pill ms-auto">14</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="custom-block custom-block-topics-listing bg-white shadow-lg mb-5">
-                                <div class="d-flex">
-                                    <img src="images/topics/undraw_online_ad_re_ol62.png" class="custom-block-image img-fluid" alt="">
-
-                                    <div class="custom-block-topics-listing-info d-flex">
-                                        <div>
-                                            <h5 class="mb-2">Advertising</h5>
-
-                                            <p class="mb-0">Visit TemplateMo website to download free CSS templates. Lorem ipsum dolor, sit amet consectetur adipisicing elit animi necessitatibus</p>
-
-                                            <a href="topics-detail.html" class="btn custom-btn mt-3 mt-lg-4">Learn More</a>
-                                        </div>
-
-                                        <span class="badge bg-advertising rounded-pill ms-auto">30</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="custom-block custom-block-topics-listing bg-white shadow-lg mb-5">
-                                <div class="d-flex">
-                                    <img src="images/topics/undraw_Podcast_audience_re_4i5q.png" class="custom-block-image img-fluid" alt="">
-
-                                    <div class="custom-block-topics-listing-info d-flex">
-                                        <div>
-                                            <h5 class="mb-2">Podcast</h5>
-
-                                            <p class="mb-0">Lorem ipsum dolor, sit amet consectetur adipisicing elit animi necessitatibus</p>
-
-                                            <a href="topics-detail.html" class="btn custom-btn mt-3 mt-lg-4">Learn More</a>
-                                        </div>
-
-                                        <span class="badge bg-music rounded-pill ms-auto">20</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-12 col-12">
-                            <nav aria-label="Page navigation example">
-                                <ul class="pagination justify-content-center mb-0">
-                                    <li class="page-item">
-                                        <a class="page-link" href="#" aria-label="Previous">
-                                            <span aria-hidden="true">Prev</span>
-                                        </a>
-                                    </li>
-
-                                    <li class="page-item active" aria-current="page">
-                                        <a class="page-link" href="#">1</a>
-                                    </li>
-                                    
-                                    <li class="page-item">
-                                        <a class="page-link" href="#">2</a>
-                                    </li>
-                                    
-                                    <li class="page-item">
-                                        <a class="page-link" href="#">3</a>
-                                    </li>
-
-                                    <li class="page-item">
-                                        <a class="page-link" href="#">4</a>
-                                    </li>
-
-                                    <li class="page-item">
-                                        <a class="page-link" href="#">5</a>
-                                    </li>
-                                    
-                                    <li class="page-item">
-                                        <a class="page-link" href="#" aria-label="Next">
-                                            <span aria-hidden="true">Next</span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </div>
-
+                        {{-- EDIT BUTTON (Admins ONLY) --}}
+                        @auth
+                            @if(auth()->user()->is_admin)
+                                <hr class="my-3">
+                                <p class="text-muted">Admin: You can edit this event.</p>
+                                {{-- This route doesn't exist yet, but we're preparing for it --}}
+                                <a href="#" class="custom-btn">Edit Event</a>
+                            @endif
+                        @endauth
                     </div>
                 </div>
-            </section>
 
-
-            <section class="section-padding section-bg">
-                <div class="container">
-                    <div class="row">
-
-                        <div class="col-lg-12 col-12">
-                            <h3 class="mb-4">Trending Topics</h3>
-                        </div>
-
-                        <div class="col-lg-6 col-md-6 col-12 mt-3 mb-4 mb-lg-0">
-                            <div class="custom-block bg-white shadow-lg">
-                                <a href="topics-detail.html">
-                                    <div class="d-flex">
-                                        <div>
-                                            <h5 class="mb-2">Investment</h5>
-
-                                            <p class="mb-0">Lorem Ipsum dolor sit amet consectetur</p>
-                                        </div>
-
-                                        <span class="badge bg-finance rounded-pill ms-auto">30</span>
-                                    </div>
-
-                                    <img src="images/topics/undraw_Finance_re_gnv2.png" class="custom-block-image img-fluid" alt="">
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-6 col-md-6 col-12 mt-lg-3">
-                            <div class="custom-block custom-block-overlay">
-                                <div class="d-flex flex-column h-100">
-                                    <img src="images/businesswoman-using-tablet-analysis.jpg" class="custom-block-image img-fluid" alt="">
-
-                                    <div class="custom-block-overlay-text d-flex">
-                                        <div>
-                                            <h5 class="text-white mb-2">Finance</h5>
-
-                                            <p class="text-white">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sint animi necessitatibus aperiam repudiandae nam omnis</p>
-
-                                            <a href="topics-detail.html" class="btn custom-btn mt-2 mt-lg-3">Learn More</a>
-                                        </div>
-
-                                        <span class="badge bg-finance rounded-pill ms-auto">25</span>
-                                    </div>
-
-                                    <div class="social-share d-flex">
-                                        <p class="text-white me-4">Share:</p>
-
-                                        <ul class="social-icon">
-                                            <li class="social-icon-item">
-                                                <a href="#" class="social-icon-link bi-twitter"></a>
-                                            </li>
-
-                                            <li class="social-icon-item">
-                                                <a href="#" class="social-icon-link bi-facebook"></a>
-                                            </li>
-
-                                            <li class="social-icon-item">
-                                                <a href="#" class="social-icon-link bi-pinterest"></a>
-                                            </li>
-                                        </ul>
-
-                                        <a href="#" class="custom-icon bi-bookmark ms-auto"></a>
-                                    </div>
-
-                                    <div class="section-overlay"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </section>
+            </div>
+        </div>
+    </section>
 @endsection

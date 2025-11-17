@@ -152,67 +152,77 @@
             </section>
 
 
-            <section class="timeline-section section-padding" id="section_3">
-                <div class="section-overlay"></div>
-
+            {{-- =================================== --}}
+            {{-- SECTION 3: EVENTS (NOW DYNAMIC)   --}}
+            {{-- =================================== --}}
+            <section class="section-padding section-bg" id="section_3">
                 <div class="container">
                     <div class="row">
 
-                        <div class="col-12 text-center">
-                            <h2 class="text-white mb-4">How does it work?</h1>
+                        <div class="col-lg-12 col-12 text-center">
+                            <h2 class="mb-5">Upcoming Events</h2>
                         </div>
 
-                        <div class="col-lg-10 col-12 mx-auto">
-                            <div class="timeline-container">
-                                <ul class="vertical-scrollable-timeline" id="vertical-scrollable-timeline">
-                                    <div class="list-progress">
-                                        <div class="inner"></div>
+                        {{-- 1. THE PINNED/BIGGEST EVENT --}}
+                        @if($pinned_event)
+                            <div class="col-lg-10 col-12 mx-auto">
+                                {{-- This uses your template's overlay block style --}}
+                                <div class="custom-block custom-block-overlay">
+                                    <div class="d-flex flex-column h-100">
+                                        <img src="{{ Storage::url($pinned_event->image_path) }}" class="custom-block-image img-fluid" alt="">
+
+                                        <div class="custom-block-overlay-text d-flex">
+                                            <div>
+                                                <h5 class="text-white mb-2">{{ $pinned_event->title }}</h5>
+                                                <p class="text-white">{{ Str::limit($pinned_event->description, 100) }}</p>
+                                                <a href="{{ route('event.details', $pinned_event) }}" class="btn custom-btn mt-2 mt-lg-3">Learn More</a>
+                                            </div>
+                                            <span class="badge bg-finance rounded-pill ms-auto">{{ $pinned_event->start_at->format('M d') }}</span>
+                                        </div>
+                                        <div class="section-overlay"></div>
                                     </div>
-
-                                    <li>
-                                        <h4 class="text-white mb-3">Search your favourite topic</h4>
-
-                                        <p class="text-white">Lorem ipsum dolor sit amet consectetur adipisicing elit. Reiciendis, cumque magnam? Sequi, cupiditate quibusdam alias illum sed esse ad dignissimos libero sunt, quisquam numquam aliquam? Voluptas, accusamus omnis?</p>
-
-                                        <div class="icon-holder">
-                                          <i class="bi-search"></i>
-                                        </div>
-                                    </li>
-                                    
-                                    <li>
-                                        <h4 class="text-white mb-3">Bookmark &amp; Keep it for yourself</h4>
-
-                                        <p class="text-white">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sint animi necessitatibus aperiam repudiandae nam omnis est vel quo, nihil repellat quia velit error modi earum similique odit labore. Doloremque, repudiandae?</p>
-
-                                        <div class="icon-holder">
-                                          <i class="bi-bookmark"></i>
-                                        </div>
-                                    </li>
-
-                                    <li>
-                                        <h4 class="text-white mb-3">Read &amp; Enjoy</h4>
-
-                                        <p class="text-white">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Animi vero quisquam, rem assumenda similique voluptas distinctio, iste est hic eveniet debitis ut ducimus beatae id? Quam culpa deleniti officiis autem?</p>
-
-                                        <div class="icon-holder">
-                                          <i class="bi-book"></i>
-                                        </div>
-                                    </li>
-                                </ul>
+                                </div>
                             </div>
+                        @endif
+
+                        <div class="col-lg-12 col-12">
+                            <h3 class="mb-4 mt-5">Newest Events</h3>
                         </div>
 
-                        <div class="col-12 text-center mt-5">
-                            <p class="text-white">
-                                Want to learn more?
-                                <a href="#" class="btn custom-btn custom-border-btn ms-3">Check out Youtube</a>
-                            </p>
+                        {{-- 2. THE 3 NEWEST EVENTS --}}
+                        @forelse($newest_events as $event)
+                            <div class="col-lg-4 col-md-6 col-12">
+                                {{-- This uses the standard topics-listing block --}}
+                                <div class="custom-block custom-block-topics-listing bg-white shadow-lg mb-4">
+                                    <div class="d-flex">
+                                        <img src="{{ Storage::url($event->image_path) }}" class="custom-block-image img-fluid" alt="">
+                                        <div class="custom-block-topics-listing-info d-flex">
+                                            <div>
+                                                <h5 class="mb-2">{{ $event->title }}</h5>
+                                                <p class="mb-0">{{ Str::limit($event->description, 50) }}</p>
+                                                <a href="{{ route('event.details', $event) }}" class="btn custom-btn mt-3 mt-lg-4">Learn More</a>
+                                            </div>
+                                            <span class="badge bg-secondary rounded-pill ms-auto">{{ $event->start_at->format('M d') }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="col-12">
+                                <p class="text-muted">No new events posted yet. Check back soon!</p>
+                            </div>
+                        @endforelse
+
+                        {{-- 3. THE "SEE MORE" BUTTON --}}
+                        <div class="col-12 text-center mt-4">
+                            <a href="{{ route('event') }}" class="custom-btn">See More Events</a>
                         </div>
+
                     </div>
                 </div>
             </section>
 
-
+<!-- 
             <section class="faq-section section-padding" id="section_4">
                 <div class="container">
                     <div class="row">
@@ -275,9 +285,9 @@
 
                     </div>
                 </div>
-            </section>
+            </section> -->
 
-            <section class="section-padding" id="section_5">
+            <section class="section-padding" id="section_4">
                 <div class="container">
 
                     {{-- MAIN TITLE --}}
@@ -391,7 +401,7 @@
                 </div>
             </section>
 
-            <section class="contact-section section-padding section-bg" id="section_6">
+            <section class="contact-section section-padding section-bg" id="section_5">
                 <div class="container">
                     <div class="row">
 
