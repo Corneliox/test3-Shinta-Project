@@ -1,6 +1,8 @@
 {{-- This file now just tells Laravel to use the main layout --}}
 {{-- and injects the homepage content into the @yield('content') slot --}}
 
+@use('Illuminate\Support\Str') {{-- <-- ADD THIS AT THE TOP OF THE FILE --}}
+
 @extends('layouts.main')
 
 @section('content')
@@ -296,88 +298,92 @@
                         {{-- Scrolling items --}}
                         <div class="col-lg-10 col-md-9 col-12">
                             <div class="horizontal-scroll-wrapper">
-                                {{-- This 'd-flex flex-nowrap' is the key to the horizontal layout --}}
                                 <div class="d-flex flex-nowrap" style="padding:20px">
                                     
-                                    {{-- This is a placeholder item. We will @foreach this later --}}
-                                    <!-- @for ($i = 0; $i < 10; $i++)
-                                    <div class="scroll-item">
-                                        {{-- We use your template's .custom-block --}}
-                                        <div class="custom-block bg-white shadow-lg">
-                                            <a href="#">
-                                                {{-- Placeholder for the image --}}
-                                                                                    <img src="{{ asset('images/topics/undraw_Compose_music_re_wpiw.png') }}" class="custom-block-image img-fluid" alt="">
-                                                
-                                                <div class="p-3">
-                                                    <p class="mb-0">Artwork Title</p>
-                                                    <small>by Artist Name</small>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    @endfor -->
-                                    {{-- Replace the @for loop with this --}}
                                     @foreach ($lukisan_artworks as $artwork)
-                                    <div class="scroll-item">
-                                        <div class="custom-block bg-white shadow-lg">
-                                            {{-- We link the whole block --}}
-                                            <a href="{{ route('artworks.show', $artwork) }}">
-                                                <img src="{{ Storage::url($artwork->image_path) }}" class="custom-block-image img-fluid" alt="{{ $artwork->title }}">
-                                                <div class="p-3">
-                                                    <p class="mb-0">{{ $artwork->title }}</p>
-                                                    <small>by {{ $artwork->user->name }}</small>
+                                        <div class="scroll-item">
+                                            {{-- NEW: The <a> tag now wraps the ENTIRE block --}}
+                                            <a href="{{ route('artworks.show', $artwork) }}" class="custom-block-link">
+                                                <div class="custom-block bg-white shadow-lg">
+                                                    
+                                                    {{-- This is the image+overlay wrapper --}}
+                                                    <div class="custom-block-image-wrap">
+                                                        <img src="{{ Storage::url($artwork->image_path) }}" class="custom-block-image img-fluid" alt="{{ $artwork->title }}">
+                                                        
+                                                        <div class="artwork-overlay">
+                                                            <p class="artwork-overlay-text">
+                                                                {{ Str::limit($artwork->description, 100) ?? 'No description available.' }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    {{-- This is the text box below the image --}}
+                                                    <div class="p-3">
+                                                        <p class="mb-1 fw-bold">{{ $artwork->title }}</p>
+                                                        <small class="text-muted d-block">by {{ $artwork->user->name }}</small>
+                                                        <small class="text-muted d-block">{{ $artwork->created_at->diffForHumans() }}</small>
+                                                    </div>
                                                 </div>
                                             </a>
                                         </div>
-                                    </div>
                                     @endforeach
-                                    {{-- End of placeholder loop --}}
 
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                {{-- ROW 2: CRAFT --}}
-                <div class="row mb-4 align-items-center">
-                    
-                    {{-- Scrolling items (comes first in HTML) --}}
-                    <div class="col-lg-10 col-md-9 col-12 order-md-1">
+                    {{-- ROW 2: CRAFT --}}
+                    <div class="row mb-4 align-items-center">
                         
-                        {{-- FIX: Change the class here --}}
-                        <div class="horizontal-scroll-wrapper justify-content-end">
+                        {{-- Scrolling items (comes first in HTML) --}}
+                        <div class="col-lg-10 col-md-9 col-12 order-md-1">
                             
-                            <div class="d-flex flex-nowrap" style="padding:20px">
+                            <div class="horizontal-scroll-wrapper justify-content-end">
+                                
+                                <div class="d-flex flex-nowrap" style="padding:20px">
 
-                                {{-- This loop is now correct --}}
-                                @foreach ($craft_artworks as $artwork)
-                                <div class="scroll-item">
-                                    <div class="custom-block bg-white shadow-lg">
-                                        <a href="{{ route('artworks.show', $artwork) }}">
-                                            <img src="{{ Storage::url($artwork->image_path) }}" class="custom-block-image img-fluid" alt="{{ $artwork->title }}">
-                                            <div class="p-3">
-                                                <p class="mb-0">{{ $artwork->title }}</p>
-                                                <small>by {{ $artwork->user->name }}</small>
-                                            </div>
-                                        </a>
-                                    </div>
+                                    @foreach ($craft_artworks as $artwork)
+                                        <div class="scroll-item">
+                                            {{-- NEW: The <a> tag now wraps the ENTIRE block --}}
+                                            <a href="{{ route('artworks.show', $artwork) }}" class="custom-block-link">
+                                                <div class="custom-block bg-white shadow-lg">
+                                                    
+                                                    {{-- This is the image+overlay wrapper --}}
+                                                    <div class="custom-block-image-wrap">
+                                                        <img src="{{ Storage::url($artwork->image_path) }}" class="custom-block-image img-fluid" alt="{{ $artwork->title }}">
+                                                        
+                                                        <div class="artwork-overlay">
+                                                            <p class="artwork-overlay-text">
+                                                                {{ Str::limit($artwork->description, 100) ?? 'No description available.' }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    {{-- This is the text box below the image --}}
+                                                    <div class="p-3">
+                                                        <p class="mb-1 fw-bold">{{ $artwork->title }}</p>
+                                                        <small class="text-muted d-block">by {{ $artwork->user->name }}</small>
+                                                        <small class="text-muted d-block">{{ $artwork->created_at->diffForHumans() }}</small>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    @endforeach
+
                                 </div>
-                                @endforeach
-
                             </div>
                         </div>
-                    </div>
 
-                    {{-- Title on the right --}}
-                    <div class="col-lg-2 col-md-3 col-12 order-md-2 text-md-end">
-                        <h3 class="mb-3 mb-md-0">Craft</h3>
+                        {{-- Title on the right --}}
+                        <div class="col-lg-2 col-md-3 col-12 order-md-2 text-md-end">
+                            <h3 class="mb-3 mb-md-0">Craft</h3>
+                        </div>
                     </div>
-                </div>
 
                     {{-- "SEE MORE" BUTTON --}}
                     <div class="row">
                         <div class="col-12 text-center mt-4">
-                            {{-- We use your template's .custom-btn --}}
                             <a href="{{ route('creative') }}" class="custom-btn">See More</a>
                         </div>
                     </div>

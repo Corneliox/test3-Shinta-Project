@@ -1,9 +1,10 @@
 @extends('layouts.main')
 
+@use('Illuminate\Support\Str') {{-- <-- ADD THIS AT THE TOP OF THE FILE --}}
+
 @section('content')
 
     {{-- 1. "ABOUT" SECTION (Hero) --}}
-    {{-- This uses your template's "hero-section" --}}
     <section class="hero-section" style="min-height: 400px;">
         <div class="container">
             <div class="row align-items-center" style="min-height: 400px;">
@@ -21,7 +22,7 @@
                     <h4 class="text-white">About Me</h4>
                     <p class="text-white">
                         {{-- The "About" description from the database --}}
-                        @if($profile)
+                        @if($profile && $profile->about)
                             {{ $profile->about }}
                         @else
                             This artist hasn't written their "about" section yet.
@@ -42,20 +43,32 @@
                     <h2 class="mb-4">Lukisan</h2>
                 </div>
                 <div class="col-12">
-                    {{-- We can re-use the "Creative" section's layout! --}}
                     <div class="horizontal-scroll-wrapper">
-                        <div class="d-flex flex-nowrap">
+                        <div class="d-flex flex-nowrap" style="padding:20px">
                             @forelse($lukisan as $artwork)
                                 <div class="scroll-item">
-                                    <div class="custom-block bg-white shadow-lg">
-                                        <a href="#"> {{-- Link to artwork detail page? --}}
-                                            <img src="{{ Storage::url($artwork->image_path) }}" class="custom-block-image img-fluid" alt="{{ $artwork->title }}">
-                                            <div class="p-3">
-                                                <p class="mb-0">{{ $artwork->title }}</p>
-                                                <small>{{ $artwork->description }}</small>
+                                    {{-- NEW: The <a> tag now wraps the ENTIRE block --}}
+                                    <a href="{{ route('artworks.show', $artwork) }}" class="custom-block-link">
+                                        <div class="custom-block bg-white shadow-lg">
+                                            
+                                            {{-- This is the image+overlay wrapper --}}
+                                            <div class="custom-block-image-wrap">
+                                                <img src="{{ Storage::url($artwork->image_path) }}" class="custom-block-image img-fluid" alt="{{ $artwork->title }}">
+                                                
+                                                <div class="artwork-overlay">
+                                                    <p class="artwork-overlay-text">
+                                                        {{ Str::limit($artwork->description, 100) ?? 'No description available.' }}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </a>
-                                    </div>
+                                            
+                                            {{-- This is the text box below the image --}}
+                                            <div class="p-3">
+                                                <p class="mb-1 fw-bold">{{ $artwork->title }}</p>
+                                                <small class="text-muted d-block">{{ $artwork->created_at->diffForHumans() }}</small>
+                                            </div>
+                                        </div>
+                                    </a>
                                 </div>
                             @empty
                                 <p class="text-muted">This artist has not uploaded any paintings yet.</p>
@@ -72,18 +85,31 @@
                 </div>
                 <div class="col-12">
                     <div class="horizontal-scroll-wrapper">
-                        <div class="d-flex flex-nowrap">
+                        <div class="d-flex flex-nowrap" style="padding:20px">
                             @forelse($crafts as $artwork)
                                 <div class="scroll-item">
-                                    <div class="custom-block bg-white shadow-lg">
-                                        <a href="#">
-                                            <img src="{{ Storage::url($artwork->image_path) }}" class="custom-block-image img-fluid" alt="{{ $artwork->title }}">
-                                            <div class="p-3">
-                                                <p class="mb-0">{{ $artwork->title }}</p>
-                                                <small>{{ $artwork->description }}</small>
+                                    {{-- NEW: The <a> tag now wraps the ENTIRE block --}}
+                                    <a href="{{ route('artworks.show', $artwork) }}" class="custom-block-link">
+                                        <div class="custom-block bg-white shadow-lg">
+                                            
+                                            {{-- This is the image+overlay wrapper --}}
+                                            <div class="custom-block-image-wrap">
+                                                <img src="{{ Storage::url($artwork->image_path) }}" class="custom-block-image img-fluid" alt="{{ $artwork->title }}">
+                                                
+                                                <div class="artwork-overlay">
+                                                    <p class="artwork-overlay-text">
+                                                        {{ Str::limit($artwork->description, 100) ?? 'No description available.' }}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </a>
-                                    </div>
+                                            
+                                            {{-- This is the text box below the image --}}
+                                            <div class="p-3">
+                                                <p class="mb-1 fw-bold">{{ $artwork->title }}</p>
+                                                <small class="text-muted d-block">{{ $artwork->created_at->diffForHumans() }}</small>
+                                            </div>
+                                        </div>
+                                    </a>
                                 </div>
                             @empty
                                 <p class="text-muted">This artist has not uploaded any crafts yet.</p>

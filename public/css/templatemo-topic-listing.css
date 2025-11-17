@@ -1300,24 +1300,6 @@ CUSTOM ARTWORK HOVER & IMAGE FIX
 ---------------------------------------------
 */
 
-/* 1. Fixes uneven image height */
-.custom-block-image {
-  /* border-top-left-radius: var(--border-radius-large);
-  border-top-right-radius: var(--border-radius-large); */
-  height: 200px;       /* This forces all images to be 200px tall */
-  object-fit: cover;    /* This crops them nicely, no stretching */
-  width: 100%;
-}
-
-/* 2. Sets up the container for the hover effect */
-.custom-block-image-wrap {
-  position: relative; /* Allows absolute positioning inside */
-  overflow: hidden;   /* Hides the overlay when it's 'outside' */
-  display: block;
-  /* These radii must match the image
-  border-top-left-radius: var(--border-radius-large);
-  border-top-right-radius: var(--border-radius-large); */
-}
 
 /* 3. The overlay itself */
 .artwork-overlay {
