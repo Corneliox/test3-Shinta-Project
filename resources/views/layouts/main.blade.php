@@ -44,10 +44,10 @@
                                 <a class="nav-link click-scroll" style="text-align:center" href="/#section_1">Home</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link click-scroll" style="text-align:center" href="/#section_2">Event</a>
+                                <a class="nav-link click-scroll" style="text-align:center" href="/#section_2">Profil Pelukis</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link click-scroll" style="text-align:center" href="/#section_3">Profil Pelukis</a>
+                                <a class="nav-link click-scroll" style="text-align:center" href="/#section_3">Event</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link click-scroll" style="text-align:center" href="/#section_4">Creative</a>

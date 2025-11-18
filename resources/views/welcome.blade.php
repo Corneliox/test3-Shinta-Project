@@ -73,25 +73,39 @@
                     <h2 class="mb-5">Upcoming Events</h2>
                 </div>
 
-                {{-- 1. THE PINNED/BIGGEST EVENT --}}
-                @if($pinned_event)
-                    <div class="col-lg-10 col-12 mx-auto">
-                        <div class="pinned custom-block custom-block-overlay">
-                            <div class="d-flex flex-column h-100">
-                                <img src="{{ Storage::url($pinned_event->image_path) }}" class="custom-block-image img-fluid" alt="">
-                                <div class="custom-block-overlay-text d-flex">
-                                    <div>
-                                        <h5 class="text-white mb-2">{{ $pinned_event->title }}</h5>
-                                        <p class="text-white">{{ Str::limit($pinned_event->description, 100) }}</p>
-                                        <a href="{{ route('event.details', $pinned_event) }}" class="btn custom-btn mt-2 mt-lg-3">Learn More</a>
+                    {{-- 1. THE PINNED/BIGGEST EVENT --}}
+                        @if($pinned_event)
+                            <div class="col-lg-10 col-12 mx-auto">
+                                <div class="pinned custom-block custom-block-overlay">
+                                    <div class="d-flex flex-column h-100">
+                                        <img src="{{ Storage::url($pinned_event->image_path) }}" class="custom-block-image img-fluid" alt="">
+
+                                        {{-- === THIS IS THE UPDATED FLEXBOX LAYOUT === --}}
+                                        {{-- 1. flex-column stacks the top and bottom content --}}
+                                        <div class="custom-block-overlay-text d-flex flex-column">
+                                            
+                                            {{-- 2. This is the TOP row (title and date) --}}
+                                            <div class="d-flex">
+                                                <div>
+                                                    <h3 class="text-white mb-4">{{ $pinned_event->title }}</h5>
+                                                    <p class="text-white">{{ Str::limit($pinned_event->description, 300) }}</p>
+                                                </div>
+                                                {{-- The badge will now be sized correctly by the new CSS --}}
+                                                <span class="badge bg-finance ms-auto">{{ $pinned_event->start_at->format('M d') }}</span>
+                                            </div>
+
+                                            {{-- 3. 'mt-auto' pushes this button to the bottom --}}
+                                            {{--    'ms-auto' pushes it to the right --}}
+                                            <a href="{{ route('event.details', $pinned_event) }}" class="btn custom-btn mt-auto ms-auto">Learn More</a>
+
+                                        </div>
+                                        {{-- === END OF UPDATED PART === --}}
+
+                                        <div class="section-overlay"></div>
                                     </div>
-                                    <span class="badge bg-finance rounded-pill ms-auto">{{ $pinned_event->start_at->format('M d') }}</span>
                                 </div>
-                                <div class="section-overlay"></div>
                             </div>
-                        </div>
-                    </div>
-                @endif
+                        @endif
 
                 <div class="col-lg-12 col-12">
                     <h3 class="mb-4 mt-5">Newest Events</h3>
@@ -110,7 +124,7 @@
                                         {{-- This image will be 200px high and fully rounded --}}
                                         <img src="{{ Storage::url($event->image_path) }}" class="custom-block-image img-fluid" alt="{{ $event->title }}">
                                     </a>
-                                    <span class="badge bg-secondary rounded-pill event-card-badge">
+                                    <span class="badge bg-secondary event-card-badge">
                                         {{ $event->start_at->format('M d') }}
                                     </span>
                                 </div>

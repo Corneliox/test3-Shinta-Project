@@ -1436,3 +1436,28 @@ CUSTOM EVENT CARD STYLES
   right: 15px;
   z-index: 10; /* Make sure it's on top of the image */
 }
+
+/*
+---------------------------------------------
+FIX FOR PINNED EVENT BADGE
+---------------------------------------------
+*/
+.pinned .custom-block-overlay-text .badge {
+  font-size: 14px; /* Makes the font smaller */
+  padding: 8px 12px; /* Gives it some breathing room */
+  height: fit-content; /* Makes sure it only takes up the height of its content */
+  flex-shrink: 0; /* Prevents it from shrinking */
+}
+
+/*
+---------------------------------------------
+PINNED EVENT DESCRIPTION LIMIT (3 LINES)
+---------------------------------------------
+*/
+.pinned-description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Set the number of lines to 3 */
+  -webkit-box-orient: vertical;
+}
