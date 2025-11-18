@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ArtworkController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\UserController;
@@ -83,6 +84,8 @@ Route::get('/contact', function () {
     return view('contact');
 })->name('contact');
 
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+
 // NEW: Artwork Show Page Route
 Route::get('/artworks/{artwork:slug}', [ArtworkController::class, 'show'])
     ->name('artworks.show');
@@ -137,7 +140,13 @@ Route::patch('/my-profile/artist', [ProfileController::class, 'updateArtistProfi
 // Admin Dashboard (Admin Layout)
 // !!!!! THIS LINE IS NOW FIXED !!!!!
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $unseenSubmissions = ContactSubmission::where('is_seen', false)
+                            ->latest()
+                            ->get();
+
+    return view('dashboard', [
+        'unseenSubmissions' => $unseenSubmissions
+    ]);
 })->middleware(['auth', 'verified', 'admin'])->name('dashboard');
 
 // ARTWORK MANAGEMENT ROUTES
@@ -175,6 +184,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Admin Event Management
     Route::resource('events', AdminEventController::class);
+
+    // NEW CONTACT FORM ROUTES
+    Route::get('/contact-submissions', [ContactController::class, 'index'])->name('contact.index');
+    Route::patch('/contact-submissions/{submission}', [ContactController::class, 'update'])->name('contact.update');
 
 });
 

@@ -42,6 +42,12 @@
                            class="block px-3 py-2 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('admin.events.*') ? 'bg-gray-200 dark:bg-gray-700' : '' }}">
                             Events Manager
                         </a>
+
+                        {{-- ADD THIS NEW LINK --}}
+                        <a href="{{ route('admin.contact.index') }}"
+                        class="block px-3 py-2 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('admin.contact.*') ? 'bg-gray-200 dark:bg-gray-700' : '' }}">
+                            Contact Form
+                        </a>
                     </nav>
                 </aside>
 
