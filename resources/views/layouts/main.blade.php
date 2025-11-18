@@ -41,19 +41,19 @@
                     <div class="collapse navbar-collapse" id="navbarNav">
                         <ul class="navbar-nav ms-lg-5 me-lg-auto">
                             <li class="nav-item">
-                                <a class="nav-link click-scroll" href="/#section_1">Home</a>
+                                <a class="nav-link click-scroll" style="text-align:center" href="/#section_1">Home</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link click-scroll" style="text-align:center" href="/#section_2">Profil Pelukis</a>
+                                <a class="nav-link click-scroll" style="text-align:center" href="/#section_2">Event</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link click-scroll" href="/#section_3">Event</a>
+                                <a class="nav-link click-scroll" style="text-align:center" href="/#section_3">Profil Pelukis</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link click-scroll" href="/#section_4">Creative</a>
+                                <a class="nav-link click-scroll" style="text-align:center" href="/#section_4">Creative</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link click-scroll" href="/#section_5">Contact</a>
+                                <a class="nav-link click-scroll" style="text-align:center" href="/#section_5">Contact</a>
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarLightDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">Pages</a>
@@ -184,10 +184,10 @@
                                 <a href="#" class="site-footer-link">Home</a>
                             </li>
                             <li class="site-footer-link-item">
-                                <a href="#" class="site-footer-link">How it works</a>
+                                <a href="#" class="site-footer-link">Event</a>
                             </li>
                             <li class="site-footer-link-item">
-                                <a href="#" class="site-footer-link">FAQs</a>
+                                <a href="#" class="site-footer-link">Modules</a>
                             </li>
                             <li class="site-footer-link-item">
                                 <a href="#" class="site-footer-link">Contact</a>

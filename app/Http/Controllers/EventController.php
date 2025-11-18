@@ -13,10 +13,15 @@ class EventController extends Controller
      */
     public function index()
     {
-        $events = Event::latest()->paginate(9); // Show 9 events per page
+        // Get the main paginated list
+        $events = Event::latest()->paginate(9); 
+        
+        // Get the pinned event *separately* to show at the top
+        $pinned_event = Event::where('is_pinned', true)->latest()->first();
 
         return view('event.main', [
-            'events' => $events
+            'events' => $events,
+            'pinned_event' => $pinned_event // <-- This is the variable that was missing
         ]);
     }
 

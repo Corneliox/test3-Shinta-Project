@@ -1385,3 +1385,54 @@ CUSTOM SCROLL ALIGNMENT
 .scroll-item:last-child {
   margin-right: 0;
 }
+
+/*
+---------------------------------------------
+CUSTOM EVENT SECTION STYLES
+---------------------------------------------
+*/
+
+/* 1. Fixes the "Pinned Event" height */
+.pinned.custom-block-overlay {
+  position: sticky;
+  top: 100px;       /* adjust this so it doesn’t collide with your navbar */
+  max-height: 500px;
+  overflow: auto; /* or auto if you still want inner scrolling */
+  z-index: 5;
+}
+
+
+/* 2. Makes the pinned image fill the container */
+.pinned.custom-block-overlay .custom-block-image {
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 3. Fixes the "Newest Event" image shape */
+.custom-block-topics-listing .custom-block-image {
+  /* This gives it the full border radius */
+  border-radius: var(--border-radius-large);
+  /* This overrides the artwork card style */
+  border-top-left-radius: var(--border-radius-large);
+  border-top-right-radius: var(--border-radius-large);
+}
+
+/*
+---------------------------------------------
+CUSTOM EVENT CARD STYLES
+---------------------------------------------
+*/
+
+/* 1. New class to target these specific cards */
+.event-card .custom-block-image {
+  /* Overrides the artwork style to be rounded on all corners */
+  border-radius: var(--border-radius-large);
+}
+
+/* 2. Style for the date badge */
+.event-card-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  z-index: 10; /* Make sure it's on top of the image */
+}

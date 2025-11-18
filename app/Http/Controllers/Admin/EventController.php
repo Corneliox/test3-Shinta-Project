@@ -10,10 +10,11 @@ use Illuminate\Support\Facades\Storage;
 class EventController extends Controller
 {
     /**
-     * Display a listing of the events.
+     * Display a listing of the events (in the ADMIN panel).
      */
     public function index()
     {
+        // This method should show your admin list of events
         $events = Event::latest()->paginate(10);
         return view('admin.events.index', compact('events'));
     }
@@ -43,6 +44,8 @@ class EventController extends Controller
         $validated['image_path'] = $request->file('image')->store('events', 'public');
         $validated['is_pinned'] = $request->has('is_pinned');
 
+        unset($validated['image']); 
+
         Event::create($validated);
 
         return redirect()->route('admin.events.index')->with('status', 'Event created successfully.');
@@ -64,17 +67,16 @@ class EventController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|max:5120', // Image is optional on update
+            'image' => 'nullable|image|max:5120',
             'start_at' => 'required|date',
             'end_at' => 'required|date|after_or_equal:start_at',
             'is_pinned' => 'nullable|boolean',
         ]);
 
         if ($request->hasFile('image')) {
-            // Delete old image
             Storage::disk('public')->delete($event->image_path);
-            // Store new one
             $validated['image_path'] = $request->file('image')->store('events', 'public');
+            unset($validated['image']);
         }
 
         $validated['is_pinned'] = $request->has('is_pinned');

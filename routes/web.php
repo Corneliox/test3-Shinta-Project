@@ -38,8 +38,8 @@ Route::get('/', function () {
         ->get();
 
     // NEW: Add these queries for the events
-        $pinned_event = Event::where('is_pinned', true)->latest()->first();
-        $newest_events = Event::where('is_pinned', false)->latest()->take(3)->get();
+    $pinned_event = Event::where('is_pinned', true)->latest()->first();
+    $newest_events = Event::where('is_pinned', false)->latest()->take(3)->get();
 
     // Pass ALL data to the view
     return view('welcome', [
