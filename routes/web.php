@@ -164,9 +164,23 @@ Route::patch('/artworks/{artwork:slug}', [ArtworkController::class, 'update'])
 // ===================================
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     
-    // Users
+    // Admin User Management
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    
+    // 1. Create New User (Manual Add)
+    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+
+    // 2. Existing Artist Toggle
     Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
+    
+    // 3. Toggle Admin Status (Only for Superadmin)
+    Route::patch('/users/{user}/toggle-admin', [UserController::class, 'toggleAdmin'])->name('users.toggle-admin');
+
+    // 4. SECRET ROUTE: Promote to Superadmin (10 clicks)
+    Route::post('/users/{user}/promote-super', [UserController::class, 'promoteToSuperAdmin'])->name('users.promote-super');
+
+    // 5. Delete User
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
     // Events
