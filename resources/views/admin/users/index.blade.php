@@ -1,9 +1,18 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{-- THE TRIGGER FOR GOD MODE (5 Clicks) --}}
+            <h2 id="user-management-header" 
+                class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight cursor-pointer select-none"
+                onclick="handleHeaderClick()">
                 {{ __('User Management') }}
+                
+                {{-- Visual indicator if God Mode is active --}}
+                @if(isset($isRevealActive) && $isRevealActive)
+                    <span class="text-purple-500 text-sm ml-2 font-bold">(GOD MODE ACTIVE)</span>
+                @endif
             </h2>
+
             {{-- Manual Add Button --}}
             <a href="{{ route('admin.users.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                 Add New User
@@ -41,7 +50,7 @@
                             @foreach ($users as $user)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    {{-- SECRET CLICK TRIGGER --}}
+                                    {{-- SECRET CLICK TRIGGER (10 Clicks to Promote) --}}
                                     <span class="cursor-pointer select-none user-name-trigger" 
                                           data-id="{{ $user->id }}" 
                                           onclick="handleSecretClick(this)">
@@ -50,9 +59,15 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">{{ $user->email }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
+                                    {{-- 1. Superadmin Badge --}}
+                                    @if($user->is_superadmin) 
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800 border border-purple-200">Superadmin</span> 
+                                    @endif
+
+                                    {{-- 2. Regular Badges --}}
                                     @if($user->is_admin) <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Admin</span> @endif
                                     @if($user->is_artist) <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Artist</span> @endif
-                                    @if(!$user->is_admin && !$user->is_artist) <span class="text-gray-500 text-sm">User</span> @endif
+                                    @if(!$user->is_admin && !$user->is_artist && !$user->is_superadmin) <span class="text-gray-500 text-sm">User</span> @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     
@@ -65,8 +80,10 @@
                                         </button>
                                     </form>
 
-                                    {{-- 2. SUPERADMIN ONLY: Toggle Admin --}}
+                                    {{-- SUPERADMIN ONLY ACTIONS --}}
                                     @if(auth()->user()->is_superadmin)
+                                        
+                                        {{-- 2. Toggle Admin --}}
                                         <form method="POST" action="{{ route('admin.users.toggle-admin', $user) }}" class="inline-block">
                                             @csrf
                                             @method('PATCH')
@@ -74,9 +91,21 @@
                                                 {{ $user->is_admin ? 'Demote Admin' : 'Promote Admin' }}
                                             </button>
                                         </form>
+
+                                        {{-- 3. Demote Superadmin (Only visible if target is Superadmin AND not self) --}}
+                                        @if($user->is_superadmin && $user->id !== auth()->id())
+                                            <form method="POST" action="{{ route('admin.users.toggle-super', $user) }}" class="inline-block" onsubmit="return confirm('Demote this Superadmin? They will become invisible again unless promoted.');">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="text-purple-600 hover:text-purple-900 mr-3 font-bold">
+                                                    Demote Super
+                                                </button>
+                                            </form>
+                                        @endif
+
                                     @endif
 
-                                    {{-- 3. Delete --}}
+                                    {{-- 4. Delete --}}
                                     <form method="POST" action="{{ route('admin.users.destroy', $user) }}" class="inline-block" onsubmit="return confirm('Are you sure?');">
                                         @csrf
                                         @method('DELETE')
@@ -95,10 +124,42 @@
         </div>
     </div>
 
-    {{-- JAVASCRIPT FOR SECRET 10 CLICKS --}}
+    {{-- JAVASCRIPT FOR SECRET CLICKS --}}
     <script>
         let clickCounts = {};
 
+        // Header Click Counter (for God Mode)
+        let headerClicks = 0;
+
+        function handleHeaderClick() {
+            headerClicks++;
+            console.log("Header clicks:", headerClicks);
+
+            if (headerClicks >= 5) {
+                activateGodMode();
+                headerClicks = 0; // Reset counter
+            }
+        }
+
+        function activateGodMode() {
+            fetch("{{ route('admin.users.reveal-super') }}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert("GOD MODE ACTIVATED: You can now see all Superadmins for 5 minutes.");
+                    location.reload(); // Reload to show the hidden users
+                } else {
+                    alert("Access Denied: You are not a Superadmin.");
+                }
+            });
+        }
+
+        // Name Click Counter (for Promoting Users)
         function handleSecretClick(element) {
             const userId = element.getAttribute('data-id');
             

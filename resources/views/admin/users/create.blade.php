@@ -43,6 +43,11 @@
                             <option value="user">Regular User</option>
                             <option value="artist">Artist</option>
                             <option value="admin">Admin</option>
+                            
+                            {{-- Only Superadmins can create other Superadmins --}}
+                            @if(auth()->user()->is_superadmin)
+                                <option value="superadmin" class="text-purple-600 font-bold">Superadmin</option>
+                            @endif
                         </select>
                     </div>
 

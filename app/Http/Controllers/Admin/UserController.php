@@ -11,20 +11,42 @@ use Illuminate\Validation\Rules;
 
 class UserController extends Controller
 {
-    /**
+/**
      * Display list of users.
-     * SUPERADMIN LOGIC: Hide all superadmins from the list.
+     * SUPERADMIN LOGIC: Hide superadmins UNLESS "Reveal Mode" is active.
      */
     public function index()
     {
-        // 1. Hide the current user (yourself)
-        // 2. Hide ALL superadmins (Invisibility Mode)
-        $users = User::where('id', '!=', auth()->id())
-                     ->where('is_superadmin', false) 
-                     ->latest()
-                     ->paginate(15);
+        // Check if the "Reveal Mode" session exists and is still valid (not older than 5 mins)
+        $revealUntil = session('superadmin_reveal_until');
+        $isRevealActive = $revealUntil && now()->lessThan($revealUntil);
 
-        return view('admin.users.index', compact('users'));
+        $query = User::query();
+
+        // If Reveal Mode is NOT active, apply the hiding filters
+        if (!$isRevealActive) {
+            $query->where('id', '!=', auth()->id())
+                  ->where('is_superadmin', false);
+        }
+
+        $users = $query->latest()->paginate(15);
+
+        return view('admin.users.index', compact('users', 'isRevealActive'));
+    }
+
+    /**
+     * NEW SECRET: Reveal Superadmins for 5 minutes.
+     */
+    public function revealSuperAdmins()
+    {
+        if (!auth()->user()->is_superadmin) {
+            abort(403);
+        }
+
+        // Set a session variable that expires 5 minutes from now
+        session(['superadmin_reveal_until' => now()->addMinutes(5)]);
+
+        return response()->json(['message' => 'God Mode Activated: Superadmins visible for 5 minutes.']);
     }
 
     /**
@@ -35,26 +57,36 @@ class UserController extends Controller
         return view('admin.users.create');
     }
 
-    /**
+/**
      * Store the manually created user.
      */
     public function store(Request $request)
     {
+        // 1. Validate
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'in:user,artist,admin'], // Simple role selection
+            // Update validation to allow 'superadmin'
+            'role' => ['required', 'in:user,artist,admin,superadmin'], 
         ]);
 
+        // 2. Security Check: Prevent regular admins from creating superadmins
+        if ($request->role === 'superadmin' && !auth()->user()->is_superadmin) {
+            abort(403, 'You are not authorized to create Superadmins.');
+        }
+
+        // 3. Create User
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'is_artist' => $request->role === 'artist',
             'is_admin' => $request->role === 'admin',
+            'is_superadmin' => $request->role === 'superadmin', // Handle the new role
         ]);
 
+        // 4. Create Artist Profile if needed
         if ($user->is_artist) {
             $user->artistProfile()->create();
         }
@@ -75,6 +107,28 @@ class UserController extends Controller
         }
 
         return back()->with('status', 'User artist status updated!');
+    }
+
+    /**
+     * Toggle Superadmin Status (Demote/Promote manually).
+     */
+    public function toggleSuperAdmin(User $user)
+    {
+        // 1. Security Check: Only a Superadmin can do this
+        if (!auth()->user()->is_superadmin) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // 2. Safety Check: Prevent demoting yourself
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'You cannot demote yourself!');
+        }
+
+        // 3. Toggle the status
+        $user->is_superadmin = !$user->is_superadmin;
+        $user->save();
+
+        return back()->with('status', 'Superadmin status updated!');
     }
 
     /**

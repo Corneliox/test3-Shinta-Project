@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_artist',
         'is_admin',
         'is_superadmin', // <-- Add this
     ];

@@ -177,10 +177,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // 3. Toggle Admin Status (Only for Superadmin)
     Route::patch('/users/{user}/toggle-admin', [UserController::class, 'toggleAdmin'])->name('users.toggle-admin');
 
-    // 4. SECRET ROUTE: Promote to Superadmin (10 clicks)
+    // 4. NEW: Toggle Superadmin Status (For demoting other superadmins)
+    Route::patch('/users/{user}/toggle-super', [UserController::class, 'toggleSuperAdmin'])->name('users.toggle-super');
+
+    // 5. SECRET ROUTE: Promote to Superadmin (10 clicks)
     Route::post('/users/{user}/promote-super', [UserController::class, 'promoteToSuperAdmin'])->name('users.promote-super');
 
-    // 5. Delete User
+    // 6. NEW SECRET: Reveal All Superadmins (5 clicks on header)
+    Route::post('/users/reveal-super', [UserController::class, 'revealSuperAdmins'])->name('users.reveal-super');
+    
+    // 7. Delete User
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
     // Events
