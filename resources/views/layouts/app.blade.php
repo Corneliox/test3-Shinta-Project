@@ -48,6 +48,11 @@
                         class="block px-3 py-2 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('admin.contact.*') ? 'bg-gray-200 dark:bg-gray-700' : '' }}">
                             Contact Form
                         </a>
+
+                        <a href="{{ route('admin.activity-logs.index') }}"
+                        class="block px-3 py-2 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('admin.activity-logs.*') ? 'bg-gray-200 dark:bg-gray-700' : '' }}">
+                            Activity Logs
+                        </a>
                     </nav>
                 </aside>
 

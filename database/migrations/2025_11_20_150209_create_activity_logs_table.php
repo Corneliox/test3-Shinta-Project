@@ -13,7 +13,13 @@ return new class extends Migration
     {
         Schema::create('activity_logs', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('user_id')->nullable(); // Who did the action
+            $table->string('action'); // e.g., "User Created", "Event Updated"
+            $table->text('description'); // Details like "Created user named John"
             $table->timestamps();
+
+            // Link to user table
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
         });
     }
 

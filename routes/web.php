@@ -5,6 +5,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ContactController; // <-- Public Contact
 use App\Http\Controllers\SearchController;  // <-- Search
+use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Admin\ContactController as AdminContactController; // <-- Admin Contact
@@ -191,6 +192,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Events
     Route::resource('events', AdminEventController::class);
+
+    // Activity Logs
+    Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
 
     // Contact Submissions
     Route::get('/contact-submissions', [AdminContactController::class, 'index'])->name('contact.index');

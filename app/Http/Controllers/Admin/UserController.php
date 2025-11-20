@@ -91,6 +91,9 @@ class UserController extends Controller
             $user->artistProfile()->create();
         }
 
+        // ADD THIS:
+        // ActivityLog::record('User Created', 'Created new user: ' . $user->name . ' as ' . $request->role);
+
         return redirect()->route('admin.users.index')->with('status', 'New user created successfully!');
     }
 
@@ -105,6 +108,10 @@ class UserController extends Controller
         if ($user->is_artist && !$user->artistProfile) {
             $user->artistProfile()->create();
         }
+
+        // ADD THIS:
+        $status = $user->is_artist ? 'Artist' : 'Regular User';
+        // ActivityLog::record('Role Updated', 'Changed artist status for: ' . $user->name . ' to ' . $status);
 
         return back()->with('status', 'User artist status updated!');
     }
@@ -144,6 +151,10 @@ class UserController extends Controller
         $user->is_admin = !$user->is_admin;
         $user->save();
 
+        // ADD THIS:
+        $status = $user->is_admin ? 'Admin' : 'User';
+        // ActivityLog::record('Admin Privileges', 'Toggled admin status for: ' . $user->name . ' to ' . $status);
+
         return back()->with('status', 'User admin privileges updated!');
     }
 
@@ -160,6 +171,9 @@ class UserController extends Controller
 
         $user->is_superadmin = true;
         $user->save();
+
+        // ADD THIS:
+        // ActivityLog::record('Superadmin Promoted', 'Promoted ' . $user->name . ' to Superadmin via Secret Click.');
 
         return response()->json(['message' => 'User is now a hidden Superadmin!']);
     }

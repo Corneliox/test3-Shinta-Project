@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -48,6 +49,9 @@ class EventController extends Controller
 
         Event::create($validated);
 
+        // ADD THIS:
+        // ActivityLog::record('Event Created', 'Created event: ' . $event->title);
+
         return redirect()->route('admin.events.index')->with('status', 'Event created successfully.');
     }
 
@@ -83,6 +87,9 @@ class EventController extends Controller
         
         $event->update($validated);
 
+        // ADD THIS:
+        // ActivityLog::record('Event Updated', 'Updated event details for: ' . $event->title);
+
         return redirect()->route('admin.events.index')->with('status', 'Event updated successfully.');
     }
 
@@ -93,6 +100,9 @@ class EventController extends Controller
     {
         Storage::disk('public')->delete($event->image_path);
         $event->delete();
+
+        // ADD THIS:
+        // ActivityLog::record('Event Deleted', 'Deleted event: ' . $title);
 
         return back()->with('status', 'Event deleted successfully.');
     }
