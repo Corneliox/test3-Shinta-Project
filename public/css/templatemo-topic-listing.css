@@ -1300,6 +1300,36 @@ CUSTOM ARTWORK HOVER & IMAGE FIX
 ---------------------------------------------
 */
 
+/* ---------------------------------------------
+   FINAL ARTWORK IMAGE WRAP
+--------------------------------------------- */
+
+.custom-block-image-wrap {
+  /* 1. Creates the aspect ratio box */
+  width: 100%;
+  
+  /* 2. FORCE A SQUARE (1:1) RATIO */
+  aspect-ratio: 1 / 1;
+  
+  /* 3. Visual Styling */
+  border-radius: 20px; 
+  margin-bottom: 0; 
+}
+
+.custom-block-image-wrap > img {
+  /* 1. Make image fill the square */
+  width: 100%;
+  height: 100%;
+  
+  /* 2. CROP the image to fit without stretching */
+  object-fit: cover; 
+  
+  /* 3. Center the image */
+  object-position: center;
+  
+  /* 4. Removes tiny gap at bottom */
+  display: block; 
+}
 
 /* 3. The overlay itself */
 .artwork-overlay {

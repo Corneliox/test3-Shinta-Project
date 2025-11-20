@@ -43,7 +43,7 @@
                                         <p class="text-white">{{ Str::limit($pinned_event->description, 100) }}</p>
                                         <a href="{{ route('event.details', $pinned_event) }}" class="btn custom-btn mt-2 mt-lg-3">Learn More</a>
                                     </div>
-                                    <span class="badge bg-finance rounded-pill ms-auto">{{ $pinned_event->start_at->format('M d') }}</span>
+                                    <span class="badge bg-finance ms-auto">{{ $pinned_event->start_at->format('M d') }}</span>
                                 </div>
                                 <div class="section-overlay"></div>
                             </div>
@@ -80,7 +80,7 @@
                                 <a href="{{ route('event.details', $event) }}">
                                     <img src="{{ Storage::url($event->image_path) }}" class="custom-block-image img-fluid" alt="{{ $event->title }}">
                                 </a>
-                                <span class="badge bg-secondary rounded-pill event-card-badge">
+                                <span class="badge bg-secondary event-card-badge">
                                     {{ $event->start_at->format('M d') }}
                                 </span>
 

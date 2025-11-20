@@ -4,6 +4,14 @@
 
     {{-- 1. HERO SECTION WITH ARTWORK IMAGE --}}
     <section class="hero-section" style="background-image: url('{{ Storage::url($artwork->image_path) }}'); background-size: cover; background-position: center; min-height: 450px;">
+        <div class="row mt-3 ms-3 mb-4">
+            <div class="col-12">
+                <a href="{{ route('creative') }}" class="btn custom-btn">
+                    <i class="bi-arrow-left me-2"></i> Back to Creative
+                </a>
+            </div>
+        </div>
+
         <div class="container">
             <div class="row align-items-center" style="min-height: 450px;">
                 <div class="col-12">
