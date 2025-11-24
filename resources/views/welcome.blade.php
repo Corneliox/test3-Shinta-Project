@@ -13,13 +13,23 @@
                 <div class="col-lg-8 col-12 mx-auto">
                     <h1 class="text-white text-center">Woman Painter Community Semarang</h1>
                     <h6 class="text-center">Platform for creatives for Woman in Semarang</h6>
-                    <form method="GET" action="{{ route('search.index') }}" class="custom-form mt-4 pt-2 mb-lg-0 mb-5" role="search">
+                    
+                    <form method="GET" action="{{ route('search.index') }}" class="custom-form mt-4 pt-2 mb-5" role="search">
                         <div class="input-group input-group-lg">
                             <span class="input-group-text bi-search" id="basic-addon1"></span>
                             <input name="keyword" type="search" class="form-control" id="keyword" placeholder="Artist, Event, Creative, Art name..." aria-label="Search">
                             <button type="submit" class="form-control">Search</button>
                         </div>
                     </form>
+
+                    {{-- === THE NEW BUTTON (Centered Below Search) === --}}
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <a href="{{ route('about') }}" class="custom-btn btn">Tentang WOPANCO</a>
+                        </div>
+                    </div>
+                    {{-- ============================================== --}}
+
                 </div>
             </div>
         </div>
@@ -27,7 +37,7 @@
 
     
     {{-- =================================== --}}
-    {{-- 3. PROFIL PELUKIS SECTION         --}}
+    {{-- 3. PROFIL PELUKIS SECTION         --}} 
     {{-- =================================== --}}
     <section class="section-padding" id="section_2">
         <div class="container">

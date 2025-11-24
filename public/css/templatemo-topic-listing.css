@@ -497,7 +497,7 @@ strong {
   position: relative;
   overflow: hidden;
   padding-top: 150px;
-  padding-bottom: 150px;
+  padding-bottom: 75px;
 }
 
 .hero-section .input-group {
@@ -1464,7 +1464,7 @@ CUSTOM EVENT CARD STYLES
   position: absolute;
   top: 15px;
   right: 15px;
-  z-index: 10; /* Make sure it's on top of the image */
+  z-index: 2; /* Make sure it's on top of the image */
 }
 
 /*

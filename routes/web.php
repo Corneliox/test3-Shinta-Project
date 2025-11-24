@@ -94,6 +94,9 @@ Route::get('/search', [SearchController::class, 'index'])->name('search.index');
 // Artwork Details
 Route::get('/artworks/{artwork:slug}', [ArtworkController::class, 'show'])->name('artworks.show');
 
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
 
 // ===================================
 // 3. ARTIST (PELUKIS) PAGE ROUTE

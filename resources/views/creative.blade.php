@@ -1,4 +1,6 @@
-@extends('layouts.main')
+@extends('layouts.main') 
+
+<!-- Ubah halaman menjadi tema tampilan marketplace -->
 
 {{-- Add this to use the 'Str::limit' helper for the description --}}
 @use('Illuminate\Support\Str')
