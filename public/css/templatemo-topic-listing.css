@@ -297,7 +297,7 @@ strong {
 .navbar {
   background: transparent;
   border-bottom: 1px solid rgba(128, 208, 199, 0.35);
-  z-index: 9;
+  z-index: 100;
 }
 
 .navbar-brand,
@@ -1241,7 +1241,7 @@ CUSTOM ARTIST PROFILE SECTION
 
 /* Bring to front on hover */
 .artist-wrapper:hover {
-  z-index: 100;
+  z-index: 10;
   transition: z-index 0s;
 }
 

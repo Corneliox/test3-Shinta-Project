@@ -176,7 +176,7 @@
                 {{-- ============================================================== --}}
                 <div class="col-lg-3 col-12">
                     {{-- Sticky Wrapper --}}
-                    <div class="sticky-top" style="top: 100px; z-index: 900;">
+                    <div class="sticky-top" style="top: 100px; z-index: 8;">
                         
                         <div class="mb-3 text-center">
                             <h4 class="text-danger fw-bold">HOT PROMOS 🔥</h4>
@@ -249,14 +249,14 @@
     .sold-out-overlay {
         position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
         background: rgba(0, 0, 0, 0.8); color: white; padding: 5px 15px;
-        font-weight: bold; border-radius: 4px; z-index: 10;
+        font-weight: bold; border-radius: 4px; z-index: 2;
     }
     .promo-card { border-width: 2px !important; transition: transform 0.3s; }
     .promo-card:hover { transform: translateY(-5px); }
     .promo-badge {
         position: absolute; top: 15px; right: -10px;
         background: #dc3545; color: white; padding: 5px 10px; padding-left: 15px;
-        font-weight: bold; font-size: 0.85rem; z-index: 5;
+        font-weight: bold; font-size: 0.85rem; z-index: 3;
         box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
         clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 10% 50%);
     }

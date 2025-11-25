@@ -32,29 +32,34 @@ class ArtworkController extends Controller
      */
     public function store(Request $request)
     {
-        // 1. Validate the data
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string|max:5000',
-            'category' => 'required|string|in:Lukisan,Craft', // Must be one of these two
-            'image' => 'required|image|max:5120', // 5MB max
+            'category' => 'required|in:Lukisan,Craft',
+            'description' => 'nullable|string',
+            'image' => 'required|image|max:5120',
+            // New Validation rules
+            'price' => 'nullable|numeric|min:0',
+            'stock' => 'nullable|integer|min:0',
+            'promo_price' => 'nullable|numeric|lt:price', // Promo must be less than Price
         ]);
 
-        // 2. Store the image
         $path = $request->file('image')->store('artworks', 'public');
 
-        // 3. Create the artwork and associate it with the logged-in user
-        $request->user()->artworks()->create([
+        Artwork::create([
+            'user_id' => auth()->id(),
             'title' => $validated['title'],
-            'description' => $validated['description'],
             'category' => $validated['category'],
+            'description' => $validated['description'],
             'image_path' => $path,
+            // Save new fields
+            'price' => $validated['price'],
+            'stock' => $validated['stock'] ?? 0,
+            'is_promo' => $request->has('is_promo'), // Checkbox logic
+            'promo_price' => $request->input('promo_price'),
         ]);
 
-        // 4. Redirect back with a success message
-        return back()->with('status', 'artwork-uploaded');
+        return redirect()->route('artworks.index')->with('status', 'Artwork created successfully!');
     }
-
     /**
      * Show the form for editing the specified artwork.
      */
@@ -73,41 +78,40 @@ class ArtworkController extends Controller
     /**
      * Update the specified artwork in storage.
      */
-    public function update(Request $request, Artwork $artwork)
+public function update(Request $request, Artwork $artwork)
     {
-        // AUTHORIZATION: Is the logged-in user the owner?
-        if (auth()->id() !== $artwork->user_id) {
-            abort(403); // Forbidden
-        }
+        if ($artwork->user_id !== auth()->id()) abort(403);
 
-        // 1. Validate the data (image is 'nullable')
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string|max:5000',
-            'category' => 'required|string|in:Lukisan,Craft',
-            'image' => 'nullable|image|max:5120', // 5MB max
+            'category' => 'required|in:Lukisan,Craft',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|max:5120',
+            'price' => 'nullable|numeric|min:0',
+            'stock' => 'nullable|integer|min:0',
+            'promo_price' => 'nullable|numeric|lt:price',
         ]);
 
-        // 2. Update the simple fields
-        $artwork->title = $validated['title'];
-        $artwork->description = $validated['description'];
-        $artwork->category = $validated['category'];
-        
-        // 3. Handle the file upload (if a new one was provided)
         if ($request->hasFile('image')) {
-            // Delete the old image
-            Storage::disk('public')->delete($artwork->image_path);
-
-            // Store the new image
+            // Delete old image if exists
+            // Storage::disk('public')->delete($artwork->image_path); 
             $path = $request->file('image')->store('artworks', 'public');
             $artwork->image_path = $path;
         }
 
-        // 4. Save the artwork (this will also update the slug)
+        $artwork->title = $validated['title'];
+        $artwork->category = $validated['category'];
+        $artwork->description = $validated['description'];
+        
+        // Update Logic
+        $artwork->price = $validated['price'];
+        $artwork->stock = $validated['stock'] ?? 0;
+        $artwork->is_promo = $request->has('is_promo');
+        $artwork->promo_price = $request->input('promo_price');
+
         $artwork->save();
 
-        // 5. Redirect back to the artwork's public page
-        return redirect()->route('artworks.show', $artwork)->with('status', 'artwork-updated');
+        return redirect()->route('artworks.index')->with('status', 'Artwork updated successfully!');
     }
 
     /**

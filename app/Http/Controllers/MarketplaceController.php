@@ -13,7 +13,10 @@ class MarketplaceController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Artwork::query()->with('user.artistProfile');
+        $query = Artwork::query()
+            ->with('user.artistProfile')
+            ->whereNotNull('price') // Only items for sale
+            ->where('price', '>', 0); // Exclude display-only
 
         // 1. Filters
         if ($request->filled('search')) {
