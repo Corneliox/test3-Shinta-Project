@@ -187,7 +187,7 @@
                         <p class="text-white d-flex"><a href="mailto:info@company.com" class="site-footer-link">info@company.com</a></p>
                     </div>
                     <div class="col-lg-3 col-md-4 col-12 mt-4 mt-lg-0 ms-auto">
-                        <p class="copyright-text mt-lg-5 mt-4">Copyright © 2025 Woman Painter Community.<br><br>Design: <a rel="nofollow" href="https://templatemo.com" target="_blank">TemplateMo</a></p>
+                        <p class="copyright-text mt-lg-5 mt-4">Copyright © 2025 Woman Painter Community.<br><br>Design: <a rel="nofollow" href="https://templatemo.com" target="_blank">TemplateMo</a> & <a rel="nofollow" href="https://github.com/Corneliox" target="_blank">Corneliox</a> </p>
                     </div>
                 </div>
             </div>

@@ -9,6 +9,7 @@ use App\Http\Controllers\MarketplaceController; // <--- NEW
 use App\Http\Controllers\ArtistDashboardController; // <--- NEW
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Admin\ContactController as AdminContactController;
 use Illuminate\Support\Facades\Route;
@@ -124,10 +125,20 @@ Route::middleware('auth')->group(function () {
 
 // Admin Dashboard
 Route::get('/dashboard', function () {
+    // 1. Fetch Unseen Contact Submissions
     $unseenSubmissions = ContactSubmission::where('is_seen', false)->latest()->get();
-    return view('dashboard', ['unseenSubmissions' => $unseenSubmissions]);
-})->middleware(['auth', 'verified', 'admin'])->name('dashboard');
+    
+    // 2. Fetch Pending Orders (Items currently reserved)
+    $pendingOrders = Artwork::where('reserved_stock', '>', 0)
+                            ->with('user') // Load Artist info
+                            ->orderBy('reserved_until', 'asc') // Oldest reservation first (urgent)
+                            ->get();
 
+    return view('dashboard', [
+        'unseenSubmissions' => $unseenSubmissions,
+        'pendingOrders' => $pendingOrders // <--- Pass this to the view
+    ]);
+})->middleware(['auth', 'verified', 'admin'])->name('dashboard');
 // 4. ADMIN-ONLY ROUTES
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
@@ -140,6 +151,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/users/reveal-super', [UserController::class, 'revealSuperAdmins'])->name('users.reveal-super');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     
+    // ADMIN ORDER MANAGEMENT
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::post('/orders/{artwork}/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
+    Route::post('/orders/{artwork}/reject', [OrderController::class, 'reject'])->name('orders.reject');
+
     Route::resource('events', AdminEventController::class);
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
     Route::get('/contact-submissions', [AdminContactController::class, 'index'])->name('contact.index');

@@ -51,7 +51,12 @@
 
                         <a href="{{ route('admin.activity-logs.index') }}"
                         class="block px-3 py-2 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('admin.activity-logs.*') ? 'bg-gray-200 dark:bg-gray-700' : '' }}">
-                            Activity Logs
+                        Activity Logs
+                        </a>
+                    
+                        <a href="{{ route('admin.orders.index') }}" 
+                        class="block px-3 py-2 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('admin.orders.*') ? 'bg-gray-200 dark:bg-gray-700' : '' }}">
+                        Pending Orders
                         </a>
                     </nav>
                 </aside>

@@ -81,7 +81,7 @@ class ProfileController extends Controller
 
         // 2. Validate the incoming data
         $validated = $request->validate([
-            'about' => 'nullable|string|max:5000',
+            'about' => 'nullable|string|max:1000',
             'profile_picture' => [
                 'nullable',
                 File::image() // Use advanced file validation

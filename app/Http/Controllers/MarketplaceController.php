@@ -59,18 +59,30 @@ class MarketplaceController extends Controller
 
     public function buy(Artwork $artwork)
     {
-        if ($artwork->isSoldOut()) return back()->with('error', 'Sold out.');
+        if ($artwork->isSoldOut()) {
+            return back()->with('error', 'Sorry, this item is sold out.');
+        }
 
-        // Reserve logic
+        // 1. RESERVATION LOGIC
+        // Decrement actual stock, increment reserved stock
         $artwork->decrement('stock');
         $artwork->increment('reserved_stock');
+        
+        // Set timer for 6 hours from now
         $artwork->update(['reserved_until' => now()->addHours(6)]);
 
-        // WhatsApp logic
-        $phone = $artwork->user->artistProfile->phone ?? '';
-        if (str_starts_with($phone, '0')) $phone = '62' . substr($phone, 1);
+        // 2. WHATSAPP LOGIC (TO ADMIN)
+        // Get Admin number from .env, default to a placeholder if missing
+        $adminPhone = env('ADMIN_WA_NUMBER', '628123456789'); 
         
-        $message = "Hello " . $artwork->user->name . ", I want to buy *" . $artwork->title . "*. Is it available?";
-        return redirect()->away("https://wa.me/{$phone}?text=" . urlencode($message));
+        // Construct Message
+        $message = "Halo Admin WOPANCO, Saya ingin membeli karya: *" . $artwork->title . "* " .
+                   "karya dari artist: *" . $artwork->user->name . "*. " .
+                   "Apakah masih tersedia?";
+                   
+        $url = "https://wa.me/{$adminPhone}?text=" . urlencode($message);
+
+        // 3. Redirect
+        return redirect()->away($url);
     }
 }

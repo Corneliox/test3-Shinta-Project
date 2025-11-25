@@ -71,20 +71,28 @@
                 {{-- =================================== --}}
 
 
-                {{-- Artist Sidebar (This part remains the same) --}}
+                {{-- Artist Sidebar --}}
                 <div class="col-lg-4 col-12 mt-5 mt-lg-0">
-                    <div class="custom-block bg-white shadow-lg p-4">
+                    {{-- FIX: Added style="height: fit-content;" so the white box doesn't stretch --}}
+                    <div class="custom-block bg-white shadow-lg p-4" style="height: fit-content;">
                         <h4 class="mb-3">Artist</h4>
-                        <a href="{{ route('pelukis.show', $artwork->user) }}" class="d-flex align-items-center">
+                        
+                        <a href="{{ route('pelukis.show', $artwork->user) }}" class="d-flex align-items-center text-decoration-none text-dark">
                             @if($artwork->user->artistProfile && $artwork->user->artistProfile->profile_picture)
-                                <img src="{{ Storage::url($artwork->user->artistProfile->profile_picture) }}" class="artist-profile-frame" style="width: 80px; height: 80px;" alt="{{ $artwork->user->name }}">
+                                <img src="{{ Storage::url($artwork->user->artistProfile->profile_picture) }}" 
+                                     class="artist-profile-frame rounded-circle" 
+                                     style="width: 80px; height: 80px; object-fit: cover;" 
+                                     alt="{{ $artwork->user->name }}">
                             @else
-                                <img src="{{ asset('images/topics/undraw_happy_music_g6wc.png') }}" class="artist-profile-frame" style="width: 80px; height: 80px;" alt="Default artist image">
+                                <img src="{{ asset('images/topics/undraw_happy_music_g6wc.png') }}" 
+                                     class="artist-profile-frame rounded-circle" 
+                                     style="width: 80px; height: 80px; object-fit: cover;" 
+                                     alt="Default artist image">
                             @endif
                             
                             <div class="ms-3">
                                 <h5 class="mb-0">{{ $artwork->user->name }}</h5>
-                                <p class="text-muted mb-0">View Profile</p>
+                                <p class="text-muted mb-0 small">View Profile</p>
                             </div>
                         </a>
 
@@ -92,8 +100,8 @@
                         @auth
                             @if(auth()->id() === $artwork->user_id)
                                 <hr class="my-3">
-                                <p class="text-muted">This is your artwork.</p>
-                                <a href="{{ route('artworks.edit', $artwork) }}" class="custom-btn">Edit Artwork</a>
+                                <p class="text-muted small mb-2">This is your artwork.</p>
+                                <a href="{{ route('artworks.edit', $artwork) }}" class="custom-btn w-100 btn-sm text-center">Edit Artwork</a>
                             @endif
                         @endauth
                     </div>
