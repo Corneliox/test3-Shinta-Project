@@ -17,15 +17,51 @@ class Artwork extends Model
      *
      * @var array<int, string>
      */
+    // protected $fillable = [
+    //     'title',
+    //     'slug', // <-- Make sure 'slug' is in fillable
+    //     'description',
+    //     'category',
+    //     'image_path',
+    //     'user_id',
+    // ];
     protected $fillable = [
-        'title',
-        'slug', // <-- Make sure 'slug' is in fillable
+        'user_id', 
+        'title', 
+        'slug',
         'description',
         'category',
         'image_path',
-        'user_id',
+        'price',
+        'stock',
+        'reserved_stock',
+        'reserved_until',
+        'is_promo',
+        'promo_price'
     ];
 
+    protected $casts = [
+        'reserved_until' => 'datetime',
+        'is_promo' => 'boolean',
+    ];
+
+    // Helper: Check if item is effectively sold out
+    public function isSoldOut()
+    {
+        // If no price, stock doesn't matter
+        if (!$this->price) return false; 
+        return $this->stock <= 0;
+    }
+
+    // Helper: Calculate Discount %
+    public function getDiscountPercentAttribute()
+    {
+        if ($this->price > 0 && $this->promo_price > 0) {
+            return round((($this->price - $this->promo_price) / $this->price) * 100);
+        }
+        return 0;
+    }
+    
     /**
      * The "booted" method of the model.
      * This automatically creates the slug when you save.

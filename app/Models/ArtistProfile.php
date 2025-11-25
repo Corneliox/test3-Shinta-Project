@@ -19,6 +19,7 @@ class ArtistProfile extends Model
         'user_id',
         'about',
         'profile_picture',
+        'phone',
     ];
 
     /**
