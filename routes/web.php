@@ -40,6 +40,7 @@ Route::get('/', function () {
     // Load Artists
     $artists = User::where('is_artist', true)
         ->with('artistProfile')
+        ->orderBy('name', 'asc') // <-- SORTING ALPHABETICALLY BY NAME
         ->get();
 
     // Load Events

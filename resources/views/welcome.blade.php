@@ -50,18 +50,37 @@
             <div class="row">
                 <div class="col-12">
                     <div class="horizontal-scroll-wrapper">
-                        <div class="d-flex flex-nowrap">
+                        <div class="d-flex flex-nowrap" style="padding: 50px 20px; padding-right: 350px;"> 
                             
                             @foreach ($artists as $artist)
                             <div class="artist-scroll-item">
-                                <a href="{{ route('pelukis.show', $artist) }}">
-                                    @if($artist->artistProfile && $artist->artistProfile->profile_picture)
-                                        <img src="{{ Storage::url($artist->artistProfile->profile_picture) }}" class="artist-profile-frame" alt="{{ $artist->name }}">
-                                    @else
-                                        <img src="{{ asset('images/topics/undraw_happy_music_g6wc.png') }}" class="artist-profile-frame" alt="Default artist image">
-                                    @endif
-                                    <h5 class="mt-3 mb-0">{{ $artist->name }}</h5>
-                                    <p class="text-muted"><small>Artist</small></p>
+                                <a href="{{ route('pelukis.show', $artist) }}" class="text-decoration-none">
+                                    
+                                    {{-- THE WRAPPER --}}
+                                    <div class="artist-wrapper">
+                                        
+                                        {{-- 1. THE IMAGE (TOP LAYER) --}}
+                                        @if($artist->artistProfile && $artist->artistProfile->profile_picture)
+                                            <img src="{{ Storage::url($artist->artistProfile->profile_picture) }}" class="artist-profile-frame" alt="{{ $artist->name }}">
+                                        @else
+                                            <img src="{{ asset('images/topics/undraw_happy_music_g6wc.png') }}" class="artist-profile-frame" alt="Default">
+                                        @endif
+
+                                        {{-- 2. THE DEFAULT NAME (VISIBLE BEFORE HOVER) --}}
+                                        <h5 class="artist-default-name">{{ $artist->name }}</h5>
+
+                                        {{-- 3. THE HIDDEN INFO CARD (EXPANDS ON HOVER) --}}
+                                        <div class="artist-info-card">
+                                            <div class="artist-info-content">
+                                                <h6 class="text-white mb-1">{{ $artist->name }}</h6>
+                                                <p class="text-white-50 mb-0 small" style="font-size: 0.85rem; line-height: 1.3;">
+                                                    {{ Str::limit($artist->artistProfile->about ?? 'Member of WOPANCO', 60) }}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
                                 </a>
                             </div>
                             @endforeach
@@ -70,7 +89,6 @@
                     </div>
                 </div>
             </div>
-        </div>
     </section>
 
     {{-- =================================== --}}
