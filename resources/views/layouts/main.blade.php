@@ -166,29 +166,64 @@
         <footer class="site-footer section-padding">
             <div class="container">
                 <div class="row">
+
+                    {{-- 1. LEFT COLUMN: BRAND + HIBAH TEXT --}}
                     <div class="col-lg-3 col-12 mb-4 pb-2">
                         <a class="navbar-brand mb-2" href="/">
                             <img src="{{ asset('images/wopanco2.png') }}" style="max-width:35px">
                             <span>WOPANCO</span>
                         </a>
+                        
+                        {{-- HIBAH TEXT --}}
+                        <p class="mt-4 mb-0" style="font-size: 0.8rem; opacity: 0.85; line-height: 1.5;">
+                            Hibah Direktorat Jendral Pendidikan Tinggi, Sains dan Teknologi - Program Inovasi Seni Nusantara (PISN)
+                        </p>
                     </div>
+
+                    {{-- 2. SPONSORS / LABELS (UPDATED LAYOUT) --}}
                     <div class="col-lg-3 col-md-4 col-6">
-                        <h6 class="site-footer-title mb-3">Resources</h6>
-                        <ul class="site-footer-links">
-                            <li class="site-footer-link-item"><a href="/" class="site-footer-link">Home</a></li>
-                            <li class="site-footer-link-item"><a href="{{ route('event') }}" class="site-footer-link">Event</a></li>
-                            <li class="site-footer-link-item"><a href="{{ route('marketplace.index') }}" class="site-footer-link">Marketplace</a></li>
-                            <li class="site-footer-link-item"><a href="{{ route('contact') }}" class="site-footer-link">Contact</a></li>
-                        </ul>
+                        <h6 class="site-footer-title mb-3">Supported By</h6>
+                        
+                        {{-- Row 2: Diktisaintek & BIMA (Side by Side / Split) --}}
+                        <div class="d-flex gap-2">
+                            {{-- Diktisaintek --}}
+                            <div class="bg-white rounded p-2 d-flex align-items-center justify-content-center" style="width: fit-content;">
+                                <img src="{{ asset('Sponsors/logo diktisaintek.png') }}" 
+                                class="img-fluid" 
+                                alt="Diktisaintek" 
+                                style="max-height: 35px; width: auto;">
+                            </div>
+                            
+                            {{-- BIMA Trans --}}
+                            <div class="bg-white rounded p-2 d-flex align-items-center justify-content-center" style="width: fit-content;">
+                                <img src="{{ asset('Sponsors/logo BIMA trans.png') }}" 
+                                class="img-fluid" 
+                                alt="BIMA Trans" 
+                                style="max-height: 35px; width: auto;">
+                            </div>
+                        </div>
+
+                        {{-- Row 1: SCU (Full Block) --}}
+                        <div class="bg-white rounded p-2 mb-2 d-inline-block" style="width: fit-content;">
+                            <img src="{{ asset('Sponsors/logo SCU.png') }}" 
+                                 class="img-fluid" 
+                                 alt="SCU" 
+                                 style="max-height: 40px; width: auto;">
+                        </div>
                     </div>
+                    
+                    {{-- 3. INFO LINKS --}}
                     <div class="col-lg-3 col-md-4 col-6 mb-4 mb-lg-0">
                         <h6 class="site-footer-title mb-3">Information</h6>
                         <p class="text-white d-flex mb-1"><a href="tel: 305-240-9671" class="site-footer-link">305-240-9671</a></p>
                         <p class="text-white d-flex"><a href="mailto:info@company.com" class="site-footer-link">info@company.com</a></p>
                     </div>
+
+                    {{-- 4. COPYRIGHT --}}
                     <div class="col-lg-3 col-md-4 col-12 mt-4 mt-lg-0 ms-auto">
-                        <p class="copyright-text mt-lg-5 mt-4">Copyright © 2025 Woman Painter Community.<br><br>Design: <a rel="nofollow" href="https://templatemo.com" target="_blank">TemplateMo</a> & <a rel="nofollow" href="https://github.com/Corneliox" target="_blank">Corneliox</a> </p>
+                        <p class="copyright-text mt-lg-5 mt-4">Copyright © 2025 Woman Painter Community.<br><br>Design: <a rel="nofollow" href="https://templatemo.com" target="_blank">TemplateMo</a> & <a rel="nofollow" href="https://github.com/Corneliox" target="_blank">Cornelio</a></p>
                     </div>
+
                 </div>
             </div>
         </footer>
