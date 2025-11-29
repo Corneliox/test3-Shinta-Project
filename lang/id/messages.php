@@ -87,5 +87,14 @@ Kerjasama dengan Unika Soegijopranoto dalam Project Hibah Dikti, Sains dan Tekno
     'org_secretary' => 'Sekretaris',
     'org_treasurer' => 'Bendahara',
     'org_member' => 'Anggota',
+
+    // Contact Info
+    'address_title' => 'Sekretariat Wopanco',
+    'address_line_1' => 'Puri Eksekutif I Blok C No. 1',
+    'address_line_2' => 'Puri Anjasmoro, Semarang',
+    'contact_email' => 'wopanco.indonesia@gmail.com',
+    'contact_ig' => '@wopanco.indonesia',
+    'contact_admin' => '089-668-411-463',
+    'contact_admin_label' => 'Admin',
     
 ];

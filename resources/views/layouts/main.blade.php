@@ -215,8 +215,31 @@
                     {{-- 3. INFO LINKS --}}
                     <div class="col-lg-3 col-md-4 col-6 mb-4 mb-lg-0">
                         <h6 class="site-footer-title mb-3">Information</h6>
-                        <p class="text-white d-flex mb-1"><a href="tel: 305-240-9671" class="site-footer-link">305-240-9671</a></p>
-                        <p class="text-white d-flex"><a href="mailto:info@company.com" class="site-footer-link">info@company.com</a></p>
+                        
+                        {{-- Admin Phone --}}
+                        <p class="text-white d-flex mb-2 align-items-start">
+                            <i class="bi-whatsapp me-2" style="color: #9ca3af;"></i>
+                            <a href="https://wa.me/6289668411463" class="site-footer-link">
+                                {{ __('messages.contact_admin') }}
+                            </a>
+                        </p>
+
+                        {{-- Email --}}
+                        <p class="text-white d-flex mb-2 align-items-start">
+                            <i class="bi-envelope me-2 mt-1" style="color: #9ca3af;"></i>
+                            {{-- Added 'text-break' class to force wrapping on long emails --}}
+                            <a href="mailto:{{ __('messages.contact_email') }}" class="site-footer-link text-break">
+                                {{ __('messages.contact_email') }}
+                            </a>
+                        </p>
+
+                        {{-- Instagram --}}
+                        <p class="text-white d-flex mb-2 align-items-start">
+                            <i class="bi-instagram me-2" style="color: #9ca3af;"></i>
+                            <a href="https://instagram.com/wopanco.indonesia" target="_blank" class="site-footer-link">
+                                {{ __('messages.contact_ig') }}
+                            </a>
+                        </p>
                     </div>
 
                     {{-- 4. COPYRIGHT --}}

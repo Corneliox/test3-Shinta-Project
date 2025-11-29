@@ -88,4 +88,13 @@ Collaboration with UNIKA Soegijopranoto for Higher Education Grant Project (PISN
     'org_treasurer' => 'Treasurer',
     'org_member' => 'Members',
 
+    // Contact Info
+    'address_title' => 'Wopanco Secretariat',
+    'address_line_1' => 'Puri Eksekutif I Blok C No. 1',
+    'address_line_2' => 'Puri Anjasmoro, Semarang',
+    'contact_email' => 'wopanco.indonesia@gmail.com',
+    'contact_ig' => '@wopanco.indonesia',
+    'contact_admin' => '089-668-411-463',
+    'contact_admin_label' => 'Admin',
+
 ];
