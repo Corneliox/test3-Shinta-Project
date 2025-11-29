@@ -1,40 +1,57 @@
 <x-guest-layout>
+    {{-- FIX 1: Load the Icons --}}
+    <link href="{{ asset('css/bootstrap-icons.css') }}" rel="stylesheet">
+
     <form method="POST" action="{{ route('register') }}">
         @csrf
 
-        <!-- Name -->
         <div>
             <x-input-label for="name" :value="__('Name')" />
             <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
             <x-input-error :messages="$errors->get('name')" class="mt-2" />
         </div>
 
-        <!-- Email Address -->
         <div class="mt-4">
             <x-input-label for="email" :value="__('Email')" />
             <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
-        <!-- Password -->
         <div class="mt-4">
             <x-input-label for="password" :value="__('Password')" />
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
+            <div class="relative">
+                <x-text-input id="password" class="block mt-1 w-full pr-14"
+                                type="password"
+                                name="password"
+                                required autocomplete="new-password" />
+                
+                {{-- Updated Icon Color --}}
+                <span class="absolute inset-y-0 right-0 flex items-center justify-center cursor-pointer text-gray-400 hover:text-gray-600"
+                      style="width: 50px;"
+                      onclick="togglePassword('password', 'reg-eye-1')">
+                    <i id="reg-eye-1" class="bi bi-eye-slash text-xl"></i>
+                </span>
+            </div>
 
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
-        <!-- Confirm Password -->
         <div class="mt-4">
             <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
 
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
+            <div class="relative">
+                <x-text-input id="password_confirmation" class="block mt-1 w-full pr-14"
+                                type="password"
+                                name="password_confirmation" required autocomplete="new-password" />
+
+                {{-- Updated Icon Color --}}
+                <span class="absolute inset-y-0 right-0 flex items-center justify-center cursor-pointer text-gray-400 hover:text-gray-600"
+                      style="width: 50px;"
+                      onclick="togglePassword('password_confirmation', 'reg-eye-2')">
+                    <i id="reg-eye-2" class="bi bi-eye-slash text-xl"></i>
+                </span>
+            </div>
 
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
@@ -49,4 +66,21 @@
             </x-primary-button>
         </div>
     </form>
+
+    <script>
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            } else {
+                input.type = "password";
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            }
+        }
+    </script>
 </x-guest-layout>
