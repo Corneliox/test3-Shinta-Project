@@ -27,6 +27,16 @@
                         <span>WOPANCO</span>
                     </a>
 
+                    {{-- ==================================================== --}}
+                    {{-- 2. NEW: MOBILE SHOPPING CART ICON (TROLLEY)          --}}
+                    {{-- ==================================================== --}}
+                    {{-- Visible only on mobile (d-lg-none) --}}
+                    {{-- Pushed to the right (ms-auto) next to the toggler --}}
+                    <a href="{{ route('marketplace.index') }}" class="custom-btn d-lg-none ms-auto me-3 position-relative">
+                        <i class="bi-cart-fill me-2"></i> 
+                    </a>
+                    {{-- ==================================================== --}}
+
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
                     </button>
