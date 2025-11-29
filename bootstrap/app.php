@@ -25,7 +25,10 @@ return Application::configure(basePath: dirname(__DIR__))
                         Request::HEADER_X_FORWARDED_PROTO | 
                         Request::HEADER_X_FORWARDED_AWS_ELB
         );
-        
+    
+        $middleware->web(append: [
+            \App\Http\Middleware\Localization::class,
+        ]);
         
         // Add all of these aliases
         $middleware->alias([

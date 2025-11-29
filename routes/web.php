@@ -13,6 +13,8 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Admin\ContactController as AdminContactController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\App;
 use Illuminate\Http\Request;
 use App\Models\Artwork;
 use App\Models\Event;
@@ -139,6 +141,7 @@ Route::get('/dashboard', function () {
         'pendingOrders' => $pendingOrders // <--- Pass this to the view
     ]);
 })->middleware(['auth', 'verified', 'admin'])->name('dashboard');
+
 // 4. ADMIN-ONLY ROUTES
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
@@ -160,6 +163,24 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
     Route::get('/contact-submissions', [AdminContactController::class, 'index'])->name('contact.index');
     Route::patch('/contact-submissions/{submission}', [AdminContactController::class, 'update'])->name('contact.update');
+});
+
+// Route untuk ganti bahasa
+Route::get('lang/{locale}', function ($locale) {
+    if (in_array($locale, ['en', 'id'])) {
+        Session::put('locale', $locale);
+    }
+    return redirect()->back();
+})->name('lang.switch');
+
+Route::get('/debug-lang', function () {
+    return [
+        '1. Current Locale' => app()->getLocale(),
+        '2. Laravel expects lang files here' => app()->langPath(),
+        '3. Does ID file exist?' => file_exists(app()->langPath().'/id/messages.php') ? 'YES' : 'NO',
+        '4. Does EN file exist?' => file_exists(app()->langPath().'/en/messages.php') ? 'YES' : 'NO',
+        '5. Test Output' => __('messages.about_title'),
+    ];
 });
 
 require __DIR__.'/auth.php';

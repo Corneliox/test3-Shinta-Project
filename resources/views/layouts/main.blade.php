@@ -176,7 +176,7 @@
                         
                         {{-- HIBAH TEXT --}}
                         <p class="mt-4 mb-0" style="font-size: 0.8rem; opacity: 0.85; line-height: 1.5;">
-                            Hibah Direktorat Jendral Pendidikan Tinggi, Sains dan Teknologi - Program Inovasi Seni Nusantara (PISN)
+                            {{ __('messages.footer_grant') }}
                         </p>
                     </div>
 
@@ -221,7 +221,21 @@
 
                     {{-- 4. COPYRIGHT --}}
                     <div class="col-lg-3 col-md-4 col-12 mt-4 mt-lg-0 ms-auto">
-                        <p class="copyright-text mt-lg-5 mt-4">Copyright © 2025 Woman Painter Community.<br><br>Design: <a rel="nofollow" href="https://templatemo.com" target="_blank">TemplateMo</a> & <a rel="nofollow" href="https://github.com/Corneliox" target="_blank">Cornelio</a></p>
+                        
+                        {{-- LANGUAGE SWITCHER --}}
+                        <div class="mb-4">
+                            <h6 class="text-white mb-2" style="font-size: 0.9rem;">Language / Bahasa</h6>
+                            <div class="btn-group" role="group">
+                                <a href="{{ route('lang.switch', 'id') }}" class="btn btn-sm {{ app()->getLocale() == 'id' ? 'btn-light' : 'btn-outline-light' }}">
+                                    <img src="https://flagcdn.com/16x12/id.png" alt="ID" class="me-1"> ID
+                                </a>
+                                <a href="{{ route('lang.switch', 'en') }}" class="btn btn-sm {{ app()->getLocale() == 'en' ? 'btn-light' : 'btn-outline-light' }}">
+                                    <img src="https://flagcdn.com/16x12/gb.png" alt="EN" class="me-1"> EN
+                                </a>
+                            </div>
+                        </div>
+
+                        <p class="copyright-text">Copyright © 2025 Woman Painter Community.<br><br>Design: <a rel="nofollow" href="https://templatemo.com" target="_blank">TemplateMo</a> & <a rel="nofollow" href="https://github.com/Corneliox" target="_blank">Corneliox</a></p>
                     </div>
 
                 </div>
