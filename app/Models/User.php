@@ -26,6 +26,8 @@ class User extends Authenticatable
         'is_artist',      // Role
         'is_admin',       // Role
         'is_superadmin',  // Role (God Mode)
+        'phone',          // General Phone
+        'is_shop_contact' // The Gate Flag
     ];
 
     /**

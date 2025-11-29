@@ -30,7 +30,16 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
+        // 1. Manually validate 'phone' in addition to the standard ProfileUpdateRequest rules
+        // We do this here to ensure it gets saved without needing to edit the Request file.
+        $validatedPhone = $request->validate([
+            'phone' => ['nullable', 'string', 'max:20'],
+        ]);
+
         $request->user()->fill($request->validated());
+
+        // 2. Assign the phone number
+        $request->user()->phone = $validatedPhone['phone'];
 
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
@@ -38,14 +47,10 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        // return Redirect::route('profile.edit')->with('status', 'profile-updated');
-        // return back()->with('status', 'profile-updated');  
-        // return back()->with('status', 'profile-updated')->withFragment('update-profile-information');      
         return redirect()
             ->route('profile.user.show', [], 303)
             ->with('status', 'profile-updated')
             ->withFragment('update-profile-information');
-
     }
 
     /**
@@ -119,5 +124,32 @@ class ProfileController extends Controller
             ->with('status', 'artist-profile-updated')
             ->withFragment('artist-profile-form');
 
+    }
+
+    /**
+     * Set the current user as the "One Gate" Shop Contact (Gatekeeper).
+     */
+    public function setAsGate(Request $request)
+    {
+        $user = $request->user();
+
+        // 1. Security Check: Only Admins or Superadmins can be the gate
+        if (!$user->is_admin && !$user->is_superadmin) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // 2. Validation: User MUST have a phone number first
+        if (empty($user->phone)) {
+            return back()->withErrors(['phone' => 'Please save your Phone Number in the form above first!']);
+        }
+
+        // 3. Reset everyone else's status to false (Only one gatekeeper allowed)
+        \App\Models\User::query()->update(['is_shop_contact' => false]);
+
+        // 4. Set current user as the Gatekeeper
+        $user->is_shop_contact = true;
+        $user->save();
+
+        return back()->with('status', 'You are now the Main Shop Contact (Gatekeeper)! All orders will be directed to your WhatsApp.');
     }
 }

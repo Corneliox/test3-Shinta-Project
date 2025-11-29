@@ -63,26 +63,27 @@ class MarketplaceController extends Controller
             return back()->with('error', 'Sorry, this item is sold out.');
         }
 
-        // 1. RESERVATION LOGIC
-        // Decrement actual stock, increment reserved stock
+        // 1. Reserve Stock
         $artwork->decrement('stock');
         $artwork->increment('reserved_stock');
-        
-        // Set timer for 6 hours from now
         $artwork->update(['reserved_until' => now()->addHours(6)]);
 
-        // 2. WHATSAPP LOGIC (TO ADMIN)
-        // Get Admin number from .env, default to a placeholder if missing
-        $adminPhone = env('ADMIN_WA_NUMBER', '628123456789'); 
+        // 2. FIND THE GATEKEEPER ADMIN
+        $gatekeeper = \App\Models\User::where('is_shop_contact', true)->first();
         
-        // Construct Message
+        // Fallback: If no admin is set as gate, use .env or a default
+        $adminPhone = $gatekeeper ? $gatekeeper->phone : env('ADMIN_WA_NUMBER', '628123456789');
+
+        // Clean phone number (ensure no + or spaces)
+        $adminPhone = preg_replace('/[^0-9]/', '', $adminPhone);
+        
+        // 3. Construct Message
         $message = "Halo Admin WOPANCO, Saya ingin membeli karya: *" . $artwork->title . "* " .
                    "karya dari artist: *" . $artwork->user->name . "*. " .
                    "Apakah masih tersedia?";
                    
         $url = "https://wa.me/{$adminPhone}?text=" . urlencode($message);
 
-        // 3. Redirect
         return redirect()->away($url);
     }
 }

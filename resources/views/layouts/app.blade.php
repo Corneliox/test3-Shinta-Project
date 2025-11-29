@@ -5,79 +5,130 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ config('app.name', 'WOPANCO Admin') }}</title>
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
+    <body class="font-sans antialiased bg-gray-100 dark:bg-gray-900" x-data="{ sidebarOpen: false }">
         
-        {{-- 1. The root div is now a vertical flex container that fills the screen --}}
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col">
-            
-            {{-- 2. The navigation is the first item --}}
-            @include('layouts.navigation')
+        {{-- ================================================= --}}
+        {{-- 1. FIXED TOP NAVIGATION BAR                       --}}
+        {{-- ================================================= --}}
+        {{-- ================= HEADER (Fixed Top) ================= --}}
+            <nav class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 h-16 flex items-center px-4 justify-between fixed top-0 w-full z-50">
+                
+                {{-- Left: Hamburger & Logo --}}
+                <div class="flex items-center">
+                    {{-- Mobile Hamburger --}}
+                    <button @click="sidebarOpen = !sidebarOpen" class="text-gray-500 hover:text-gray-700 focus:outline-none lg:hidden mr-4">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
 
-            {{-- 3. This horizontal flex container will grow to fill the *rest* of the screen --}}
-            <div class="flex flex-1">
+                    {{-- Logo --}}
+                    <a href="{{ route('dashboard') }}" class="flex items-center">
+                        <img src="{{ asset('images/wopanco2.png') }}" class="h-8 w-auto mr-2" />
+                        <span class="font-bold text-xl text-gray-800 dark:text-gray-200 hidden md:block">Admin Panel</span>
+                    </a>
+                </div>
 
-                {{-- 4. The sidebar is now a vertical flex container itself --}}
-                <aside class="w-64 bg-white dark:bg-gray-800 border-r dark:border-gray-700 hidden md:block flex flex-col">
+                {{-- Right: User Dropdown --}}
+                <div class="flex items-center relative" x-data="{ userMenuOpen: false }">
                     
-                    {{-- This <nav> block will be pushed to the bottom --}}
-                    <nav class="p-4 space-y-2 mt-auto">
-                        <a href="{{ route('dashboard') }}"
-                           class="block px-3 py-2 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('dashboard') ? 'bg-gray-200 dark:bg-gray-700' : '' }}">
-                            Dashboard
-                        </a>
-                    
-                        <a href="{{ route('admin.users.index') }}"
-                           class="block px-3 py-2 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('admin.users.*') ? 'bg-gray-200 dark:bg-gray-700' : '' }}">
-                            User Management
-                        </a>
-                    
-                        <a href="{{ route('admin.events.index') }}"
-                           class="block px-3 py-2 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('admin.events.*') ? 'bg-gray-200 dark:bg-gray-700' : '' }}">
-                            Events Manager
-                        </a>
+                    {{-- 1. The Trigger Button (Name + Icon) --}}
+                    <button @click="userMenuOpen = !userMenuOpen" class="flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-300 focus:outline-none transition duration-150 ease-in-out">
+                        <div>{{ Auth::user()->name }}</div>
 
-                        {{-- ADD THIS NEW LINK --}}
-                        <a href="{{ route('admin.contact.index') }}"
-                        class="block px-3 py-2 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('admin.contact.*') ? 'bg-gray-200 dark:bg-gray-700' : '' }}">
-                            Contact Form
-                        </a>
-
-                        <a href="{{ route('admin.activity-logs.index') }}"
-                        class="block px-3 py-2 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('admin.activity-logs.*') ? 'bg-gray-200 dark:bg-gray-700' : '' }}">
-                        Activity Logs
-                        </a>
-                    
-                        <a href="{{ route('admin.orders.index') }}" 
-                        class="block px-3 py-2 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 {{ request()->routeIs('admin.orders.*') ? 'bg-gray-200 dark:bg-gray-700' : '' }}">
-                        Pending Orders
-                        </a>
-                    </nav>
-                </aside>
-
-                {{-- 5. The main content area will fill the remaining horizontal space --}}
-                <main class="flex-1 overflow-y-auto"> {{-- Added overflow-y-auto for scrolling --}}
-                    @if (isset($header))
-                        <header class="bg-white dark:bg-gray-800 shadow">
-                            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                                {{ $header }}
-                            </div>
-                        </header>
-                    @endif
-
-                    <div class="py-12">
-                        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                            {{ $slot }}
+                        <div class="ms-1">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
                         </div>
+                    </button>
+
+                    {{-- 2. The Dropdown Menu --}}
+                    <div x-show="userMenuOpen" 
+                         @click.away="userMenuOpen = false"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="transform opacity-0 scale-95"
+                         x-transition:enter-end="transform opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-75"
+                         x-transition:leave-start="transform opacity-100 scale-100"
+                         x-transition:leave-end="transform opacity-0 scale-95"
+                         class="absolute right-0 top-10 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 focus:outline-none"
+                         style="display: none;">
+                        
+                        {{-- PROFILE LINK --}}
+                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600">
+                            {{ __('Profile') }}
+                        </a>
+
+                        <div class="border-t border-gray-100 dark:border-gray-600"></div>
+
+                        {{-- LOGOUT --}}
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <a href="{{ route('logout') }}"
+                               onclick="event.preventDefault(); this.closest('form').submit();"
+                               class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600">
+                                {{ __('Log Out') }}
+                            </a>
+                        </form>
                     </div>
-                </main>
-            </div>
+
+                </div>
+            </nav>
+
+        {{-- ================================================= --}}
+        {{-- 2. FIXED SIDEBAR NAVIGATION                       --}}
+        {{-- ================================================= --}}
+        <aside id="logo-sidebar" 
+               class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
+               :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+               aria-label="Sidebar">
+            
+            {{-- Include the cleaned-up Sidebar Component --}}
+            @include('layouts.admin-sidebar')
+        </aside>
+
+        {{-- ================================================= --}}
+        {{-- 3. MOBILE OVERLAY (Click to close sidebar)        --}}
+        {{-- ================================================= --}}
+        <div x-show="sidebarOpen" 
+             @click="sidebarOpen = false"
+             x-transition:enter="transition-opacity ease-linear duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-50"
+             x-transition:leave="transition-opacity ease-linear duration-300"
+             x-transition:leave-start="opacity-50"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 bg-gray-900 bg-opacity-50 z-30 sm:hidden"
+             style="display: none;"> {{-- Added style="display: none;" to prevent flash on load --}}
         </div>
+
+        {{-- ================================================= --}}
+        {{-- 4. MAIN CONTENT AREA                              --}}
+        {{-- ================================================= --}}
+        {{-- 'mt-14' pushes content down below the fixed header --}}
+        {{-- 'sm:ml-64' pushes content right, next to the fixed sidebar on desktop --}}
+        <div class="p-4 sm:ml-64 mt-14">
+            
+            @if (isset($header))
+                <header class="bg-white dark:bg-gray-800 shadow mb-4 rounded-lg">
+                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                        {{ $header }}
+                    </div>
+                </header>
+            @endif
+
+            <main>
+                {{ $slot }}
+            </main>
+        </div>
+
     </body>
 </html>
