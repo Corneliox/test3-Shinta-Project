@@ -3,17 +3,10 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL; // <--- ADD THIS IMPORT
 
 class AppServiceProvider extends ServiceProvider
 {
-
-    /**
-     * The path to your application's "home" route.
-     *
-     * @var string
-     */
-    public const HOME = '/'; // <-- Change this from '/dashboard'
-    
     /**
      * Register any application services.
      */
@@ -27,6 +20,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Force HTTPS if using Ngrok (or production)
+        if($this->app->environment('production') || str_contains(request()->getHost(), 'ngrok')) {
+            URL::forceScheme('https');
+        }
     }
 }
