@@ -1526,7 +1526,7 @@ CUSTOM EVENT SECTION STYLES
   position: sticky;
   top: 100px;       /* adjust this so it doesn’t collide with your navbar */
   max-height: 500px;
-  overflow: auto; /* or auto if you still want inner scrolling */
+  /* overflow: auto; or auto if you still want inner scrolling */
   z-index: 3;
 }
 
