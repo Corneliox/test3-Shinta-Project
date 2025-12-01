@@ -23,7 +23,7 @@
             <nav class="navbar navbar-expand-lg">
                 <div class="container">
                     <a class="navbar-brand" href="/">
-                        <img src="{{ asset('images/wopanco2.png') }}" style="max-width:35px">
+                        <img src="{{ asset('images/wopanco2.png') }}" style="max-width:50px">
                         <span>WOPANCO</span>
                     </a>
 
@@ -44,23 +44,23 @@
                     <div class="collapse navbar-collapse" id="navbarNav">
                         <ul class="navbar-nav ms-lg-5 me-lg-auto">
                             <li class="nav-item">
-                                <a class="nav-link click-scroll" href="{{ route('home') }}/#section_1">Home</a>
+                                <a class="nav-link text-center click-scroll" href="{{ route('home') }}/#section_1">Home</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link click-scroll" href="{{ route('home') }}/#section_2">Profil Pelukis</a>
+                                <a class="nav-link text-center click-scroll" href="{{ route('home') }}/#section_2">Profil Pelukis</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link click-scroll" href="{{ route('home') }}/#section_3">Event</a>
+                                <a class="nav-link text-center click-scroll" href="{{ route('home') }}/#section_3">Event</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link click-scroll" href="{{ route('creative') }}">Creative</a>
+                                <a class="nav-link text-center click-scroll" href="{{ route('creative') }}">Creative</a>
                             </li>
                             <!-- {{-- NEW MARKETPLACE LINK --}}
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('marketplace.index') }}">Marketplace</a>
                             </li> -->
                             <li class="nav-item">
-                                <a class="nav-link click-scroll" href="{{ route('home') }}/#section_5">Contact</a>
+                                <a class="nav-link text-center click-scroll" href="{{ route('home') }}/#section_5">Contact</a>
                             </li>
 
                             {{-- =============================================== --}}
@@ -204,13 +204,13 @@
                                 style="max-height: 35px; width: auto;">
                             </div>
                             
-                            {{-- BIMA Trans --}}
+                            <!-- {{-- BIMA Trans --}}
                             <div class="bg-white rounded p-2 d-flex align-items-center justify-content-center" style="width: fit-content;">
                                 <img src="{{ asset('Sponsors/logo BIMA trans.png') }}" 
                                 class="img-fluid" 
                                 alt="BIMA Trans" 
                                 style="max-height: 35px; width: auto;">
-                            </div>
+                            </div> -->
                         </div>
 
                         {{-- Row 1: SCU (Full Block) --}}

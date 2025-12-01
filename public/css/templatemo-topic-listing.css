@@ -11,16 +11,35 @@ https://templatemo.com/tm-590-topic-listing
 -----------------------------------------*/
 :root {
   --white-color:                  #ffffff;
-  --primary-color:                #13547a;
-  --secondary-color:              #80d0c7;
-  --section-bg-color:             #f0f8ff;
-  --custom-btn-bg-color:          #80d0c7;
-  --custom-btn-bg-hover-color:    #13547a;
-  --dark-color:                   #000000;
-  --p-color:                      #717275;
-  --border-color:                 #7fffd4;
-  --link-hover-color:             #13547a;
+  
+  /* 1. Header / Footer / Strong Text (Deep Maroon) */
+  --primary-color:                #81131C; 
+  
+  /* 2. Secondary Accents / Icons (Dark Teal) */
+  --secondary-color:              #4B726D; 
+  
+  /* 3. Soft Backgrounds (Pale Mint) */
+  --section-bg-color:             #D7F1ED; 
+  
+  /* 4. Primary Action / Buttons (Bright Red) */
+  --custom-btn-bg-color:          #C22630; 
+  
+  /* 5. Button Hover (Deep Maroon) */
+  --custom-btn-bg-hover-color:    #81131C; 
+  
+  /* 6. Dark Text (Using Maroon instead of Black for softer contrast) */
+  --dark-color:                   #81131C; 
+  
+  /* 7. Body Text (Keep Gray for readability) */
+  --p-color:                      #717275; 
+  
+  /* 8. Borders / Highlights (Bright Aqua) */
+  --border-color:                 #7FD1C5; 
+  
+  /* 9. Link Hover (Bright Red) */
+  --link-hover-color:             #C22630;
 
+  /* --- FONTS & SIZES (Keep Original) --- */
   --body-font-family:             'Open Sans', sans-serif;
   --title-font-family:            'Montserrat', sans-serif;
 
@@ -31,9 +50,9 @@ https://templatemo.com/tm-590-topic-listing
   --h5-font-size:                 24px;
   --h6-font-size:                 22px;
   --p-font-size:                  20px;
-  --menu-font-size:               14px;
+  --menu-font-size:               16px;
   --btn-font-size:                18px;
-  --copyright-font-size:          16px;
+  --copyright-font-size:          14px;
 
   --border-radius-large:          100px;
   --border-radius-medium:         20px;
@@ -41,15 +60,8 @@ https://templatemo.com/tm-590-topic-listing
 
   --font-weight-normal:           400;
   --font-weight-medium:           500;
-  --font-weight-semibold:         600;
-  --font-weight-bold:             700;
+  --font-weight-bold:             600;
 }
-
-body {
-  background-color: var(--white-color);
-  font-family: var(--body-font-family); 
-}
-
 
 /*---------------------------------------
   TYPOGRAPHY               
@@ -154,7 +166,8 @@ strong {
 }
 
 .section-overlay {
-  background-image: linear-gradient(15deg, #13547a 0%, #80d0c7 100%);
+  /* Changed from Blue->Teal to Maroon->Dark Teal */
+  background-image: linear-gradient(15deg, #81131C 0%, #4B726D 100%);
   position: absolute;
   top: 0;
   left: 0;
@@ -255,7 +268,7 @@ strong {
   SITE HEADER              
 -----------------------------------------*/
 .site-header {
-  background-image: linear-gradient(15deg, #13547a 0%, #80d0c7 100%);
+  background-image: linear-gradient(15deg, #81131C 0%, #4B726D 100%);
   padding-top: 150px;
   padding-bottom: 80px;
 }
@@ -291,7 +304,8 @@ strong {
 }
 
 .sticky-wrapper.is-sticky .navbar {
-  background-color: var(--secondary-color);
+  background-color: var(--white-color);
+  opacity: 0.95;
 }
 
 .navbar {
@@ -493,7 +507,7 @@ strong {
   HERO        
 -----------------------------------------*/
 .hero-section {
-  background-image: linear-gradient(15deg, #13547a 0%, #80d0c7 100%);
+  background-image: linear-gradient(15deg, #81131C 0%, #4B726D 100%);
   position: relative;
   overflow: hidden;
   padding-top: 150px;
