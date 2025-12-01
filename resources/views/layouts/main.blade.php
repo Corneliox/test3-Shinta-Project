@@ -106,37 +106,56 @@
                 color: var(--primary-color) !important;
             }
 
-            /* ---------- FLOATING BOTTOM NAV (Dark semi-transparent) ---------- */
+            /* ---------- FLOATING BOTTOM NAV ---------- */
             .bottom-nav {
-            position: fixed;
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: 18px;
-            z-index: 9999;
-            display: flex;
-            gap: 6px;
-            padding: 8px;
-            border-radius: 999px;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            background: rgba(0,0,0,0.55);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.25);
-            padding: 8px 12px;
-            min-width: 320px;
-            justify-content: space-between;
+                position: fixed;
+                left: 50%;
+                transform: translateX(-50%);
+                bottom: 20px;
+                z-index: 9999;
+                display: flex;
+                gap: 5px;
+                background: rgba(30, 30, 30, 0.85); /* Dark background */
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+                padding: 10px 15px;
+                border-radius: 50px;
+                min-width: 320px;
+                justify-content: space-around; /* Distribute evenly */
             }
 
-            /* buttons */
+            /* Buttons */
             .bn-btn {
-            display:flex; flex-direction:column; gap:6px; align-items:center; justify-content:center;
-            color: #fff; background: transparent; border: none; padding: 6px 12px; font-size: .75rem;
+                display: flex; 
+                flex-direction: column; 
+                align-items: center; 
+                justify-content: center;
+                color: rgba(255,255,255,0.6); /* Dimmed white */
+                background: transparent; 
+                border: none; 
+                padding: 5px 10px; 
+                font-size: 0.75rem;
+                transition: all 0.2s ease;
             }
-            .bn-btn .bi { font-size: 1.15rem; }
-            .bn-btn.active { color: var(--wopanco-accent); background: rgba(255,255,255,0.06); padding: 8px 12px; border-radius: 12px; }
+            
+            .bn-btn .bi { 
+                font-size: 1.3rem; 
+                margin-bottom: 2px;
+            }
+            
+            /* Active State (Highlighted) */
+            .bn-btn.active { 
+                color: var(--white-color); 
+                background: var(--secondary-color); /* Teal Background */
+                box-shadow: 0 4px 15px rgba(75, 114, 109, 0.4);
+                border-radius: 15px; 
+            }
 
-            /* hide bottom nav on large screens */
+            /* Hide on PC */
             @media (min-width: 992px) {
-            .bottom-nav { display: none; }
+                .bottom-nav { display: none; }
+            }
         </style>
     </head>
     
@@ -392,12 +411,45 @@
         </script>
 
             <!-- FLOATING BOTTOM NAV (Mobile) -->
-        <nav id="wopanco-bottom-nav" class="bottom-nav d-lg-none" aria-hidden="false">
-            <button class="bn-btn active" data-route="/"><i class="bi-house-door-fill"></i><small>Home</small></button>
-            <a href="{{ route('about') }}" class="bn-btn"><i class="bi-list-ul"></i><small>About us</small></button>
-            <a href="{{ route('marketplace.index') }}" class="bn-btn"><i class="bi-shop"></i><small>Marketplace</small></a>
-            <a href="{{ route('profile.user.show') }}" class="bn-btn"><i class="bi-person-circle"></i><small>Profile</small></a>
-        </nav>
+    <nav id="wopanco-bottom-nav" class="bottom-nav d-lg-none">
+        
+        {{-- HOME --}}
+        <a href="{{ route('home') }}" 
+           class="bn-btn text-decoration-none {{ request()->routeIs('home') ? 'active' : '' }}">
+            <i class="bi-house-door-fill"></i>
+            <small>Home</small>
+        </a>
+
+        {{-- ABOUT --}}
+        <a href="{{ route('about') }}" 
+           class="bn-btn text-decoration-none {{ request()->routeIs('about') ? 'active' : '' }}">
+            <i class="bi-list-ul"></i>
+            <small>About</small>
+        </a>
+
+        {{-- MARKETPLACE --}}
+        <a href="{{ route('marketplace.index') }}" 
+           class="bn-btn text-decoration-none {{ request()->routeIs('marketplace.index') ? 'active' : '' }}">
+            <i class="bi-shop"></i>
+            <small>Shop</small>
+        </a>
+
+        {{-- PROFILE / LOGIN --}}
+        @auth
+            <a href="{{ route('profile.user.show') }}" 
+               class="bn-btn text-decoration-none {{ request()->routeIs('profile.*') ? 'active' : '' }}">
+                <i class="bi-person-circle"></i>
+                <small>Profile</small>
+            </a>
+        @else
+            <a href="{{ route('login') }}" 
+               class="bn-btn text-decoration-none {{ request()->routeIs('login') ? 'active' : '' }}">
+                <i class="bi-box-arrow-in-right"></i>
+                <small>Login</small>
+            </a>
+        @endauth
+
+    </nav>
 
     </body>
 </html>
