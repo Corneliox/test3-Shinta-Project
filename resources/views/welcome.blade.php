@@ -12,7 +12,7 @@
             <div class="row">
                 <div class="col-lg-8 col-12 mx-auto">
                     <h1 class="text-white text-center">Woman Painter Community Semarang</h1>
-                    <h6 class="text-center" style="color:--section-bg-color">Painting, Sharing, Empowering</h6>
+                    <h6 class="text-center" style="color: var(--border-color);">Painting, Sharing, Empowering</h6>
                     
                     <form method="GET" action="{{ route('search.index') }}" class="custom-form mt-4 pt-2 mb-5" role="search">
                         <div class="input-group input-group-lg">

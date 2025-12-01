@@ -14,6 +14,65 @@
         <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
         <link href="{{ asset('css/bootstrap-icons.css') }}" rel="stylesheet">
         <link href="{{ asset('css/templatemo-topic-listing.css') }}" rel="stylesheet">      
+
+        {{-- === CUSTOM STYLES FOR STICKY NAVBAR === --}}
+        <style>
+            /* 1. PC/DESKTOP ONLY (min-width: 992px) */
+            @media (min-width: 992px) {
+                
+                /* Default State: Transparent Background */
+                .navbar {
+                    background-color: transparent;
+                    transition: background-color 0.3s ease, padding 0.3s ease, box-shadow 0.3s ease;
+                }
+
+                /* General Links & Brand: White initially */
+                .navbar .nav-link,
+                .navbar .navbar-brand span,
+                .navbar .user-name-text {
+                    color: var(--white-color);
+                    transition: color 0.3s ease;
+                }
+
+                /* --- SPECIAL: BI-PERSON ICON LOGIC --- */
+                /* Initial State: Black Shape */
+                .navbar .bi-person {
+                    color: #000000 !important; /* or var(--dark-color) */
+                    transition: color 0.3s ease;
+                }
+
+                /* Active link color on transparent background */
+                .navbar .nav-link.active {
+                    color: var(--secondary-color) !important;
+                }
+
+                /* 2. STICKY STATE (Scrolled Down) */
+                .sticky-wrapper.is-sticky .navbar {
+                    background-color: var(--white-color);
+                    opacity: 0.95;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                }
+
+                /* Change Text & User Name to Secondary Color when Sticky */
+                .sticky-wrapper.is-sticky .navbar .nav-link,
+                .sticky-wrapper.is-sticky .navbar .navbar-brand span,
+                .sticky-wrapper.is-sticky .navbar .user-name-text {
+                    color: var(--secondary-color) !important;
+                }
+
+                /* --- SPECIAL: BI-PERSON ICON SCROLLED --- */
+                /* Scrolled State: Turns to Secondary Color */
+                .sticky-wrapper.is-sticky .navbar .bi-person {
+                    color: var(--secondary-color) !important;
+                }
+
+                /* Active/Hover Link Color when Sticky */
+                .sticky-wrapper.is-sticky .navbar .nav-link.active,
+                .sticky-wrapper.is-sticky .navbar .nav-link:hover {
+                    color: var(--primary-color) !important;
+                }
+            }
+        </style>
     </head>
     
     <body id="top">
@@ -22,20 +81,17 @@
 
             <nav class="navbar navbar-expand-lg">
                 <div class="container">
+                    
+                    {{-- 1. BRAND LOGO --}}
                     <a class="navbar-brand" href="/">
-                        <img src="{{ asset('images/wopanco2.png') }}" style="max-width:50px">
+                        <img src="{{ asset('images/wopanco2.png') }}" style="max-width:35px">
                         <span>WOPANCO</span>
                     </a>
 
-                    {{-- ==================================================== --}}
-                    {{-- 2. NEW: MOBILE SHOPPING CART ICON (TROLLEY)          --}}
-                    {{-- ==================================================== --}}
-                    {{-- Visible only on mobile (d-lg-none) --}}
-                    {{-- Pushed to the right (ms-auto) next to the toggler --}}
-                    <a href="{{ route('marketplace.index') }}" class="custom-btn d-lg-none ms-auto me-3 position-relative">
-                        <i class="bi-cart-fill me-2"></i> 
+                    {{-- 2. MOBILE CART ICON --}}
+                    <a href="{{ route('marketplace.index') }}" class="d-lg-none ms-auto me-3 text-dark position-relative">
+                        <i class="bi-cart3 fs-3"></i> 
                     </a>
-                    {{-- ==================================================== --}}
 
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
@@ -55,41 +111,29 @@
                             <li class="nav-item">
                                 <a class="nav-link text-center click-scroll" href="{{ route('creative') }}">Creative</a>
                             </li>
-                            <!-- {{-- NEW MARKETPLACE LINK --}}
-                            <li class="nav-item">
+                            <!-- <li class="nav-item">
                                 <a class="nav-link" href="{{ route('marketplace.index') }}">Marketplace</a>
                             </li> -->
                             <li class="nav-item">
                                 <a class="nav-link text-center click-scroll" href="{{ route('home') }}/#section_5">Contact</a>
                             </li>
 
-                            {{-- =============================================== --}}
-                            {{-- MOBILE ONLY LINKS                               --}}
-                            {{-- =============================================== --}}
+                            {{-- MOBILE AUTH LINKS --}}
                             @auth
                                 <li class="nav-item d-lg-none"><hr class="my-2"></li>
-
-                                {{-- Artist Dashboard (Mobile) --}}
                                 @if(Auth::user()->is_artist)
                                     <li class="nav-item d-lg-none">
-                                        <a class="nav-link" href="{{ route('artist.dashboard') }}">
-                                            Artist Dashboard
-                                            @php $mobNotif = Auth::user()->artworks()->where('reserved_stock', '>', 0)->count(); @endphp
-                                            @if($mobNotif > 0) <span class="badge bg-danger ms-2">{{ $mobNotif }}</span> @endif
-                                        </a>
+                                        <a class="nav-link" href="{{ route('artist.dashboard') }}">Artist Dashboard</a>
                                     </li>
                                 @endif
-
                                 <li class="nav-item d-lg-none">
                                     <a class="nav-link" href="{{ route('profile.user.show') }}">My Profile</a>
                                 </li>
-
                                 @if (Auth::user()->is_admin)
                                     <li class="nav-item d-lg-none">
                                         <a class="nav-link" href="{{ route('dashboard') }}">Admin Dashboard</a>
                                     </li>
                                 @endif
-
                                 <li class="nav-item d-lg-none">
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
@@ -106,24 +150,22 @@
                             @endauth
                         </ul>
 
-                        {{-- =============================================== --}}
-                        {{-- DESKTOP RIGHT SECTION                           --}}
-                        {{-- =============================================== --}}
+                        {{-- DESKTOP RIGHT SECTION --}}
                         <div class="d-none d-lg-flex align-items-center ms-auto">
                             
-                            {{-- 1. MARKETPLACE BUTTON (Blue Theme with Cart) --}}
+                            {{-- Marketplace Button --}}
                             <a href="{{ route('marketplace.index') }}" class="btn custom-btn btn-sm me-3 d-flex align-items-center">
                                 <i class="bi-cart-fill me-2"></i> Marketplace
                             </a>
 
                             @auth
-                                {{-- 2. ARTIST NOTIFICATION BELL --}}
+                                {{-- Notification Bell --}}
                                 @if(auth()->user()->is_artist)
                                     @php
                                         $notificationCount = auth()->user()->artworks()->where('reserved_stock', '>', 0)->count();
                                     @endphp
-                                    <a href="{{ route('artist.dashboard') }}" class="btn position-relative me-3 text-dark p-0" title="Artist Dashboard" style="border:none; background:transparent;">
-                                        <i class="bi-bell fs-4 text-white"></i> {{-- White icon to match navbar text --}}
+                                    <a href="{{ route('artist.dashboard') }}" class="btn position-relative me-3 p-0" title="Artist Dashboard" style="border:none; background:transparent;">
+                                        <i class="bi-bell fs-4"></i> {{-- Icon color handled by CSS now --}}
                                         @if($notificationCount > 0)
                                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                                                 {{ $notificationCount }}
@@ -132,11 +174,12 @@
                                     </a>
                                 @endif
 
-                                {{-- 3. USER DROPDOWN --}}
+                                {{-- User Dropdown --}}
                                 <div class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" id="navbarUserDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="navbar-icon dropdown-item bi-person smoothscroll me-2"></i>
-                                        <span style="color:#ffffff; font-family:Montserrat, sans-serif; font-size:15px;">
+                                        {{-- Removed inline color style so CSS can control it --}}
+                                        <span class="user-name-text" style="font-family:Montserrat, sans-serif; font-size:15px;">
                                             Hai, {{ explode(' ', Auth::user()->name)[0] }}
                                         </span>
                                     </a>
@@ -160,7 +203,7 @@
                                     </ul>
                                 </div>
                             @else
-                                {{-- GUEST LOGIN ICON --}}
+                                {{-- Guest Login Icon --}}
                                 <a href="{{ route('login') }}" class="navbar-icon bi-person smoothscroll ms-3"></a>
                             @endauth
                         </div>
@@ -177,73 +220,48 @@
             <div class="container">
                 <div class="row">
 
-                    {{-- 1. LEFT COLUMN: BRAND + HIBAH TEXT --}}
+                    {{-- 1. BRAND --}}
                     <div class="col-lg-3 col-12 mb-4 pb-2">
                         <a class="navbar-brand mb-2" href="/">
                             <img src="{{ asset('images/wopanco2.png') }}" style="max-width:35px">
                             <span>WOPANCO</span>
                         </a>
-                        
-                        {{-- HIBAH TEXT --}}
                         <p class="mt-4 mb-0" style="font-size: 0.8rem; opacity: 0.85; line-height: 1.5;">
                             {{ __('messages.footer_grant') }}
                         </p>
                     </div>
 
-                    {{-- 2. SPONSORS / LABELS (UPDATED LAYOUT) --}}
+                    {{-- 2. SPONSORS --}}
                     <div class="col-lg-3 col-md-4 col-6">
                         <h6 class="site-footer-title mb-3">Supported By</h6>
-                        
-                        {{-- Row 2: Diktisaintek & BIMA (Side by Side / Split) --}}
                         <div class="d-flex gap-2">
-                            {{-- Diktisaintek --}}
                             <div class="bg-white rounded p-2 d-flex align-items-center justify-content-center" style="width: fit-content;">
-                                <img src="{{ asset('Sponsors/logo diktisaintek.png') }}" 
-                                class="img-fluid" 
-                                alt="Diktisaintek" 
-                                style="max-height: 35px; width: auto;">
+                                <img src="{{ asset('Sponsors/logo diktisaintek.png') }}" class="img-fluid" alt="Diktisaintek" style="max-height: 35px; width: auto;">
                             </div>
-                            
-                            <!-- {{-- BIMA Trans --}}
                             <div class="bg-white rounded p-2 d-flex align-items-center justify-content-center" style="width: fit-content;">
-                                <img src="{{ asset('Sponsors/logo BIMA trans.png') }}" 
-                                class="img-fluid" 
-                                alt="BIMA Trans" 
-                                style="max-height: 35px; width: auto;">
-                            </div> -->
+                                <img src="{{ asset('Sponsors/logo BIMA trans.png') }}" class="img-fluid" alt="BIMA Trans" style="max-height: 35px; width: auto;">
+                            </div>
                         </div>
-
-                        {{-- Row 1: SCU (Full Block) --}}
-                        <div class="bg-white rounded p-2 mb-2 d-inline-block" style="width: fit-content;">
-                            <img src="{{ asset('Sponsors/logo SCU.png') }}" 
-                                 class="img-fluid" 
-                                 alt="SCU" 
-                                 style="max-height: 40px; width: auto;">
+                        <div class="bg-white rounded p-2 mb-2 mt-2 d-inline-block" style="width: fit-content;">
+                            <img src="{{ asset('Sponsors/logo SCU.png') }}" class="img-fluid" alt="SCU" style="max-height: 40px; width: auto;">
                         </div>
                     </div>
                     
                     {{-- 3. INFO LINKS --}}
                     <div class="col-lg-3 col-md-4 col-6 mb-4 mb-lg-0">
                         <h6 class="site-footer-title mb-3">Information</h6>
-                        
-                        {{-- Admin Phone --}}
                         <p class="text-white d-flex mb-2 align-items-start">
                             <i class="bi-whatsapp me-2" style="color: #9ca3af;"></i>
                             <a href="https://wa.me/6289668411463" class="site-footer-link">
                                 {{ __('messages.contact_admin') }}
                             </a>
                         </p>
-
-                        {{-- Email --}}
                         <p class="text-white d-flex mb-2 align-items-start">
                             <i class="bi-envelope me-2 mt-1" style="color: #9ca3af;"></i>
-                            {{-- Added 'text-break' class to force wrapping on long emails --}}
                             <a href="mailto:{{ __('messages.contact_email') }}" class="site-footer-link text-break">
                                 {{ __('messages.contact_email') }}
                             </a>
                         </p>
-
-                        {{-- Instagram --}}
                         <p class="text-white d-flex mb-2 align-items-start">
                             <i class="bi-instagram me-2" style="color: #9ca3af;"></i>
                             <a href="https://instagram.com/wopanco.indonesia" target="_blank" class="site-footer-link">
@@ -252,10 +270,8 @@
                         </p>
                     </div>
 
-                    {{-- 4. COPYRIGHT --}}
+                    {{-- 4. LANGUAGE & COPYRIGHT --}}
                     <div class="col-lg-3 col-md-4 col-12 mt-4 mt-lg-0 ms-auto">
-                        
-                        {{-- LANGUAGE SWITCHER --}}
                         <div class="mb-4">
                             <h6 class="text-white mb-2" style="font-size: 0.9rem;">Language / Bahasa</h6>
                             <div class="btn-group" role="group">
@@ -267,7 +283,6 @@
                                 </a>
                             </div>
                         </div>
-
                         <p class="copyright-text">Copyright © 2025 Woman Painter Community.<br><br>Design: <a rel="nofollow" href="https://templatemo.com" target="_blank">TemplateMo</a> & <a rel="nofollow" href="https://github.com/Corneliox" target="_blank">Corneliox</a></p>
                     </div>
 
