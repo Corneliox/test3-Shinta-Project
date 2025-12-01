@@ -105,6 +105,38 @@
             .navbar.mobile-menu-open .nav-link:hover {
                 color: var(--primary-color) !important;
             }
+
+            /* ---------- FLOATING BOTTOM NAV (Dark semi-transparent) ---------- */
+            .bottom-nav {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 18px;
+            z-index: 9999;
+            display: flex;
+            gap: 6px;
+            padding: 8px;
+            border-radius: 999px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            background: rgba(0,0,0,0.55);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+            padding: 8px 12px;
+            min-width: 320px;
+            justify-content: space-between;
+            }
+
+            /* buttons */
+            .bn-btn {
+            display:flex; flex-direction:column; gap:6px; align-items:center; justify-content:center;
+            color: #fff; background: transparent; border: none; padding: 6px 12px; font-size: .75rem;
+            }
+            .bn-btn .bi { font-size: 1.15rem; }
+            .bn-btn.active { color: var(--wopanco-accent); background: rgba(255,255,255,0.06); padding: 8px 12px; border-radius: 12px; }
+
+            /* hide bottom nav on large screens */
+            @media (min-width: 992px) {
+            .bottom-nav { display: none; }
         </style>
     </head>
     
@@ -342,7 +374,30 @@
             navbarCollapse.addEventListener('hide.bs.collapse', function () {
                 navbar.classList.remove('mobile-menu-open');
             });
+
+              // ---------- bottom nav interactions ----------
+            const openChipsBtn = document.getElementById('openChipsBtn');
+            if (openChipsBtn) {
+                openChipsBtn.addEventListener('click', () => {
+                // scroll to chips area
+                const chipsArea = document.querySelector('.chips-wrapper');
+                if (chipsArea) {
+                    window.scrollTo({ top: chipsArea.getBoundingClientRect().top + window.scrollY - 90, behavior: 'smooth' });
+                }
+                // highlight it briefly
+                chipsArea && chipsArea.classList.add('chips-focus');
+                setTimeout(()=> chipsArea && chipsArea.classList.remove('chips-focus'), 1100);
+                });
+            }
         </script>
+
+            <!-- FLOATING BOTTOM NAV (Mobile) -->
+        <nav id="wopanco-bottom-nav" class="bottom-nav d-lg-none" aria-hidden="false">
+            <button class="bn-btn active" data-route="/"><i class="bi-house-door-fill"></i><small>Home</small></button>
+            <a href="{{ route('about') }}" class="bn-btn"><i class="bi-list-ul"></i><small>About us</small></button>
+            <a href="{{ route('marketplace.index') }}" class="bn-btn"><i class="bi-shop"></i><small>Marketplace</small></a>
+            <a href="{{ route('profile.user.show') }}" class="bn-btn"><i class="bi-person-circle"></i><small>Profile</small></a>
+        </nav>
 
     </body>
 </html>
