@@ -5,30 +5,74 @@
 @section('content')
 
     {{-- =================================== --}}
-    {{-- 1. HERO SEARCH SECTION              --}}
+    {{-- 1. HERO SECTION (REDESIGNED)        --}}
     {{-- =================================== --}}
-    <section class="hero-section d-flex justify-content-center align-items-center" id="section_1">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-8 col-12 mx-auto">
-                    <h1 class="text-white text-center">Woman Painter Community Semarang</h1>
-                    <h6 class="text-center" style="color: var(--border-color);">Painting, Sharing, Empowering</h6>
+    
+    {{-- SWIPER CSS (CDN) --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+    <section class="hero-section d-flex flex-column justify-content-center" id="section_1" style="min-height: 80vh; padding-top: 100px; padding-bottom: 50px;">
+        <div class="container-fluid px-lg-5">
+            
+            {{-- ROW 1: TITLE (Full Width) --}}
+            <div class="row mb-4">
+                <div class="col-12 text-center">
+                    <h1 class="text-white hero-title">Woman Painter Community Semarang</h1>
+                </div>
+            </div>
+
+            {{-- ROW 2: SPLIT CONTENT --}}
+            <div class="row align-items-center justify-content-center h-100">
+                
+                {{-- LEFT: ROULETTE CAROUSEL (65%) --}}
+                {{-- On Mobile: Order 2 (Bottom), On Desktop: Order 1 (Left) --}}
+                <div class="col-lg-8 col-12 order-2 order-lg-1 mb-4 mb-lg-0 position-relative">
                     
-                    <form method="GET" action="{{ route('search.index') }}" class="custom-form mt-4 pt-2 mb-5" role="search">
-                        <div class="input-group input-group-lg">
-                            <span class="input-group-text bi-search" id="basic-addon1"></span>
-                            <input name="keyword" type="search" class="form-control" id="keyword" placeholder="Artist, Event, Creative, Art name..." aria-label="Search">
-                            <button type="submit" class="form-control">Search</button>
+                    <div class="swiper heroSwiper">
+                        <div class="swiper-wrapper">
+                            @if(isset($hero_images) && count($hero_images) > 0)
+                                @foreach($hero_images as $img)
+                                    <div class="swiper-slide">
+                                        <img src="{{ asset($img) }}" alt="Wopanco Art" />
+                                    </div>
+                                @endforeach
+                            @else
+                                {{-- Fallback images if folder is empty --}}
+                                <div class="swiper-slide"><img src="{{ asset('images/topics/undraw_Remote_design_team_re_urdx.png') }}" /></div>
+                                <div class="swiper-slide"><img src="{{ asset('images/topics/undraw_Redesign_feedback_re_jvm0.png') }}" /></div>
+                                <div class="swiper-slide"><img src="{{ asset('images/topics/undraw_collab_re_psx2.png') }}" /></div>
+                            @endif
                         </div>
+                        
+                        {{-- Navigation Arrows --}}
+                        <div class="swiper-button-next text-white"></div>
+                        <div class="swiper-button-prev text-white"></div>
+                    </div>
+
+                </div>
+
+                {{-- RIGHT: CONTENT FORM (30%) --}}
+                {{-- On Mobile: Order 1 (Top), On Desktop: Order 2 (Right) --}}
+                {{-- 'offset-lg-1' creates the gap roughly 5-8% --}}
+                <div class="col-lg-3 col-12 order-1 order-lg-2 offset-lg-1 d-flex flex-column justify-content-center text-center text-lg-start">
+                    
+                    <h6 class="mb-4" style="color: var(--border-color); font-weight: 600; letter-spacing: 1px; text-transform: uppercase;">
+                        Painting, Sharing, Empowering
+                    </h6>
+                    
+                    <form method="GET" action="{{ route('search.index') }}" class="custom-form mb-4" role="search">
+                        <div class="input-group input-group-lg shadow-sm">
+                            <span class="input-group-text bi-search bg-white border-0 text-muted"></span>
+                            <input name="keyword" type="search" class="form-control border-0" id="keyword" placeholder="Search art, artist..." aria-label="Search">
+                        </div>
+                        <button type="submit" class="btn custom-btn w-100 mt-3 shadow-sm">Search</button>
                     </form>
 
-                    {{-- === THE NEW BUTTON (Centered Below Search) === --}}
-                    <div class="row">
-                        <div class="col-12 text-center">
-                            <a href="{{ route('about') }}" class="custom-btn btn">Tentang WOPANCO</a>
-                        </div>
+                    <div class="text-center text-lg-start">
+                        <a href="{{ route('about') }}" class="btn custom-border-btn w-100">
+                            Tentang WOPANCO
+                        </a>
                     </div>
-                    {{-- ============================================== --}}
 
                 </div>
             </div>
@@ -355,4 +399,130 @@
 {{-- ADD THIS SCRIPT --}}
 @push('scripts')
     <script src="{{ asset('js/click-scroll.js') }}"></script>
+
+    {{-- SWIPER CSS --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    
+    {{-- CUSTOM CSS --}}
+    <style>
+        /* 1. Hero Background */
+        .hero-section {
+            background-image: linear-gradient(15deg, #81131C 0%, #4B726D 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 2. Title Typography */
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            white-space: normal;
+        }
+        @media(min-width: 992px) {
+            .hero-title {
+                font-size: 3.5rem;
+                white-space: nowrap;
+            }
+        }
+
+        /* 3. Swiper Container */
+        .heroSwiper {
+            width: 100%;
+            padding-top: 30px;
+            padding-bottom: 30px;
+            overflow: hidden; /* Changed to hidden to respect 20-60-20 boundaries */
+        }
+
+        /* 4. Slide Styles (The Side Images / Default State) */
+        .swiper-slide {
+            background-position: center;
+            background-size: cover;
+            
+            /* HEIGHT LIMIT: 400px */
+            height: 400px; 
+            
+            /* WIDTH LOGIC: 60% for Main, leaving 20% Left & 20% Right */
+            width: 60%; 
+            
+            border-radius: 15px;
+            overflow: hidden;
+            
+            /* VISUALS: Blur and Fade for side items */
+            opacity: 0.6; 
+            filter: blur(4px); /* Slightly Blur */
+            transition: all 0.5s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        /* Mobile specific adjustments */
+        @media(max-width: 768px) {
+            .swiper-slide {
+                width: 75%; /* On mobile, main image takes a bit more space */
+                height: 300px; /* Smaller height for mobile */
+            }
+        }
+
+        .swiper-slide img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensures image fills 400px without stretch */
+        }
+
+        /* 5. Active Slide (The Center Image / 60% Segment) */
+        .swiper-slide-active {
+            opacity: 1 !important; 
+            filter: blur(0) !important; /* Clear */
+            z-index: 10;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+            border: 2px solid var(--border-color);
+            transform: scale(1.05); /* Slight pop */
+        }
+        
+        /* Navigation Buttons */
+        .swiper-button-next, .swiper-button-prev {
+            color: var(--white-color);
+            background: rgba(0,0,0,0.3);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            backdrop-filter: blur(5px);
+        }
+        .swiper-button-next:after, .swiper-button-prev:after {
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+
+    {{-- SWIPER JS INIT --}}
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var swiper = new Swiper(".heroSwiper", {
+                effect: "coverflow", 
+                grabCursor: true, 
+                centeredSlides: true, 
+                slidesPerView: "auto", 
+                loop: true, 
+                
+                coverflowEffect: {
+                    rotate: 0,      // Keep them flat (no 3D rotation)
+                    stretch: 80,    // Pull side images closer to center
+                    depth: 150,     // Push side images back visually
+                    modifier: 1,
+                    slideShadows: false, // Turn off black shadows for cleaner look
+                },
+                
+                autoplay: {
+                    delay: 3000, 
+                    disableOnInteraction: false,
+                },
+                
+                navigation: {
+                    nextEl: ".swiper-button-next",
+                    prevEl: ".swiper-button-prev",
+                },
+            });
+        });
+    </script>
 @endpush

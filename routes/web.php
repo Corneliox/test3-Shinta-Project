@@ -48,12 +48,24 @@ Route::get('/', function () {
     $pinned_event = Event::where('is_pinned', true)->latest()->first();
     $newest_events = Event::where('is_pinned', false)->latest()->take(3)->get();
 
+    // NEW: Get Images for Hero Roulette
+    // Ensure you have a folder: public/images/main/
+    // This grabs all images from that folder
+    $hero_images = [];
+    if (file_exists(public_path('images/main'))) {
+        $files = \Illuminate\Support\Facades\File::files(public_path('images/main'));
+        foreach ($files as $file) {
+            $hero_images[] = 'images/main/' . $file->getFilename();
+        }
+    }
+
     return view('welcome', [
         'lukisan_artworks' => $lukisan_artworks,
         'craft_artworks' => $craft_artworks,
         'artists' => $artists,
         'pinned_event' => $pinned_event,
         'newest_events' => $newest_events,
+        'hero_images' => $hero_images,
     ]);
 })->name('home');
 
