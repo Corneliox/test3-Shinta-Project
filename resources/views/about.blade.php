@@ -25,7 +25,7 @@
             <div class="row">
                 <div class="col-lg-10 col-12 mx-auto">
                     <div class="custom-block bg-white shadow-sm p-5 text-center">
-                        <p class="lead text-muted" style="line-height: 1.8;">
+                        <p class="lead text-muted" style="font-weight: 400; line-height: 1.8;">
                             {!! nl2br(e(__('messages.about_description'))) !!}
                         </p>
                     </div>

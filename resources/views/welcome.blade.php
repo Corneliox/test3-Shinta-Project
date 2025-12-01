@@ -7,29 +7,30 @@
     {{-- =================================== --}}
     {{-- 1. HERO SECTION (REDESIGNED)        --}}
     {{-- =================================== --}}
-    
-    {{-- SWIPER CSS (CDN) --}}
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
-    <section class="hero-section d-flex flex-column justify-content-center" id="section_1" style="min-height: 80vh; padding-top: 100px; padding-bottom: 50px;">
+    <section class="hero-section d-flex flex-column justify-content-center" id="section_1"
+        style="min-height: 80vh; padding-top: 100px; padding-bottom: 50px;">
         <div class="container-fluid px-lg-5">
-            
-            {{-- ROW 1: TITLE (Full Width) --}}
+
+            {{-- ROW 1: TITLE --}}
             <div class="row mb-4">
                 <div class="col-12 text-center">
                     <h1 class="text-white hero-title">Woman Painter Community Semarang</h1>
                 </div>
             </div>
 
-            {{-- ROW 2: SPLIT CONTENT --}}
+            {{-- ROW 2: CONTENT --}}
             <div class="row align-items-center justify-content-center h-100">
-                
-                {{-- LEFT: ROULETTE CAROUSEL (65%) --}}
-                {{-- On Mobile: Order 2 (Bottom), On Desktop: Order 1 (Left) --}}
+
+                {{-- LEFT: ROULETTE CAROUSEL --}}
+                {{-- DESKTOP → LEFT  |  MOBILE → MIDDLE (below title) --}}
                 <div class="col-lg-8 col-12 order-2 order-lg-1 mb-4 mb-lg-0 position-relative">
-                    
+
                     <div class="swiper heroSwiper">
                         <div class="swiper-wrapper">
+
                             @if(isset($hero_images) && count($hero_images) > 0)
                                 @foreach($hero_images as $img)
                                     <div class="swiper-slide">
@@ -37,33 +38,33 @@
                                     </div>
                                 @endforeach
                             @else
-                                {{-- Fallback images if folder is empty --}}
                                 <div class="swiper-slide"><img src="{{ asset('images/topics/undraw_Remote_design_team_re_urdx.png') }}" /></div>
                                 <div class="swiper-slide"><img src="{{ asset('images/topics/undraw_Redesign_feedback_re_jvm0.png') }}" /></div>
                                 <div class="swiper-slide"><img src="{{ asset('images/topics/undraw_collab_re_psx2.png') }}" /></div>
                             @endif
+
                         </div>
-                        
-                        {{-- Navigation Arrows --}}
+
                         <div class="swiper-button-next text-white"></div>
                         <div class="swiper-button-prev text-white"></div>
                     </div>
 
                 </div>
 
-                {{-- RIGHT: CONTENT FORM (30%) --}}
-                {{-- On Mobile: Order 1 (Top), On Desktop: Order 2 (Right) --}}
-                {{-- 'offset-lg-1' creates the gap roughly 5-8% --}}
-                <div class="col-lg-3 col-12 order-1 order-lg-2 offset-lg-1 d-flex flex-column justify-content-center text-center text-lg-start">
-                    
-                    <h6 class="mb-4" style="color: var(--border-color); font-weight: 600; letter-spacing: 1px; text-transform: uppercase;">
+                {{-- RIGHT: CONTENT FORM --}}
+                {{-- MOBILE → BOTTOM (after slider) --}}
+                <div class="col-lg-3 col-12 order-3 order-lg-2 offset-lg-1 d-flex flex-column justify-content-center text-center text-lg-start">
+
+                    <h4 class="mb-4"
+                        style="color: var(--border-color); font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">
                         Painting, Sharing, Empowering
-                    </h6>
-                    
+                    </h4>
+
                     <form method="GET" action="{{ route('search.index') }}" class="custom-form mb-4" role="search">
                         <div class="input-group input-group-lg shadow-sm">
                             <span class="input-group-text bi-search bg-white border-0 text-muted"></span>
-                            <input name="keyword" type="search" class="form-control border-0" id="keyword" placeholder="Search art, artist..." aria-label="Search">
+                            <input name="keyword" type="search" class="form-control border-0" id="keyword"
+                                placeholder="Search art, artist..." aria-label="Search">
                         </div>
                         <button type="submit" class="btn custom-btn w-100 mt-3 shadow-sm">Search</button>
                     </form>
@@ -75,9 +76,12 @@
                     </div>
 
                 </div>
+
             </div>
         </div>
     </section>
+
+
 
     
     {{-- =================================== --}}
@@ -405,6 +409,24 @@
     
     {{-- CUSTOM CSS --}}
     <style>
+
+        .btn.custom-border-btn {
+            border: 2px solid var(--border-color) !important;
+            color: var(--border-color) !important;
+            font-weight: 700 !important;
+            letter-spacing: 1px;
+            padding: 14px 20px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .btn.custom-border-btn:hover {
+            background: var(--border-color) !important;
+            color: #000 !important;
+            box-shadow: 0 0 15px rgba(255, 193, 7, 0.5);
+            transform: translateY(-2px);
+        }
+
         /* 1. Hero Background */
         .hero-section {
             background-image: linear-gradient(15deg, #81131C 0%, #4B726D 100%);

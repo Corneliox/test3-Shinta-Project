@@ -84,7 +84,7 @@ ul li { font-size: var(--p-font-size); }
 
 /* Links / buttons */
 a, button { touch-action: manipulation; transition: all 0.3s; }
-a { display:inline-block; color: var(--primary-color); text-decoration:none; }
+a { display:inline-block; color: var(--border-color); text-decoration:none; }
 a:hover { color: var(--link-hover-color); }
 b, strong { font-weight: var(--font-weight-bold); }
 
@@ -110,6 +110,7 @@ b, strong { font-weight: var(--font-weight-bold); }
 }
 .nav-tabs .nav-link {
   border-radius: 0;
+  vertical-align: middle;
   color: var(--p-color);
   font-family: var(--title-font-family);
   font-size: var(--btn-font-size);
@@ -169,7 +170,7 @@ b, strong { font-weight: var(--font-weight-bold); }
 -----------------------------------------*/
 .sticky-wrapper { position: absolute; top: 0; left: 0; right: 0; }
 
-.sticky-wrapper.is-sticky .navbar { background-color: var(--white-color); opacity: 0.95; }
+.sticky-wrapper.is-sticky .navbar { background-color: var(--white-color); opacity: 0.8; }
 
 .navbar {
   background: transparent;

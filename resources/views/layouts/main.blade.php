@@ -15,62 +15,95 @@
         <link href="{{ asset('css/bootstrap-icons.css') }}" rel="stylesheet">
         <link href="{{ asset('css/templatemo-topic-listing.css') }}" rel="stylesheet">      
 
-        {{-- === CUSTOM STYLES FOR STICKY NAVBAR === --}}
+        {{-- === CUSTOM NAVBAR STYLES === --}}
         <style>
-            /* 1. PC/DESKTOP ONLY (min-width: 992px) */
+            /* 1. TRANSITION SETUP */
+            .navbar {
+                background-color: transparent; 
+                transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            }
+            .navbar .nav-link,
+            .navbar .navbar-brand span,
+            .navbar .bi-cart3,
+            .navbar .navbar-toggler-icon,
+            .navbar .user-name-text {
+                color: var(--white-color); 
+                transition: color 0.3s ease;
+            }
+            .navbar .bi-person {
+                color: #000000; 
+                transition: color 0.3s ease;
+            }
+            
+            /* Toggler Default (White) */
+            .navbar-toggler {
+                border-color: rgba(255,255,255,0.8);
+            }
+            .navbar-toggler-icon {
+                filter: brightness(0) invert(1);
+            }
+
+            /* ========================================= */
+            /* PC/DESKTOP ALIGNMENT FIX (min-width: 992px) */
+            /* ========================================= */
             @media (min-width: 992px) {
-                
-                /* Default State: Transparent Background */
-                .navbar {
-                    background-color: transparent;
-                    transition: background-color 0.3s ease, padding 0.3s ease, box-shadow 0.3s ease;
+                /* This centers the List Items vertically in the bar */
+                .navbar-nav {
+                    align-items: center; 
                 }
 
-                /* General Links & Brand: White initially */
-                .navbar .nav-link,
-                .navbar .navbar-brand span,
-                .navbar .user-name-text {
-                    color: var(--white-color);
-                    transition: color 0.3s ease;
+                /* This centers the Text inside the Link */
+                .navbar .nav-link {
+                    display: flex;
+                    align-items: center;      /* Vertical Center */
+                    justify-content: center;  /* Horizontal Center */
+                    text-align: center;
                 }
+            }
 
-                /* --- SPECIAL: BI-PERSON ICON LOGIC --- */
-                /* Initial State: Black Shape */
-                .navbar .bi-person {
-                    color: #000000 !important; /* or var(--dark-color) */
-                    transition: color 0.3s ease;
-                }
+            /* 2. ACTIVE STATES (Scrolled Down OR Mobile Menu Open) */
+            .sticky-wrapper.is-sticky .navbar,
+            .navbar.mobile-menu-open {
+                background-color: var(--white-color) !important;
+                opacity: 0.95;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
 
-                /* Active link color on transparent background */
-                .navbar .nav-link.active {
-                    color: var(--secondary-color) !important;
-                }
+            /* Change TEXT to Secondary Color */
+            .sticky-wrapper.is-sticky .navbar .nav-link,
+            .sticky-wrapper.is-sticky .navbar .navbar-brand span,
+            .sticky-wrapper.is-sticky .navbar .bi-cart3,
+            .sticky-wrapper.is-sticky .navbar .user-name-text,
+            .navbar.mobile-menu-open .nav-link,
+            .navbar.mobile-menu-open .navbar-brand span,
+            .navbar.mobile-menu-open .bi-cart3,
+            .navbar.mobile-menu-open .user-name-text {
+                color: var(--secondary-color) !important;
+            }
 
-                /* 2. STICKY STATE (Scrolled Down) */
-                .sticky-wrapper.is-sticky .navbar {
-                    background-color: var(--white-color);
-                    opacity: 0.95;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                }
+            /* Change ICONS to Secondary Color */
+            .sticky-wrapper.is-sticky .navbar .bi-person,
+            .navbar.mobile-menu-open .bi-person {
+                color: var(--secondary-color) !important;
+            }
 
-                /* Change Text & User Name to Secondary Color when Sticky */
-                .sticky-wrapper.is-sticky .navbar .nav-link,
-                .sticky-wrapper.is-sticky .navbar .navbar-brand span,
-                .sticky-wrapper.is-sticky .navbar .user-name-text {
-                    color: var(--secondary-color) !important;
-                }
+            /* Change TOGGLER to Secondary Color */
+            .sticky-wrapper.is-sticky .navbar-toggler,
+            .navbar.mobile-menu-open .navbar-toggler {
+                border-color: var(--secondary-color) !important;
+            }
+            .sticky-wrapper.is-sticky .navbar-toggler-icon,
+            .navbar.mobile-menu-open .navbar-toggler-icon {
+                filter: none; 
+                filter: brightness(0) saturate(100%) invert(36%) sepia(88%) saturate(680%) hue-rotate(200deg) brightness(92%) contrast(92%);
+            }
 
-                /* --- SPECIAL: BI-PERSON ICON SCROLLED --- */
-                /* Scrolled State: Turns to Secondary Color */
-                .sticky-wrapper.is-sticky .navbar .bi-person {
-                    color: var(--secondary-color) !important;
-                }
-
-                /* Active/Hover Link Color when Sticky */
-                .sticky-wrapper.is-sticky .navbar .nav-link.active,
-                .sticky-wrapper.is-sticky .navbar .nav-link:hover {
-                    color: var(--primary-color) !important;
-                }
+            /* Active Link / Hover State */
+            .sticky-wrapper.is-sticky .navbar .nav-link.active,
+            .sticky-wrapper.is-sticky .navbar .nav-link:hover,
+            .navbar.mobile-menu-open .nav-link.active,
+            .navbar.mobile-menu-open .nav-link:hover {
+                color: var(--primary-color) !important;
             }
         </style>
     </head>
@@ -100,22 +133,22 @@
                     <div class="collapse navbar-collapse" id="navbarNav">
                         <ul class="navbar-nav ms-lg-5 me-lg-auto">
                             <li class="nav-item">
-                                <a class="nav-link text-center click-scroll" href="{{ route('home') }}/#section_1">Home</a>
+                                <a class="nav-link click-scroll" href="{{ route('home') }}/#section_1">Home</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-center click-scroll" href="{{ route('home') }}/#section_2">Profil Pelukis</a>
+                                <a class="nav-link click-scroll" href="{{ route('home') }}/#section_2">Profil Pelukis</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-center click-scroll" href="{{ route('home') }}/#section_3">Event</a>
+                                <a class="nav-link click-scroll" href="{{ route('home') }}/#section_3">Event</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-center click-scroll" href="{{ route('creative') }}">Creative</a>
+                                <a class="nav-link click-scroll" href="{{ route('creative') }}">Creative</a>
                             </li>
                             <!-- <li class="nav-item">
                                 <a class="nav-link" href="{{ route('marketplace.index') }}">Marketplace</a>
                             </li> -->
                             <li class="nav-item">
-                                <a class="nav-link text-center click-scroll" href="{{ route('home') }}/#section_5">Contact</a>
+                                <a class="nav-link click-scroll" href="{{ route('home') }}/#section_5">Contact</a>
                             </li>
 
                             {{-- MOBILE AUTH LINKS --}}
@@ -165,7 +198,7 @@
                                         $notificationCount = auth()->user()->artworks()->where('reserved_stock', '>', 0)->count();
                                     @endphp
                                     <a href="{{ route('artist.dashboard') }}" class="btn position-relative me-3 p-0" title="Artist Dashboard" style="border:none; background:transparent;">
-                                        <i class="bi-bell fs-4"></i> {{-- Icon color handled by CSS now --}}
+                                        <i class="bi-bell fs-4"></i>
                                         @if($notificationCount > 0)
                                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                                                 {{ $notificationCount }}
@@ -178,7 +211,6 @@
                                 <div class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" id="navbarUserDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="navbar-icon dropdown-item bi-person smoothscroll me-2"></i>
-                                        {{-- Removed inline color style so CSS can control it --}}
                                         <span class="user-name-text" style="font-family:Montserrat, sans-serif; font-size:15px;">
                                             Hai, {{ explode(' ', Auth::user()->name)[0] }}
                                         </span>
@@ -238,9 +270,9 @@
                             <div class="bg-white rounded p-2 d-flex align-items-center justify-content-center" style="width: fit-content;">
                                 <img src="{{ asset('Sponsors/logo diktisaintek.png') }}" class="img-fluid" alt="Diktisaintek" style="max-height: 35px; width: auto;">
                             </div>
-                            <div class="bg-white rounded p-2 d-flex align-items-center justify-content-center" style="width: fit-content;">
+                            <!-- <div class="bg-white rounded p-2 d-flex align-items-center justify-content-center" style="width: fit-content;">
                                 <img src="{{ asset('Sponsors/logo BIMA trans.png') }}" class="img-fluid" alt="BIMA Trans" style="max-height: 35px; width: auto;">
-                            </div>
+                            </div> -->
                         </div>
                         <div class="bg-white rounded p-2 mb-2 mt-2 d-inline-block" style="width: fit-content;">
                             <img src="{{ asset('Sponsors/logo SCU.png') }}" class="img-fluid" alt="SCU" style="max-height: 40px; width: auto;">
@@ -295,6 +327,22 @@
         <script src="{{ asset('js/jquery.sticky.js') }}"></script>
         <script src="{{ asset('js/custom.js') }}"></script>
         @stack('scripts')
+
+        {{-- SCRIPT FOR MOBILE NAVBAR BG --}}
+        <script>
+            // This script forces the navbar to look "sticky" (white BG) 
+            // when the mobile hamburger menu is opened.
+            const navbar = document.querySelector('.navbar');
+            const navbarCollapse = document.querySelector('#navbarNav');
+
+            navbarCollapse.addEventListener('show.bs.collapse', function () {
+                navbar.classList.add('mobile-menu-open');
+            });
+
+            navbarCollapse.addEventListener('hide.bs.collapse', function () {
+                navbar.classList.remove('mobile-menu-open');
+            });
+        </script>
 
     </body>
 </html>
