@@ -195,14 +195,15 @@
                             {{-- This card has the 'event-card' class now --}}
                             <div class="custom-block bg-white shadow-lg h-100 d-flex flex-column event-card">
                                 
+                                <span class="badge bg-secondary event-card-badge" style="position: absolute; top: 25px; right: 25px;">
+                                    {{ $event->start_at->format('M d') }}
+                                </span>
+
                                 <div class="position-relative">
                                     <a href="{{ route('event.details', $event) }}">
                                         {{-- This image will be 200px high and fully rounded --}}
                                         <img src="{{ Storage::url($event->image_path) }}" class="custom-block-image img-fluid" alt="{{ $event->title }}">
                                     </a>
-                                    <span class="badge bg-secondary event-card-badge">
-                                        {{ $event->start_at->format('M d') }}
-                                    </span>
                                 </div>
 
                                 <div class="p-3 d-flex flex-column flex-grow-1">

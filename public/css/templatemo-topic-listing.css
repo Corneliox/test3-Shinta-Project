@@ -747,3 +747,220 @@ blockquote {
 .sm-space { padding: 0.3125rem; } /*5px*/
 .md-space { padding: 0.625rem; } /*10px*/
 
+/* ============================================================
+   CREATIVE SECTION — MOBILE FIXES
+   ============================================================ */
+@media (max-width: 991px) {
+
+    /* Force Creative Titles (Lukisan / Craft) to be centered on mobile */
+    #section_4 h3 {
+        text-align: center !important;
+        margin-bottom: 15px !important;
+    }
+
+    /* Container for scroll */
+    .horizontal-scroll-wrapper {
+        overflow-x: auto !important;
+        overflow-y: hidden;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x proximity;
+        padding-bottom: 10px;
+    }
+
+    .horizontal-scroll-wrapper::-webkit-scrollbar {
+        display: none;
+    }
+
+    .horizontal-scroll-wrapper .d-flex {
+        gap: 15px !important;
+        padding: 10px 0 !important;
+    }
+
+    .scroll-item {
+        flex: 0 0 auto;
+        scroll-snap-align: start;
+    }
+
+    /* Make items smaller for mobile */
+    .scroll-item .custom-block {
+        width: 220px !important;
+    }
+
+    /* Fix reversed row for "Craft" so it stacks vertically */
+    #section_4 .row .order-md-1,
+    #section_4 .row .order-md-2 {
+        order: initial !important;
+        text-align: center !important;
+    }
+}
+
+
+/* ============================================================
+   ARTIST ARTWORK SECTION — MOBILE FIXES
+   ============================================================ */
+@media (max-width: 991px) {
+
+    /* Make every artist row become vertical */
+    .artist-row,
+    .row.mb-5.pb-lg-5.align-items-center {
+        display: block !important;
+    }
+
+    /* Artist image and name centered */
+    .artist-profile-frame {
+        margin: 0 auto !important;
+        display: block;
+    }
+
+    .row h4 {
+        text-align: center !important;
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
+
+    /* Move artwork scroller below the artist image in all cases */
+    .row .col-lg-10,
+    .row .col-md-9,
+    .row .col-12 {
+        text-align: center !important;
+    }
+
+    /* Horizontal scroll consistent for artist items */
+    .horizontal-scroll-wrapper {
+        overflow-x: auto !important;
+        overflow-y: hidden;
+        white-space: nowrap;
+        scroll-snap-type: x proximity;
+    }
+
+    .horizontal-scroll-wrapper .d-flex {
+        gap: 15px !important;
+        padding: 15px 0 !important;
+    }
+
+    /* Artwork cards smaller for mobile */
+    .scroll-item .custom-block {
+        width: 220px !important;
+    }
+
+    /* Full block clickable */
+    a.custom-block-link {
+        display: inline-block;
+    }
+}
+
+/* ============================================================
+   EVENTS SECTION — MOBILE FIXES (max-width: 991px)
+   ============================================================ */
+@media (max-width: 991px) {
+
+    /* Force every column to center its child
+    #section_3 .row > [class*="col-"] {
+        display: flex !important;
+        justify-content: center !important;
+    } */
+
+    #section_3 .event-card {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    }
+
+
+    /* Center entire card block */
+    #section_3 .custom-block,
+    #section_3 .event-card,
+    #section_3 .custom-block-overlay {
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    /* Center content inside event cards */
+    #section_3 .event-card,
+    #section_3 .custom-block-overlay-text,
+    #section_3 .custom-block {
+        text-align: center !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* Center the Learn More button */
+    #section_3 .event-card .btn,
+    #section_3 .custom-block-overlay-text .btn {
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    /* Center text elements */
+    #section_3 h3,
+    #section_3 h5,
+    #section_3 p {
+        text-align: center !important;
+    }
+
+    /* Badge for small event cards */
+    .event-card-badge {
+        position: absolute !important;
+        top: 10px !important;
+        right: 10px !important;
+        transform: none !important;
+        margin: 0 !important;
+        z-index: 20;
+    }
+
+    /* Badge on pinned (big) event */
+    .custom-block-overlay-text .badge {
+        position: absolute !important;
+        top: 15px !important;
+        right: 15px !important;
+        z-index: 20;
+    }
+
+    /* Center pinned event text layout */
+    .custom-block-overlay-text .d-flex {
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+
+    .custom-block-overlay-text p,
+    .custom-block-overlay-text h3 {
+        text-align: center !important;
+        width: 100%;
+    }
+}
+
+/* Fix mobile overflow causing right gap */
+html, body {
+    overflow-x: hidden !important;
+}
+
+/* Ensure rows do not exceed viewport */
+#section_3 .row {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    overflow-x: hidden !important;
+}
+
+/* Ensure columns don't force extra width */
+/* #section_3 .row > [class*="col-"] {
+    max-width: 100% !important;
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+} */
+
+/* Badge no longer pushes card wider */
+.event-card-badge {
+    right: 10px !important;
+    top: 10px !important;
+}
+
+@media (max-width: 991px) {
+    #section_3 .row > [class*="col-"] {
+        max-width: 100% !important;
+        padding-right: 0 !important;
+        padding-left: 0 !important;
+        justify-content: center !important;
+        display: flex !important;
+    }
+}
+
