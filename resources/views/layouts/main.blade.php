@@ -115,14 +115,23 @@
                 z-index: 9999;
                 display: flex;
                 gap: 5px;
-                background: rgba(30, 30, 30, 0.85); /* Dark background */
+                background: rgba(30, 30, 30, 0.85);
                 backdrop-filter: blur(10px);
                 -webkit-backdrop-filter: blur(10px);
                 box-shadow: 0 8px 30px rgba(0,0,0,0.3);
                 padding: 10px 15px;
                 border-radius: 50px;
                 min-width: 320px;
-                justify-content: space-around; /* Distribute evenly */
+                justify-content: space-around;
+                /* SMOOTH TRANSITION FOR HIDING */
+                transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+                opacity: 1;
+            }
+
+            /* Class to hide it */
+            .bottom-nav.nav-hidden {
+                transform: translateX(-50%) translateY(150%);
+                opacity: 0;
             }
 
             /* Buttons */
@@ -321,9 +330,6 @@
                             <div class="bg-white rounded p-2 d-flex align-items-center justify-content-center" style="width: fit-content;">
                                 <img src="{{ asset('Sponsors/logo diktisaintek.png') }}" class="img-fluid" alt="Diktisaintek" style="max-height: 35px; width: auto;">
                             </div>
-                            <!-- <div class="bg-white rounded p-2 d-flex align-items-center justify-content-center" style="width: fit-content;">
-                                <img src="{{ asset('Sponsors/logo BIMA trans.png') }}" class="img-fluid" alt="BIMA Trans" style="max-height: 35px; width: auto;">
-                            </div> -->
                         </div>
                         <div class="bg-white rounded p-2 mb-2 mt-2 d-inline-block" style="width: fit-content;">
                             <img src="{{ asset('Sponsors/logo SCU.png') }}" class="img-fluid" alt="SCU" style="max-height: 40px; width: auto;">
@@ -373,83 +379,85 @@
             </div>
         </footer>
 
+        {{-- FLOATING BOTTOM NAV (Placed BEFORE Scripts) --}}
+        <nav id="wopanco-bottom-nav" class="bottom-nav d-lg-none">
+            {{-- HOME --}}
+            <a href="{{ route('home') }}" class="bn-btn text-decoration-none {{ request()->routeIs('home') ? 'active' : '' }}">
+                <i class="bi-house-door-fill"></i>
+                <small>Home</small>
+            </a>
+            {{-- ABOUT --}}
+            <a href="{{ route('about') }}" class="bn-btn text-decoration-none {{ request()->routeIs('about') ? 'active' : '' }}">
+                <i class="bi-list-ul"></i>
+                <small>About</small>
+            </a>
+            {{-- MARKETPLACE --}}
+            <a href="{{ route('marketplace.index') }}" class="bn-btn text-decoration-none {{ request()->routeIs('marketplace.index') ? 'active' : '' }}">
+                <i class="bi-shop"></i>
+                <small>Shop</small>
+            </a>
+            {{-- PROFILE / LOGIN --}}
+            @auth
+                <a href="{{ route('profile.user.show') }}" class="bn-btn text-decoration-none {{ request()->routeIs('profile.*') ? 'active' : '' }}">
+                    <i class="bi-person-circle"></i>
+                    <small>Profile</small>
+                </a>
+            @else
+                <a href="{{ route('login') }}" class="bn-btn text-decoration-none {{ request()->routeIs('login') ? 'active' : '' }}">
+                    <i class="bi-box-arrow-in-right"></i>
+                    <small>Login</small>
+                </a>
+            @endauth
+        </nav>
+
+        {{-- SCRIPTS --}}
         <script src="{{ asset('js/jquery.min.js') }}"></script>
         <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
         <script src="{{ asset('js/jquery.sticky.js') }}"></script>
         <script src="{{ asset('js/custom.js') }}"></script>
         @stack('scripts')
 
-        {{-- SCRIPT FOR MOBILE NAVBAR BG --}}
+        {{-- SCRIPT FOR MOBILE NAVBAR & SCROLL --}}
         <script>
-            // This script forces the navbar to look "sticky" (white BG) 
-            // when the mobile hamburger menu is opened.
+            // 1. Mobile Menu Logic
             const navbar = document.querySelector('.navbar');
             const navbarCollapse = document.querySelector('#navbarNav');
 
-            navbarCollapse.addEventListener('show.bs.collapse', function () {
-                navbar.classList.add('mobile-menu-open');
-            });
-
-            navbarCollapse.addEventListener('hide.bs.collapse', function () {
-                navbar.classList.remove('mobile-menu-open');
-            });
-
-              // ---------- bottom nav interactions ----------
-            const openChipsBtn = document.getElementById('openChipsBtn');
-            if (openChipsBtn) {
-                openChipsBtn.addEventListener('click', () => {
-                // scroll to chips area
-                const chipsArea = document.querySelector('.chips-wrapper');
-                if (chipsArea) {
-                    window.scrollTo({ top: chipsArea.getBoundingClientRect().top + window.scrollY - 90, behavior: 'smooth' });
-                }
-                // highlight it briefly
-                chipsArea && chipsArea.classList.add('chips-focus');
-                setTimeout(()=> chipsArea && chipsArea.classList.remove('chips-focus'), 1100);
+            if (navbar && navbarCollapse) {
+                navbarCollapse.addEventListener('show.bs.collapse', function () {
+                    navbar.classList.add('mobile-menu-open');
+                });
+                navbarCollapse.addEventListener('hide.bs.collapse', function () {
+                    navbar.classList.remove('mobile-menu-open');
                 });
             }
+
+            // 2. BOTTOM NAV SCROLL LOGIC
+            document.addEventListener('DOMContentLoaded', function() {
+                const bottomNav = document.getElementById('wopanco-bottom-nav');
+                let lastScrollTop = 0;
+                
+                if (bottomNav) {
+                    window.addEventListener('scroll', function() {
+                        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                        
+                        // Prevent negative scrolling (iOS)
+                        if (scrollTop < 0) return;
+
+                        // Check Scroll Direction
+                        if (scrollTop > lastScrollTop && scrollTop > 100) {
+                            // Scrolling DOWN -> Hide
+                            bottomNav.classList.add('nav-hidden');
+                        } else {
+                            // Scrolling UP -> Show
+                            bottomNav.classList.remove('nav-hidden');
+                        }
+                        
+                        lastScrollTop = scrollTop;
+                    });
+                }
+            });
         </script>
-
-            <!-- FLOATING BOTTOM NAV (Mobile) -->
-    <nav id="wopanco-bottom-nav" class="bottom-nav d-lg-none">
-        
-        {{-- HOME --}}
-        <a href="{{ route('home') }}" 
-           class="bn-btn text-decoration-none {{ request()->routeIs('home') ? 'active' : '' }}">
-            <i class="bi-house-door-fill"></i>
-            <small>Home</small>
-        </a>
-
-        {{-- ABOUT --}}
-        <a href="{{ route('about') }}" 
-           class="bn-btn text-decoration-none {{ request()->routeIs('about') ? 'active' : '' }}">
-            <i class="bi-list-ul"></i>
-            <small>About</small>
-        </a>
-
-        {{-- MARKETPLACE --}}
-        <a href="{{ route('marketplace.index') }}" 
-           class="bn-btn text-decoration-none {{ request()->routeIs('marketplace.index') ? 'active' : '' }}">
-            <i class="bi-shop"></i>
-            <small>Shop</small>
-        </a>
-
-        {{-- PROFILE / LOGIN --}}
-        @auth
-            <a href="{{ route('profile.user.show') }}" 
-               class="bn-btn text-decoration-none {{ request()->routeIs('profile.*') ? 'active' : '' }}">
-                <i class="bi-person-circle"></i>
-                <small>Profile</small>
-            </a>
-        @else
-            <a href="{{ route('login') }}" 
-               class="bn-btn text-decoration-none {{ request()->routeIs('login') ? 'active' : '' }}">
-                <i class="bi-box-arrow-in-right"></i>
-                <small>Login</small>
-            </a>
-        @endauth
-
-    </nav>
 
     </body>
 </html>
