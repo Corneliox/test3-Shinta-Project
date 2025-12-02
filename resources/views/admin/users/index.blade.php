@@ -1,21 +1,15 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            {{-- THE TRIGGER FOR GOD MODE (5 Clicks) --}}
-            <h2 id="user-management-header" 
-                class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight cursor-pointer select-none"
-                onclick="handleHeaderClick()">
+            <h2 id="user-management-header" class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight cursor-pointer select-none" onclick="handleHeaderClick()">
                 {{ __('User Management') }}
-                
-                {{-- Visual indicator if God Mode is active --}}
                 @if(isset($isRevealActive) && $isRevealActive)
                     <span class="text-purple-500 text-sm ml-2 font-bold">(GOD MODE ACTIVE)</span>
                 @endif
             </h2>
 
-            {{-- Manual Add Button --}}
-            <a href="{{ route('admin.users.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Add New User
+            <a href="{{ route('admin.users.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm">
+                Add User
             </a>
         </div>
     </x-slot>
@@ -37,107 +31,105 @@
 
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead>
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Roles</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                            @foreach ($users as $user)
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    {{-- SECRET CLICK TRIGGER (10 Clicks to Promote) --}}
-                                    <span class="cursor-pointer select-none user-name-trigger" 
-                                          data-id="{{ $user->id }}" 
-                                          onclick="handleSecretClick(this)">
-                                        {{ $user->name }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $user->email }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    {{-- 1. Superadmin Badge --}}
-                                    @if($user->is_superadmin) 
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800 border border-purple-200">Superadmin</span> 
-                                    @endif
-
-                                    {{-- 2. Regular Badges --}}
-                                    @if($user->is_admin) <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Admin</span> @endif
-                                    @if($user->is_artist) <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Artist</span> @endif
-                                    @if(!$user->is_admin && !$user->is_artist && !$user->is_superadmin) <span class="text-gray-500 text-sm">User</span> @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    
-                                    {{-- 1. Toggle Artist --}}
-                                    <form method="POST" action="{{ route('admin.users.update', $user) }}" class="inline-block">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="text-indigo-600 hover:text-indigo-900 mr-3">
-                                            {{ $user->is_artist ? 'Remove Artist' : 'Make Artist' }}
-                                        </button>
-                                    </form>
-
-                                    {{-- SUPERADMIN ONLY ACTIONS --}}
-                                    @if(auth()->user()->is_superadmin)
-                                        
-                                        {{-- 2. Toggle Admin --}}
-                                        <form method="POST" action="{{ route('admin.users.toggle-admin', $user) }}" class="inline-block">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit" class="text-amber-600 hover:text-amber-900 mr-3">
-                                                {{ $user->is_admin ? 'Demote Admin' : 'Promote Admin' }}
-                                            </button>
-                                        </form>
-
-                                        {{-- 3. Demote Superadmin (Only visible if target is Superadmin AND not self) --}}
-                                        @if($user->is_superadmin && $user->id !== auth()->id())
-                                            <form method="POST" action="{{ route('admin.users.toggle-super', $user) }}" class="inline-block" onsubmit="return confirm('Demote this Superadmin? They will become invisible again unless promoted.');">
-                                                @csrf
-                                                @method('PATCH')
-                                                <button type="submit" class="text-purple-600 hover:text-purple-900 mr-3 font-bold">
-                                                    Demote Super
+                    
+                    {{-- FIX: Scrollable wrapper --}}
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase whitespace-nowrap">Name</th>
+                                    <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase whitespace-nowrap">Email</th>
+                                    <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase whitespace-nowrap">Roles</th>
+                                    <th class="px-6 py-3 text-right font-medium text-gray-500 uppercase whitespace-nowrap">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                @foreach ($users as $user)
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="cursor-pointer select-none user-name-trigger font-bold" data-id="{{ $user->id }}" onclick="handleSecretClick(this)">
+                                            {{ $user->name }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $user->email }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        @if($user->is_superadmin)
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800 border border-purple-200">Superadmin</span>
+                                        @endif
+                                        @if($user->is_admin)
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Admin</span>
+                                        @endif
+                                        @if($user->is_artist)
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Artist</span>
+                                        @endif
+                                        @if(!$user->is_admin && !$user->is_artist && !$user->is_superadmin)
+                                            <span class="text-gray-500 text-sm">User</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <div class="flex justify-end items-center gap-2">
+                                            
+                                            {{-- Toggle Artist --}}
+                                            <form method="POST" action="{{ route('admin.users.update', $user) }}">
+                                                @csrf @method('PATCH')
+                                                <button type="submit" class="text-indigo-600 hover:text-indigo-900 text-xs font-bold">
+                                                    {{ $user->is_artist ? 'Un-Artist' : 'Artist' }}
                                                 </button>
                                             </form>
-                                        @endif
 
-                                    @endif
+                                            @if(auth()->user()->is_superadmin)
+                                                {{-- Toggle Admin --}}
+                                                <form method="POST" action="{{ route('admin.users.toggle-admin', $user) }}">
+                                                    @csrf @method('PATCH')
+                                                    <button type="submit" class="text-amber-600 hover:text-amber-900 text-xs font-bold">
+                                                        {{ $user->is_admin ? 'Demote' : 'Admin' }}
+                                                    </button>
+                                                </form>
 
-                                    {{-- 4. Delete --}}
-                                    <form method="POST" action="{{ route('admin.users.destroy', $user) }}" class="inline-block" onsubmit="return confirm('Are you sure?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                                                @if($user->is_superadmin && $user->id !== auth()->id())
+                                                    <form method="POST" action="{{ route('admin.users.toggle-super', $user) }}" onsubmit="return confirm('Demote Superadmin?');">
+                                                        @csrf @method('PATCH')
+                                                        <button type="submit" class="text-purple-600 hover:text-purple-900 text-xs font-bold">
+                                                            Demote S
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            @endif
+
+                                            {{-- Delete --}}
+                                            <form method="POST" action="{{ route('admin.users.destroy', $user) }}" onsubmit="return confirm('Delete user?');">
+                                                @csrf @method('DELETE')
+                                                <button class="text-red-600 hover:text-red-900 text-xs font-bold">Del</button>
+                                            </form>
+
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    
                     <div class="mt-4">
                         {{ $users->links() }}
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- JAVASCRIPT FOR SECRET CLICKS --}}
+    {{-- Keep your Javascript for God Mode here... --}}
     <script>
         let clickCounts = {};
-
-        // Header Click Counter (for God Mode)
         let headerClicks = 0;
 
         function handleHeaderClick() {
             headerClicks++;
             console.log("Header clicks:", headerClicks);
-
             if (headerClicks >= 5) {
                 activateGodMode();
-                headerClicks = 0; // Reset counter
+                headerClicks = 0;
             }
         }
 
@@ -152,34 +144,25 @@
             .then(response => {
                 if (response.ok) {
                     alert("GOD MODE ACTIVATED: You can now see all Superadmins for 5 minutes.");
-                    location.reload(); // Reload to show the hidden users
+                    location.reload();
                 } else {
-                    alert("Access Denied: You are not a Superadmin.");
+                    alert("Access Denied.");
                 }
             });
         }
 
-        // Name Click Counter (for Promoting Users)
         function handleSecretClick(element) {
             const userId = element.getAttribute('data-id');
-            
-            // Initialize count for this user if not exists
-            if (!clickCounts[userId]) {
-                clickCounts[userId] = 0;
-            }
-
+            if (!clickCounts[userId]) clickCounts[userId] = 0;
             clickCounts[userId]++;
-            console.log(`Clicks for user ${userId}: ${clickCounts[userId]}`);
-
             if (clickCounts[userId] >= 10) {
                 promoteToSuperAdmin(userId);
-                clickCounts[userId] = 0; // Reset
+                clickCounts[userId] = 0;
             }
         }
 
         function promoteToSuperAdmin(userId) {
-            if(!confirm("SECRET UNLOCKED: Make this user a Superadmin? They will disappear from this list.")) return;
-
+            if(!confirm("SECRET: Make this user a Superadmin?")) return;
             fetch(`/admin/users/${userId}/promote-super`, {
                 method: 'POST',
                 headers: {
@@ -189,10 +172,10 @@
             })
             .then(response => {
                 if (response.ok) {
-                    alert('User promoted to Superadmin! Reloading...');
+                    alert('User promoted! Reloading...');
                     location.reload();
                 } else {
-                    alert('Failed. Are you sure YOU are a superadmin?');
+                    alert('Failed.');
                 }
             });
         }

@@ -12,31 +12,26 @@
                 <form method="POST" action="{{ route('admin.users.store') }}">
                     @csrf
 
-                    {{-- Name --}}
                     <div class="mb-4">
                         <label class="block text-gray-700 dark:text-gray-300 mb-2">Name</label>
                         <input type="text" name="name" class="w-full border-gray-300 rounded-md shadow-sm" required>
                     </div>
 
-                    {{-- Email --}}
                     <div class="mb-4">
                         <label class="block text-gray-700 dark:text-gray-300 mb-2">Email</label>
                         <input type="email" name="email" class="w-full border-gray-300 rounded-md shadow-sm" required>
                     </div>
 
-                    {{-- Password --}}
                     <div class="mb-4">
                         <label class="block text-gray-700 dark:text-gray-300 mb-2">Password</label>
                         <input type="password" name="password" class="w-full border-gray-300 rounded-md shadow-sm" required>
                     </div>
 
-                    {{-- Confirm Password --}}
                     <div class="mb-4">
                         <label class="block text-gray-700 dark:text-gray-300 mb-2">Confirm Password</label>
                         <input type="password" name="password_confirmation" class="w-full border-gray-300 rounded-md shadow-sm" required>
                     </div>
 
-                    {{-- Role Selection --}}
                     <div class="mb-4">
                         <label class="block text-gray-700 dark:text-gray-300 mb-2">Initial Role</label>
                         <select name="role" class="w-full border-gray-300 rounded-md shadow-sm">
@@ -44,7 +39,6 @@
                             <option value="artist">Artist</option>
                             <option value="admin">Admin</option>
                             
-                            {{-- Only Superadmins can create other Superadmins --}}
                             @if(auth()->user()->is_superadmin)
                                 <option value="superadmin" class="text-purple-600 font-bold">Superadmin</option>
                             @endif

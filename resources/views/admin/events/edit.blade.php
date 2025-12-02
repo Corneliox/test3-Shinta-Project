@@ -5,61 +5,66 @@
         </h2>
     </x-slot>
 
-    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm">
-        <div class="p-6 text-gray-900 dark:text-gray-100">
-            <form method="POST" action="{{ route('admin.events.update', $event) }}" enctype="multipart/form-data">
-                @csrf
-                @method('PATCH')
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
+                    <form method="POST" action="{{ route('admin.events.update', $event) }}" enctype="multipart/form-data">
+                        @csrf
+                        @method('PATCH')
 
-                <div>
-                    <x-input-label for="title" :value="__('Title')" />
-                    <x-text-input id="title" class="block mt-1 w-full" type="text" name="title" :value="old('title', $event->title)" required autofocus />
-                    <x-input-error :messages="$errors->get('title')" class="mt-2" />
-                </div>
+                        <div>
+                            <x-input-label for="title" :value="__('Title')" />
+                            <x-text-input id="title" class="block mt-1 w-full" type="text" name="title" :value="old('title', $event->title)" required autofocus />
+                            <x-input-error :messages="$errors->get('title')" class="mt-2" />
+                        </div>
 
-                <div class="mt-4">
-                    <x-input-label for="description" :value="__('Description')" />
-                    <textarea id="description" name="description" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">{{ old('description', $event->description) }}</textarea>
-                    <x-input-error :messages="$errors->get('description')" class="mt-2" />
-                </div>
+                        <div class="mt-4">
+                            <x-input-label for="description" :value="__('Description')" />
+                            <textarea id="description" name="description" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">{{ old('description', $event->description) }}</textarea>
+                            <x-input-error :messages="$errors->get('description')" class="mt-2" />
+                        </div>
 
-                <div class="mt-4">
-                    <x-input-label for="image" :value="__('Event Image (Optional)')" />
-                    <div class="mt-2">
-                        <img src="{{ Storage::url($event->image_path) }}" alt="{{ $event->title }}" class="w-48 h-auto rounded-md">
-                    </div>
-                    <input id="image" class="block mt-2 w-full text-gray-900 dark:text-gray-100" type="file" name="image" />
-                    <small class="text-gray-500">Leave blank to keep the current image.</small>
-                    <x-input-error :messages="$errors->get('image')" class="mt-2" />
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4 mt-4">
-                    <div>
-                        <x-input-label for="start_at" :value="__('Start Date')" />
-                        <x-text-input id="start_at" class="block mt-1 w-full" type="datetime-local" name="start_at" :value="old('start_at', $event->start_at->format('Y-m-d\TH:i'))" required />
-                        <x-input-error :messages="$errors->get('start_at')" class="mt-2" />
-                    </div>
-                    <div>
-                        <x-input-label for="end_at" :value="__('End Date')" />
-                        <x-text-input id="end_at" class="block mt-1 w-full" type="datetime-local" name="end_at" :value="old('end_at', $event->end_at->format('Y-m-d\TH:i'))" required />
-                        <x-input-error :messages="$errors->get('end_at')" class="mt-2" />
-                    </div>
-                </div>
+                        <div class="mt-4">
+                            <x-input-label for="image" :value="__('Event Image (Optional)')" />
+                            <div class="mt-2">
+                                <img src="{{ Storage::url($event->image_path) }}" alt="{{ $event->title }}" class="w-full sm:w-48 h-auto rounded-md object-cover">
+                            </div>
+                            <input id="image" class="block mt-2 w-full text-gray-900 dark:text-gray-100 border border-gray-300 rounded-md cursor-pointer bg-gray-50 dark:bg-gray-700 focus:outline-none" type="file" name="image" />
+                            <small class="text-gray-500">Leave blank to keep the current image.</small>
+                            <x-input-error :messages="$errors->get('image')" class="mt-2" />
+                        </div>
+                        
+                        {{-- FIX: Responsive Grid --}}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <div>
+                                <x-input-label for="start_at" :value="__('Start Date')" />
+                                <x-text-input id="start_at" class="block mt-1 w-full" type="datetime-local" name="start_at" :value="old('start_at', $event->start_at->format('Y-m-d\TH:i'))" required />
+                                <x-input-error :messages="$errors->get('start_at')" class="mt-2" />
+                            </div>
+                            <div>
+                                <x-input-label for="end_at" :value="__('End Date')" />
+                                <x-text-input id="end_at" class="block mt-1 w-full" type="datetime-local" name="end_at" :value="old('end_at', $event->end_at->format('Y-m-d\TH:i'))" required />
+                                <x-input-error :messages="$errors->get('end_at')" class="mt-2" />
+                            </div>
+                        </div>
 
-                <div class="block mt-4">
-                    <label for="is_pinned" class="inline-flex items-center">
-                        <input id="is_pinned" type="checkbox" name="is_pinned" value="1" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800"
-                            @checked(old('is_pinned', $event->is_pinned)) >
-                        <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Pin this event? (Will show as the "big" event on homepage)') }}</span>
-                    </label>
-                </div>
+                        <div class="block mt-4">
+                            <label for="is_pinned" class="inline-flex items-center">
+                                <input id="is_pinned" type="checkbox" name="is_pinned" value="1" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800"
+                                    @checked(old('is_pinned', $event->is_pinned)) >
+                                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Pin this event?') }}</span>
+                            </label>
+                        </div>
 
-                <div class="flex items-center justify-end mt-4">
-                    <x-primary-button>
-                        {{ __('Update Event') }}
-                    </x-primary-button>
+                        <div class="flex items-center justify-end mt-4">
+                            <x-primary-button>
+                                {{ __('Update Event') }}
+                            </x-primary-button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </x-app-layout>

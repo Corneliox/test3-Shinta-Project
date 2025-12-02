@@ -11,19 +11,21 @@ class SearchController extends Controller
 {
     public function index(Request $request)
     {
+        $request->validate([
+                'keyword' => 'nullable|string|max:100', 
+            ]);
+
         $keyword = $request->input('keyword');
 
         if (empty($keyword)) {
             return redirect()->route('home');
         }
 
-        // Search Artists (with their profile)
         $artists = User::where('is_artist', true)
                         ->where('name', 'LIKE', "%{$keyword}%")
-                        ->with('artistProfile') // <-- THIS IS THE FIX
+                        ->with('artistProfile')
                         ->get();
 
-        // Search Events
         $events = Event::where('title', 'LIKE', "%{$keyword}%")
                         ->orWhere('description', 'LIKE', "%{$keyword}%")
                         ->get();
@@ -31,7 +33,7 @@ class SearchController extends Controller
         // Search Artworks (with their user)
         $artworks = Artwork::where('title', 'LIKE', "%{$keyword}%")
                         ->orWhere('description', 'LIKE', "%{$keyword}%")
-                        ->with('user') // <-- This is also important
+                        ->with('user')
                         ->get();
 
         return view('search.results', [
@@ -40,5 +42,7 @@ class SearchController extends Controller
             'events' => $events,
             'artworks' => $artworks,
         ]);
+        
     }
+    
 }

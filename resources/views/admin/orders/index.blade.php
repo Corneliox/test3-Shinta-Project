@@ -20,15 +20,16 @@
                     @if($pendingOrders->isEmpty())
                         <p class="text-center text-gray-500">No pending orders right now.</p>
                     @else
+                        {{-- FIX: Scrollable Wrapper --}}
                         <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
                                 <thead class="bg-gray-50 dark:bg-gray-700">
                                     <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Item</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Artist</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Timer (6H)</th>
-                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Action</th>
+                                        <th class="px-6 py-3 text-left font-medium uppercase whitespace-nowrap">Item</th>
+                                        <th class="px-6 py-3 text-left font-medium uppercase whitespace-nowrap">Artist</th>
+                                        <th class="px-6 py-3 text-left font-medium uppercase whitespace-nowrap">Price</th>
+                                        <th class="px-6 py-3 text-left font-medium uppercase whitespace-nowrap">Timer (6H)</th>
+                                        <th class="px-6 py-3 text-right font-medium uppercase whitespace-nowrap">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -55,7 +56,7 @@
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             @if($item->reserved_until && now()->lessThan($item->reserved_until))
                                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                    Expires in {{ now()->diffInHours($item->reserved_until) }}h {{ now()->diffInMinutes($item->reserved_until) % 60 }}m
+                                                    {{ now()->diffInHours($item->reserved_until) }}h {{ now()->diffInMinutes($item->reserved_until) % 60 }}m
                                                 </span>
                                             @else
                                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
@@ -65,18 +66,16 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div class="flex justify-end gap-2">
-                                                {{-- CONFIRM BUTTON --}}
                                                 <form action="{{ route('admin.orders.confirm', $item) }}" method="POST">
                                                     @csrf
                                                     <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-3 rounded text-xs">
-                                                        Confirm Deal
+                                                        Confirm
                                                     </button>
                                                 </form>
 
-                                                {{-- REJECT BUTTON --}}
                                                 <form action="{{ route('admin.orders.reject', $item) }}" method="POST">
                                                     @csrf
-                                                    <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded text-xs" onclick="return confirm('Cancel reservation and return stock?')">
+                                                    <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded text-xs" onclick="return confirm('Cancel reservation?')">
                                                         Cancel
                                                     </button>
                                                 </form>
