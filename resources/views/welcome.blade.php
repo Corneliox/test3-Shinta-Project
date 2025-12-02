@@ -292,7 +292,7 @@
                 {{-- Scrolling items (comes first in HTML) --}}
                 <div class="col-lg-10 col-md-9 col-12 order-md-1">
                     
-                    <div class="horizontal-scroll-wrapper justify-content-end">
+                    <div class="horizontal-scroll-wrapper reverse-row">
                         
                         <div class="d-flex flex-nowrap" style="padding:20px">
 

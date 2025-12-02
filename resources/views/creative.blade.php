@@ -49,7 +49,7 @@
                         
                         {{-- ARTWORK SCROLLER (LEFT, scrolls R-to-L) --}}
                         <div class="col-lg-10 col-md-9 col-12 order-md-1">
-                            <div class="horizontal-scroll-wrapper justify-content-end">
+                            <div class="horizontal-scroll-wrapper reverse-row">
                                 <div class="d-flex flex-nowrap">
                                     
                                     @forelse($artist->artworks as $artwork)
