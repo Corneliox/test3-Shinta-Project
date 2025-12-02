@@ -1,6 +1,12 @@
 <x-guest-layout>
-    {{-- FIX 1: Load the Icons specifically for this page --}}
+    {{-- FIX 1: Load Icons --}}
     <link href="{{ asset('css/bootstrap-icons.css') }}" rel="stylesheet">
+
+    {{-- FIX 2: ADDED TITLE --}}
+    <div class="mb-5 text-center">
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">{{ __('Login') }}</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400">{{ __('Welcome back! Please login to continue.') }}</p>
+    </div>
 
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
@@ -22,7 +28,6 @@
                                 name="password"
                                 required autocomplete="current-password" />
 
-                {{-- Updated Icon Color: text-gray-400 --}}
                 <span class="absolute inset-y-0 right-0 flex items-center justify-center cursor-pointer text-gray-400 hover:text-gray-600"
                       style="width: 50px;"
                       onclick="togglePassword('password', 'login-eye')">
@@ -40,6 +45,13 @@
             </label>
         </div>
 
+        <div class="flex mt-6 text-center justify-end">
+            <a href="{{ route('register') }}" 
+            class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+                {{ __("Don't have an account? Register") }}
+            </a>
+        </div>
+        
         <div class="flex items-center justify-end mt-4">
             @if (Route::has('password.request'))
                 <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}">

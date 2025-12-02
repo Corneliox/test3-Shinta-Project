@@ -1,6 +1,12 @@
 <x-guest-layout>
-    {{-- FIX 1: Load the Icons --}}
+    {{-- FIX 1: Load Icons --}}
     <link href="{{ asset('css/bootstrap-icons.css') }}" rel="stylesheet">
+
+    {{-- FIX 2: ADDED TITLE --}}
+    <div class="mb-5 text-center">
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">{{ __('Register') }}</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400">{{ __('Create a new account.') }}</p>
+    </div>
 
     <form method="POST" action="{{ route('register') }}">
         @csrf
@@ -26,7 +32,6 @@
                                 name="password"
                                 required autocomplete="new-password" />
                 
-                {{-- Updated Icon Color --}}
                 <span class="absolute inset-y-0 right-0 flex items-center justify-center cursor-pointer text-gray-400 hover:text-gray-600"
                       style="width: 50px;"
                       onclick="togglePassword('password', 'reg-eye-1')">
@@ -45,7 +50,6 @@
                                 type="password"
                                 name="password_confirmation" required autocomplete="new-password" />
 
-                {{-- Updated Icon Color --}}
                 <span class="absolute inset-y-0 right-0 flex items-center justify-center cursor-pointer text-gray-400 hover:text-gray-600"
                       style="width: 50px;"
                       onclick="togglePassword('password_confirmation', 'reg-eye-2')">
@@ -56,12 +60,13 @@
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
+        {{-- FIX 3: IMPROVED BOTTOM LAYOUT (Flex Wrap for Mobile) --}}
+        <div class="flex flex-col sm:flex-row items-center justify-end mt-6 gap-4">
             <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('login') }}">
                 {{ __('Already registered?') }}
             </a>
 
-            <x-primary-button class="ms-4">
+            <x-primary-button class="w-full sm:w-auto justify-center">
                 {{ __('Register') }}
             </x-primary-button>
         </div>
