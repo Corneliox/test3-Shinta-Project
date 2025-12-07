@@ -57,7 +57,8 @@
 
                     <h4 class="mb-4"
                         style="color: var(--border-color); font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">
-                        Painting, Sharing, Empowering
+                        Painting, Sharing, <br>
+                        Empowering
                     </h4>
 
                     <form method="GET" action="{{ route('search.index') }}" class="custom-form mb-4" role="search">
@@ -69,11 +70,11 @@
                         <button type="submit" class="btn custom-btn w-100 mt-3 shadow-sm">Search</button>
                     </form>
 
-                    <div class="text-center text-lg-start">
+                    <!-- <div class="text-center text-lg-start">
                         <a href="{{ route('about') }}" class="btn custom-border-btn w-100">
                             Tentang WOPANCO
                         </a>
-                    </div>
+                    </div> -->
 
                 </div>
 
@@ -448,40 +449,48 @@
             }
         }
 
-        /* 3. Swiper Container */
+        /* Swiper Container */
         .heroSwiper {
             width: 100%;
             padding-top: 30px;
             padding-bottom: 30px;
-            overflow: hidden; /* Changed to hidden to respect 20-60-20 boundaries */
+            overflow: hidden; 
         }
 
-        /* 4. Slide Styles (The Side Images / Default State) */
+        /* Swiper Wrapper - Custom Easing for the "Swipe Feel" */
+        .swiper-wrapper {
+            /* This bezier curve starts slightly fast and slows down smoothly, mimicking momentum */
+            transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1) !important;
+        }
+
+        /* Slide Styles */
         .swiper-slide {
             background-position: center;
             background-size: cover;
-            
-            /* HEIGHT LIMIT: 400px */
             height: 400px; 
-            
-            /* WIDTH LOGIC: 60% for Main, leaving 20% Left & 20% Right */
             width: 60%; 
-            
             border-radius: 15px;
             overflow: hidden;
             
-            /* VISUALS: Blur and Fade for side items */
+            /* Visuals for side images */
             opacity: 0.6; 
-            filter: blur(4px); /* Slightly Blur */
-            transition: all 0.5s ease;
+            filter: blur(4px); 
             box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+
+            /* GPU Acceleration for smoothness */
+            transform: translate3d(0,0,0);
+            backface-visibility: hidden; 
+            will-change: transform, opacity, filter;
+            
+            /* Only animate opacity/filter via CSS. Position is handled by Swiper JS */
+            transition: opacity 1s ease, filter 1s ease; 
         }
 
-        /* Mobile specific adjustments */
+        /* Mobile Adjustments */
         @media(max-width: 768px) {
             .swiper-slide {
-                width: 75%; /* On mobile, main image takes a bit more space */
-                height: 300px; /* Smaller height for mobile */
+                width: 75%; 
+                height: 300px; 
             }
         }
 
@@ -489,17 +498,16 @@
             display: block;
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Ensures image fills 400px without stretch */
+            object-fit: cover; 
         }
 
-        /* 5. Active Slide (The Center Image / 60% Segment) */
+        /* Active Slide (Center) */
         .swiper-slide-active {
             opacity: 1 !important; 
-            filter: blur(0) !important; /* Clear */
+            filter: blur(0) !important; 
             z-index: 10;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6); /* Deeper shadow when active */
             border: 2px solid var(--border-color);
-            transform: scale(1.05); /* Slight pop */
         }
         
         /* Navigation Buttons */
@@ -510,6 +518,10 @@
             height: 40px;
             border-radius: 50%;
             backdrop-filter: blur(5px);
+            transition: background 0.3s;
+        }
+        .swiper-button-next:hover, .swiper-button-prev:hover {
+            background: var(--primary-color);
         }
         .swiper-button-next:after, .swiper-button-prev:after {
             font-size: 18px;
@@ -522,30 +534,45 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             var swiper = new Swiper(".heroSwiper", {
-                effect: "coverflow", 
-                grabCursor: true, 
-                centeredSlides: true, 
-                slidesPerView: "auto", 
-                loop: true, 
-                
-                coverflowEffect: {
-                    rotate: 0,      // Keep them flat (no 3D rotation)
-                    stretch: 80,    // Pull side images closer to center
-                    depth: 150,     // Push side images back visually
-                    modifier: 1,
-                    slideShadows: false, // Turn off black shadows for cleaner look
-                },
-                
+                speed: 1000,
+                centeredSlides: true,
+                slidesPerView: "auto",
+                loop: true,
+                spaceBetween: 0,
+
+                // turn OFF coverflow completely
+                effect: "slide",
+
                 autoplay: {
-                    delay: 3000, 
+                    delay: 3500,
                     disableOnInteraction: false,
+                    pauseOnMouseEnter: true,
                 },
-                
+
                 navigation: {
                     nextEl: ".swiper-button-next",
                     prevEl: ".swiper-button-prev",
                 },
+
+                on: {
+                    slideChangeTransitionStart: function () {
+                        // force Swiper to recalibrate classes instantly
+                        this.slides.removeClass('swiper-slide-prev swiper-slide-next');
+                        var active = this.activeIndex;
+
+                        var prev = this.slides.eq(active - 1);
+                        var next = this.slides.eq(active + 1);
+
+                        // loop wrap fixes
+                        if (!prev.length) prev = this.slides.eq(this.slides.length - 1);
+                        if (!next.length) next = this.slides.eq(0);
+
+                        prev.addClass("swiper-slide-prev");
+                        next.addClass("swiper-slide-next");
+                    }
+                }
             });
         });
     </script>
+
 @endpush

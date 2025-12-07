@@ -6,7 +6,11 @@
         <meta name="description" content="">
         <meta name="author" content="">
         <title>WOPANCO - Woman Painter Community</title>
-
+        
+        {{-- FAVICON --}}
+        <link rel="icon" type="image/png" href="{{ asset('images/wopanco2.png') }}">
+        
+        {{-- STYLESHEETS --}}
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Open+Sans&display=swap" rel="stylesheet">
@@ -204,11 +208,11 @@
                             <li class="nav-item">
                                 <a class="nav-link click-scroll" href="{{ route('creative') }}">Creative</a>
                             </li>
-                            <!-- <li class="nav-item">
-                                <a class="nav-link" href="{{ route('marketplace.index') }}">Marketplace</a>
-                            </li> -->
                             <li class="nav-item">
                                 <a class="nav-link click-scroll" href="{{ route('home') }}/#section_5">Contact</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('about') }}">About us</a>
                             </li>
 
                             {{-- MOBILE AUTH LINKS --}}
@@ -346,7 +350,7 @@
                             </a>
                         </p>
                         <p class="text-white d-flex mb-2 align-items-start">
-                            <i class="bi-envelope me-2 mt-1" style="color: #9ca3af;"></i>
+                            <i class="bi-envelope me-2" style="color: #9ca3af;"></i>
                             <a href="mailto:{{ __('messages.contact_email') }}" class="site-footer-link text-break">
                                 {{ __('messages.contact_email') }}
                             </a>
@@ -372,7 +376,7 @@
                                 </a>
                             </div>
                         </div>
-                        <p class="copyright-text">Copyright © 2025 Woman Painter Community.<br><br>Design: <a rel="nofollow" href="https://templatemo.com" target="_blank">TemplateMo</a> & <a rel="nofollow" href="https://github.com/Corneliox" target="_blank">Corneliox</a></p>
+                        <p class="copyright-text">Copyright © 2025 Woman Painter Community.<br><br>Design: <a style="color: var(--secondary-color) !important;" rel="nofollow" href="https://templatemo.com" target="_blank">TemplateMo</a> & <a style="color: var(--secondary-color) !important;" rel="nofollow" href="https://github.com/Corneliox" target="_blank">Corneliox</a></p>
                     </div>
 
                 </div>
