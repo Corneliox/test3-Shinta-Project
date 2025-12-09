@@ -23,16 +23,22 @@ class HeroImageController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'image' => 'required|image|max:5120', // Max 5MB
+            'images' => 'required', // Array is required
+            'images.*' => 'image|max:5120', // Each file inside must be an image, max 5MB
         ]);
 
-        $path = $request->file('image')->store('hero_images', 'public');
+        if($request->hasFile('images')) {
+            // Loop through each uploaded file
+            foreach($request->file('images') as $image) {
+                $path = $image->store('hero_images', 'public');
 
-        HeroImage::create([
-            'image_path' => $path,
-        ]);
+                HeroImage::create([
+                    'image_path' => $path,
+                ]);
+            }
+        }
 
-        return redirect()->route('admin.hero.index')->with('status', 'Image added to carousel!');
+        return redirect()->route('admin.hero.index')->with('status', 'Images added to carousel!');
     }
 
     public function destroy(HeroImage $heroImage)
