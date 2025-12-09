@@ -31,16 +31,11 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        // 1. Manually validate 'phone' in addition to the standard ProfileUpdateRequest rules
-        // We do this here to ensure it gets saved without needing to edit the Request file.
-        $validatedPhone = $request->validate([
-            'phone' => ['nullable', 'string', 'max:20'],
-        ]);
-
+        // We removed the manual 'phone' validation here because
+        // you removed the input from the form.
+        
+        // Just fill the standard data (Name & Email)
         $request->user()->fill($request->validated());
-
-        // 2. Assign the phone number
-        $request->user()->phone = $validatedPhone['phone'];
 
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
