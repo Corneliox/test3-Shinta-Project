@@ -12,7 +12,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Tell Laravel that our public folder is 'public_html'
+        $this->app->usePublicPath('/home/wopg9327/public_html');
     }
 
     /**
