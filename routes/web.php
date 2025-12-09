@@ -183,15 +183,5 @@ Route::get('lang/{locale}', function ($locale) {
     return redirect()->back();
 })->name('lang.switch');
 
-// Debug Route (Optional - remove in production)
-Route::get('/debug-lang', function () {
-    return [
-        '1. Current Locale' => app()->getLocale(),
-        '2. Laravel expects lang files here' => app()->langPath(),
-        '3. Does ID file exist?' => file_exists(app()->langPath().'/id/messages.php') ? 'YES' : 'NO',
-        '4. Does EN file exist?' => file_exists(app()->langPath().'/en/messages.php') ? 'YES' : 'NO',
-        '5. Test Output' => __('messages.about_title'),
-    ];
-});
 
 require __DIR__.'/auth.php';
