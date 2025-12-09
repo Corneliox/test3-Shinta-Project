@@ -5,6 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
+        {{-- FAVICON --}}
+        <link rel="icon" type="image/png" href="{{ asset('images/wopanco2.png') }}">
+        
         <title>{{ config('app.name', 'WOPANCO Admin') }}</title>
 
         <link rel="preconnect" href="https://fonts.bunny.net">

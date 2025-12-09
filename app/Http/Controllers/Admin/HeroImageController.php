@@ -41,14 +41,25 @@ class HeroImageController extends Controller
         return redirect()->route('admin.hero.index')->with('status', 'Images added to carousel!');
     }
 
-    public function destroy(HeroImage $heroImage)
+    /**
+     * Remove the specified hero image from storage.
+     * NOTE: We use $id here to avoid Route Model Binding mismatch issues.
+     */
+    public function destroy($id)
     {
-        // 1. Delete file from storage
-        if (Storage::disk('public')->exists($heroImage->image_path)) {
+        // 1. Manually find the record. If not found, show error.
+        $heroImage = HeroImage::find($id);
+
+        if (!$heroImage) {
+            return back()->with('error', 'Image not found or already deleted.');
+        }
+
+        // 2. Delete the physical file (Safety check included)
+        if (!empty($heroImage->image_path) && Storage::disk('public')->exists($heroImage->image_path)) {
             Storage::disk('public')->delete($heroImage->image_path);
         }
 
-        // 2. Delete record
+        // 3. Delete the database record
         $heroImage->delete();
 
         return back()->with('status', 'Image deleted successfully!');
