@@ -17,7 +17,7 @@
             {{-- ROW 1: TITLE --}}
             <div class="row mb-4">
                 <div class="col-12 text-center">
-                    <h1 class="text-white hero-title">Woman Painter Community Semarang</h1>
+                    <h1 class="text-white hero-title">Woman Painter Community</h1>
                 </div>
             </div>
 
