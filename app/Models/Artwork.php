@@ -61,6 +61,26 @@ class Artwork extends Model
         }
         return 0;
     }
+
+    // AUTOMATIC TITLE TRANSLATOR
+    public function getTitleAttribute($value)
+    {
+        // If current language is ID AND title_id is not empty, return title_id
+        if (App::getLocale() == 'id' && !empty($this->attributes['title_id'])) {
+            return $this->attributes['title_id'];
+        }
+        // Otherwise return default (English)
+        return $value;
+    }
+
+    // AUTOMATIC DESCRIPTION TRANSLATOR
+    public function getDescriptionAttribute($value)
+    {
+        if (App::getLocale() == 'id' && !empty($this->attributes['description_id'])) {
+            return $this->attributes['description_id'];
+        }
+        return $value;
+    }
     
     /**
      * The "booted" method of the model.

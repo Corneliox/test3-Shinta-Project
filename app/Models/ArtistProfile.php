@@ -29,4 +29,13 @@ class ArtistProfile extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    // AUTOMATIC ABOUT TRANSLATOR
+    public function getAboutAttribute($value)
+    {
+        if (App::getLocale() == 'id' && !empty($this->attributes['about_id'])) {
+            return $this->attributes['about_id'];
+        }
+        return $value;
+    }
 }

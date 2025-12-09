@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\Rule;
+use Stichoza\GoogleTranslate\GoogleTranslate; // <--- IMPORT THIS
 
 class ProfileController extends Controller
 {
@@ -113,8 +114,20 @@ class ProfileController extends Controller
             $profile->profile_picture = $path;
         }
 
-        // 5. Save the "About" text
-        $profile->about = $validated['about'];
+        // 5. Save and Translate "About" text
+        if (!empty($validated['about'])) {
+            $tr = new GoogleTranslate(); 
+            
+            // Save English Version
+            $profile->about = $tr->setTarget('en')->translate($validated['about']);
+            
+            // Save Indonesian Version (Assuming you added 'about_id' to database)
+            $profile->about_id = $tr->setTarget('id')->translate($validated['about']);
+        } else {
+            $profile->about = null;
+            $profile->about_id = null;
+        }
+
         $profile->save();
 
         // 6. Redirect back with a success message

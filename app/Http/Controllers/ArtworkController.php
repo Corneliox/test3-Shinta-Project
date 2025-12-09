@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Artwork;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Stichoza\GoogleTranslate\GoogleTranslate; // <--- IMPORT THIS
 
 class ArtworkController extends Controller
 {
@@ -34,8 +35,10 @@ class ArtworkController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            // 'title_id' is generated automatically now
             'category' => 'required|in:Lukisan,Craft',
             'description' => 'nullable|string',
+            // 'description_id' is generated automatically now
             'image' => 'required|image|max:5120',
             // New Validation rules
             'price' => 'nullable|numeric|min:0',
@@ -45,11 +48,25 @@ class ArtworkController extends Controller
 
         $path = $request->file('image')->store('artworks', 'public');
 
+        // --- AUTOMATIC TRANSLATION LOGIC ---
+        $tr = new GoogleTranslate(); // Auto-detects source language
+
+        // 1. Title Translation
+        $title_en = $tr->setTarget('en')->translate($validated['title']);
+        $title_id = $tr->setTarget('id')->translate($validated['title']);
+
+        // 2. Description Translation
+        $desc_en = $validated['description'] ? $tr->setTarget('en')->translate($validated['description']) : null;
+        $desc_id = $validated['description'] ? $tr->setTarget('id')->translate($validated['description']) : null;
+        // -----------------------------------
+
         Artwork::create([
             'user_id' => auth()->id(),
-            'title' => $validated['title'],
+            'title' => $title_en,       // Save English
+            'title_id' => $title_id,    // Save Indonesian
             'category' => $validated['category'],
-            'description' => $validated['description'],
+            'description' => $desc_en,    // Save English
+            'description_id' => $desc_id, // Save Indonesian
             'image_path' => $path,
             // Save new fields
             'price' => $validated['price'],
@@ -58,8 +75,9 @@ class ArtworkController extends Controller
             'promo_price' => $request->input('promo_price'),
         ]);
 
-        return redirect()->route('artworks.index')->with('status', 'Artwork created successfully!');
+        return redirect()->route('artworks.index')->with('status', 'Artwork created & translated successfully!');
     }
+
     /**
      * Show the form for editing the specified artwork.
      */
@@ -78,7 +96,7 @@ class ArtworkController extends Controller
     /**
      * Update the specified artwork in storage.
      */
-public function update(Request $request, Artwork $artwork)
+    public function update(Request $request, Artwork $artwork)
     {
         if ($artwork->user_id !== auth()->id()) abort(403);
 
@@ -99,9 +117,24 @@ public function update(Request $request, Artwork $artwork)
             $artwork->image_path = $path;
         }
 
-        $artwork->title = $validated['title'];
+        // --- AUTOMATIC TRANSLATION LOGIC (UPDATE) ---
+        $tr = new GoogleTranslate(); 
+
+        // 1. Title
+        $artwork->title = $tr->setTarget('en')->translate($validated['title']);
+        $artwork->title_id = $tr->setTarget('id')->translate($validated['title']);
+
+        // 2. Description
+        if($validated['description']) {
+            $artwork->description = $tr->setTarget('en')->translate($validated['description']);
+            $artwork->description_id = $tr->setTarget('id')->translate($validated['description']);
+        } else {
+            $artwork->description = null;
+            $artwork->description_id = null;
+        }
+        // --------------------------------------------
+
         $artwork->category = $validated['category'];
-        $artwork->description = $validated['description'];
         
         // Update Logic
         $artwork->price = $validated['price'];
@@ -111,7 +144,7 @@ public function update(Request $request, Artwork $artwork)
 
         $artwork->save();
 
-        return redirect()->route('artworks.index')->with('status', 'Artwork updated successfully!');
+        return redirect()->route('artworks.index')->with('status', 'Artwork updated & translated successfully!');
     }
 
     /**
@@ -148,5 +181,4 @@ public function update(Request $request, Artwork $artwork)
             'artwork' => $artwork
         ]);
     }
-
 }
