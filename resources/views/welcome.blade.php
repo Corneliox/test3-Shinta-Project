@@ -30,20 +30,21 @@
 
                     <div class="swiper heroSwiper">
                         <div class="swiper-wrapper">
-
                             @if(isset($hero_images) && count($hero_images) > 0)
                                 @foreach($hero_images as $img)
                                     <div class="swiper-slide">
-                                        <img src="{{ asset($img) }}" alt="Wopanco Art" />
+                                        {{-- CHANGE: Use Storage::url() for database images --}}
+                                        <img src="{{ Storage::url($img->image_path) }}" alt="Wopanco Art" />
                                     </div>
                                 @endforeach
                             @else
+                                {{-- Fallback --}}
                                 <div class="swiper-slide"><img src="{{ asset('images/topics/undraw_Remote_design_team_re_urdx.png') }}" /></div>
                                 <div class="swiper-slide"><img src="{{ asset('images/topics/undraw_Redesign_feedback_re_jvm0.png') }}" /></div>
-                                <div class="swiper-slide"><img src="{{ asset('images/topics/undraw_collab_re_psx2.png') }}" /></div>
                             @endif
-
                         </div>
+
+                        {{-- Navigation Buttons --}}
 
                         <div class="swiper-button-next text-white"></div>
                         <div class="swiper-button-prev text-white"></div>

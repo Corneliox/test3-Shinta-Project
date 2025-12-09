@@ -4,10 +4,12 @@ use App\Http\Controllers\ArtworkController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\HomeController; 
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\MarketplaceController;
 use App\Http\Controllers\ArtistDashboardController;
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\HeroImageController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
@@ -31,43 +33,7 @@ use App\Models\ContactSubmission;
 // ===================================
 
 // Homepage
-Route::get('/', function () {
-    $lukisan_artworks = Artwork::where('category', 'Lukisan')
-        ->whereHas('user', fn($query) => $query->where('is_artist', true))
-        ->latest()->take(10)->get();
-        
-    $craft_artworks = Artwork::where('category', 'Craft')
-        ->whereHas('user', fn($query) => $query->where('is_artist', true))
-        ->latest()->take(10)->get();
-
-    $artists = User::where('is_artist', true)
-        ->with('artistProfile')
-        ->orderBy('name', 'asc')
-        ->get();
-
-    $pinned_event = Event::where('is_pinned', true)->latest()->first();
-    $newest_events = Event::where('is_pinned', false)->latest()->take(3)->get();
-
-    // NEW: Get Images for Hero Roulette
-    // Ensure you have a folder: public/images/main/
-    // This grabs all images from that folder
-    $hero_images = [];
-    if (file_exists(public_path('images/main'))) {
-        $files = \Illuminate\Support\Facades\File::files(public_path('images/main'));
-        foreach ($files as $file) {
-            $hero_images[] = 'images/main/' . $file->getFilename();
-        }
-    }
-
-    return view('welcome', [
-        'lukisan_artworks' => $lukisan_artworks,
-        'craft_artworks' => $craft_artworks,
-        'artists' => $artists,
-        'pinned_event' => $pinned_event,
-        'newest_events' => $newest_events,
-        'hero_images' => $hero_images,
-    ]);
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Events
 Route::get('/events', [EventController::class, 'index'])->name('event');
@@ -199,6 +165,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
     Route::get('/contact-submissions', [AdminContactController::class, 'index'])->name('contact.index');
     Route::patch('/contact-submissions/{submission}', [AdminContactController::class, 'update'])->name('contact.update');
+
+    // HERO CAROUSEL MANAGEMENT
+    Route::resource('hero', HeroImageController::class)->except(['show', 'edit', 'update']);
 });
 
 
