@@ -21,12 +21,14 @@
 
                         <div class="mt-4">
                             <x-input-label for="description" :value="__('Description')" />
-                            <textarea id="description" name="description" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">{{ old('description', $event->description) }}</textarea>
+                            {{-- ADDED 'rich-editor' class here --}}
+                            <textarea id="description" name="description" class="rich-editor block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">{{ old('description', $event->description) }}</textarea>
                             <x-input-error :messages="$errors->get('description')" class="mt-2" />
                         </div>
 
+                        {{-- MAIN IMAGE --}}
                         <div class="mt-4">
-                            <x-input-label for="image" :value="__('Event Image (Optional)')" />
+                            <x-input-label for="image" :value="__('Main Event Image (Optional)')" />
                             <div class="mt-2">
                                 <img src="{{ Storage::url($event->image_path) }}" alt="{{ $event->title }}" class="w-full sm:w-48 h-auto rounded-md object-cover">
                             </div>
@@ -34,8 +36,27 @@
                             <small class="text-gray-500">Leave blank to keep the current image.</small>
                             <x-input-error :messages="$errors->get('image')" class="mt-2" />
                         </div>
+
+                        {{-- NEW: GALLERY UPLOAD SECTION --}}
+                        <div class="mt-6 p-4 border rounded-lg bg-gray-50 dark:bg-gray-700">
+                            <h3 class="font-bold text-lg mb-2">Event Gallery</h3>
+                            
+                            {{-- 1. Upload Input --}}
+                            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Add More Photos</label>
+                            <input type="file" name="gallery[]" multiple class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-white focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" accept="image/*">
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-300">You can select multiple files at once.</p>
+
+                            {{-- 2. Download Button (Only shows if images exist) --}}
+                            @if($event->images && $event->images->count() > 0)
+                                <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                                    <p class="mb-2 text-sm text-gray-600 dark:text-gray-400">Total Photos: <strong>{{ $event->images->count() }}</strong></p>
+                                    <a href="{{ route('admin.events.download', $event->id) }}" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                        Download All Photos (.zip)
+                                    </a>
+                                </div>
+                            @endif
+                        </div>
                         
-                        {{-- FIX: Responsive Grid --}}
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                             <div>
                                 <x-input-label for="start_at" :value="__('Start Date')" />

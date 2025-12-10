@@ -20,17 +20,26 @@
 
                         <div class="mt-4">
                             <x-input-label for="description" :value="__('Description')" />
-                            <textarea id="description" name="description" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">{{ old('description') }}</textarea>
+                            {{-- ADDED 'rich-editor' class here --}}
+                            <textarea id="description" name="description" class="rich-editor block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">{{ old('description') }}</textarea>
                             <x-input-error :messages="$errors->get('description')" class="mt-2" />
                         </div>
 
+                        {{-- MAIN IMAGE --}}
                         <div class="mt-4">
-                            <x-input-label for="image" :value="__('Event Image')" />
+                            <x-input-label for="image" :value="__('Main Event Image')" />
                             <input id="image" class="block mt-1 w-full text-gray-900 dark:text-gray-100 border border-gray-300 rounded-md cursor-pointer bg-gray-50 dark:bg-gray-700 focus:outline-none" type="file" name="image" required />
                             <x-input-error :messages="$errors->get('image')" class="mt-2" />
                         </div>
+
+                        {{-- NEW: GALLERY UPLOAD (Optional on Create) --}}
+                        <div class="mt-6 p-4 border rounded-lg bg-gray-50 dark:bg-gray-700">
+                            <h3 class="font-bold text-lg mb-2">Event Gallery</h3>
+                            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Upload Photos (Optional)</label>
+                            <input type="file" name="gallery[]" multiple class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-white focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" accept="image/*">
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-300">You can select multiple files.</p>
+                        </div>
                         
-                        {{-- FIX: Responsive Grid (Stack on mobile, side-by-side on PC) --}}
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                             <div>
                                 <x-input-label for="start_at" :value="__('Start Date')" />
@@ -47,7 +56,7 @@
                         <div class="block mt-4">
                             <label for="is_pinned" class="inline-flex items-center">
                                 <input id="is_pinned" type="checkbox" name="is_pinned" value="1" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800">
-                                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Pin this event? (Will show as the "big" event on homepage)') }}</span>
+                                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Pin this event?') }}</span>
                             </label>
                         </div>
 

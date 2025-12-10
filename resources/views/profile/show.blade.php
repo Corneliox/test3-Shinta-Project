@@ -135,10 +135,11 @@
                                 @enderror
                             </div>
 
-                            {{-- About Section (FIXED) --}}
+                            {{-- About Section (FIXED with Rich Editor) --}}
                             <div class="mb-3">
                                 <label for="about" class="form-label">About Me</label>
-                                <textarea class="form-control" id="about" name="about" style="height: 200px; padding-left: 65px; padding-right: 65px" placeholder="Tell everyone about yourself...">{{ old('about', $profile->about) }}</textarea>
+                                {{-- ADDED 'rich-editor' class below --}}
+                                <textarea class="form-control rich-editor" id="about" name="about" style="height: 200px;" placeholder="Tell everyone about yourself...">{{ old('about', $profile->about) }}</textarea>
                             </div>
                             @error('about')
                                 <p class="text-danger mb-3">{{ $message }}</p>

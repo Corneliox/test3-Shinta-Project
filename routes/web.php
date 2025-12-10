@@ -168,6 +168,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // HERO CAROUSEL MANAGEMENT
     Route::resource('hero', HeroImageController::class)->except(['show', 'edit', 'update']);
+
+    // Download Event Carousel 
+    Route::get('/admin/events/{id}/download', [App\Http\Controllers\Admin\EventController::class, 'downloadPhotos'])->name('admin.events.download');
 });
 
 

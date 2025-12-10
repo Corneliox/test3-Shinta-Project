@@ -132,5 +132,19 @@
             </main>
         </div>
 
+
+        {{-- ================================================= --}}
+        {{-- 5. SCRIPTS                                       --}}
+        {{-- ================================================= --}}
+        <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+        <script>
+            tinymce.init({
+                selector: '.rich-editor', // We will add this class to your textareas
+                plugins: 'lists link image preview',
+                toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | bullist numlist | link',
+                menubar: false,
+                statusbar: false
+            });
+        </script>
     </body>
 </html>

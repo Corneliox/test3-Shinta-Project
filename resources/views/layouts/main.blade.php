@@ -419,6 +419,7 @@
         <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
         <script src="{{ asset('js/jquery.sticky.js') }}"></script>
         <script src="{{ asset('js/custom.js') }}"></script>
+        <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
         @stack('scripts')
 
         {{-- SCRIPT FOR MOBILE NAVBAR & SCROLL --}}
@@ -460,6 +461,16 @@
                         lastScrollTop = scrollTop;
                     });
                 }
+            });
+        </script>
+
+        <script>
+            tinymce.init({
+                selector: '.rich-editor', // We will add this class to your textareas
+                plugins: 'lists link image preview',
+                toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | bullist numlist | link',
+                menubar: false,
+                statusbar: false
             });
         </script>
 

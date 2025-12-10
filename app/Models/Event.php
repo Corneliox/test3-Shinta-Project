@@ -23,13 +23,45 @@ class Event extends Model
     ];
 
     /**
+     * Relationship: An Event has many Gallery Images
+     */
+    public function images()
+    {
+        return $this->hasMany(EventImage::class);
+    }
+
+    /**
+     * AUTOMATIC TRANSLATION: Title
+     * If site is in 'id' (Indonesian) mode, show title_id instead.
+     */
+    public function getTitleAttribute($value)
+    {
+        if (App::getLocale() == 'id' && !empty($this->attributes['title_id'])) {
+            return $this->attributes['title_id'];
+        }
+        return $value;
+    }
+
+    /**
+     * AUTOMATIC TRANSLATION: Description
+     * If site is in 'id' (Indonesian) mode, show description_id instead.
+     */
+    public function getDescriptionAttribute($value)
+    {
+        if (App::getLocale() == 'id' && !empty($this->attributes['description_id'])) {
+            return $this->attributes['description_id'];
+        }
+        return $value;
+    }
+
+    /**
      * The "booted" method of the model.
      * This automatically creates the slug.
      */
     protected static function booted(): void
     {
         static::saving(function ($event) {
-            $event->slug = Str::slug($event->title);
+            $event->slug = Str::slug($event->title); // Note: Slug uses the English title usually
         });
     }
 }
