@@ -8,22 +8,20 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules;
+use Illuminate\Validation\Rule; // Import Rule for unique checks
 
 class UserController extends Controller
 {
-/**
+    /**
      * Display list of users.
-     * SUPERADMIN LOGIC: Hide superadmins UNLESS "Reveal Mode" is active.
      */
     public function index()
     {
-        // Check if the "Reveal Mode" session exists and is still valid (not older than 5 mins)
         $revealUntil = session('superadmin_reveal_until');
         $isRevealActive = $revealUntil && now()->lessThan($revealUntil);
 
         $query = User::query();
 
-        // If Reveal Mode is NOT active, apply the hiding filters
         if (!$isRevealActive) {
             $query->where('id', '!=', auth()->id())
                   ->where('is_superadmin', false);
@@ -42,10 +40,7 @@ class UserController extends Controller
         if (!auth()->user()->is_superadmin) {
             abort(403);
         }
-
-        // Set a session variable that expires 5 minutes from now
         session(['superadmin_reveal_until' => now()->addMinutes(5)]);
-
         return response()->json(['message' => 'God Mode Activated: Superadmins visible for 5 minutes.']);
     }
 
@@ -57,81 +52,121 @@ class UserController extends Controller
         return view('admin.users.create');
     }
 
-/**
+    /**
      * Store the manually created user.
      */
     public function store(Request $request)
     {
-        // 1. Validate
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            // Update validation to allow 'superadmin'
             'role' => ['required', 'in:user,artist,admin,superadmin'], 
         ]);
 
-        // 2. Security Check: Prevent regular admins from creating superadmins
         if ($request->role === 'superadmin' && !auth()->user()->is_superadmin) {
             abort(403, 'You are not authorized to create Superadmins.');
         }
 
-        // 3. Create User
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'is_artist' => $request->role === 'artist',
             'is_admin' => $request->role === 'admin',
-            'is_superadmin' => $request->role === 'superadmin', // Handle the new role
+            'is_superadmin' => $request->role === 'superadmin',
         ]);
 
-        // 4. Create Artist Profile if needed
         if ($user->is_artist) {
             $user->artistProfile()->create();
         }
-
-        // ADD THIS:
-        // ActivityLog::record('User Created', 'Created new user: ' . $user->name . ' as ' . $request->role);
 
         return redirect()->route('admin.users.index')->with('status', 'New user created successfully!');
     }
 
     /**
-     * Toggle Artist Status (Existing function).
+     * Show the edit form for a user.
+     * (Previously missing)
      */
-    public function update(Request $request, User $user)
+    public function edit(User $user)
     {
-        $user->is_artist = !$user->is_artist;
-        $user->save();
-
-        if ($user->is_artist && !$user->artistProfile) {
-            $user->artistProfile()->create();
+        // Only Superadmins can edit other Admins/Superadmins
+        if ($user->is_admin || $user->is_superadmin) {
+            if (!auth()->user()->is_superadmin) {
+                abort(403, 'Only Superadmins can edit other administrators.');
+            }
         }
 
-        // ADD THIS:
-        $status = $user->is_artist ? 'Artist' : 'Regular User';
-        // ActivityLog::record('Role Updated', 'Changed artist status for: ' . $user->name . ' to ' . $status);
-
-        return back()->with('status', 'User artist status updated!');
+        return view('admin.users.edit', compact('user'));
     }
 
     /**
-     * Toggle Superadmin Status (Demote/Promote manually).
+     * Update the specified user in storage (Full Profile Update).
+     * (Completely rewritten to handle Name, Email, Password)
+     */
+    public function update(Request $request, User $user)
+    {
+        // 1. Authorization Check
+        if (!auth()->user()->is_superadmin && ($user->is_admin || $user->is_superadmin)) {
+            abort(403, 'Unauthorized.');
+        }
+
+        // 2. Validation
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'], // Optional
+            'role' => ['nullable', 'in:user,artist,admin,superadmin'], // Optional role change
+        ]);
+
+        // 3. Update Basic Info
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+
+        // 4. Update Password (only if provided)
+        if (!empty($validated['password'])) {
+            $user->password = Hash::make($validated['password']);
+        }
+
+        // 5. Update Roles (Optional, logic depends on your UI)
+        // If you added a role dropdown in edit.blade.php
+        if ($request->has('role')) {
+            // Reset roles first
+            $user->is_artist = false;
+            $user->is_admin = false;
+            
+            // Only Superadmin can set Superadmin
+            if (auth()->user()->is_superadmin) {
+                $user->is_superadmin = false; 
+            }
+
+            switch ($request->role) {
+                case 'artist':
+                    $user->is_artist = true;
+                    if (!$user->artistProfile) $user->artistProfile()->create();
+                    break;
+                case 'admin':
+                    $user->is_admin = true;
+                    break;
+                case 'superadmin':
+                    if (auth()->user()->is_superadmin) $user->is_superadmin = true;
+                    break;
+            }
+        }
+
+        $user->save();
+
+        return redirect()->route('admin.users.index')->with('status', 'User profile updated successfully.');
+    }
+
+    /**
+     * Toggle Superadmin Status.
      */
     public function toggleSuperAdmin(User $user)
     {
-        // 1. Security Check: Only a Superadmin can do this
-        if (!auth()->user()->is_superadmin) {
-            abort(403, 'Unauthorized action.');
-        }
+        if (!auth()->user()->is_superadmin) abort(403, 'Unauthorized action.');
+        if ($user->id === auth()->id()) return back()->with('error', 'You cannot demote yourself!');
 
-        // 2. Safety Check: Prevent demoting yourself
-        if ($user->id === auth()->id()) {
-            return back()->with('error', 'You cannot demote yourself!');
-        }
-
-        // 3. Toggle the status
         $user->is_superadmin = !$user->is_superadmin;
         $user->save();
 
@@ -139,41 +174,27 @@ class UserController extends Controller
     }
 
     /**
-     * SUPERADMIN ONLY: Toggle Admin Status.
+     * Toggle Admin Status.
      */
     public function toggleAdmin(User $user)
     {
-        // Only allow if current user is Superadmin
-        if (!auth()->user()->is_superadmin) {
-            abort(403, 'Unauthorized action.');
-        }
+        if (!auth()->user()->is_superadmin) abort(403, 'Unauthorized action.');
 
         $user->is_admin = !$user->is_admin;
         $user->save();
-
-        // ADD THIS:
-        $status = $user->is_admin ? 'Admin' : 'User';
-        // ActivityLog::record('Admin Privileges', 'Toggled admin status for: ' . $user->name . ' to ' . $status);
 
         return back()->with('status', 'User admin privileges updated!');
     }
 
     /**
-     * SECRET EASTER EGG: Promote to Superadmin.
-     * Triggered by 10 clicks on the name.
+     * Secret Promote.
      */
     public function promoteToSuperAdmin(User $user)
     {
-        // Only a Superadmin can promote another (even via the secret click)
-        if (!auth()->user()->is_superadmin) {
-            abort(403, 'Nice try, but you are not a Superadmin.');
-        }
+        if (!auth()->user()->is_superadmin) abort(403, 'Nice try.');
 
         $user->is_superadmin = true;
         $user->save();
-
-        // ADD THIS:
-        // ActivityLog::record('Superadmin Promoted', 'Promoted ' . $user->name . ' to Superadmin via Secret Click.');
 
         return response()->json(['message' => 'User is now a hidden Superadmin!']);
     }
@@ -183,16 +204,15 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        if ($user->is_superadmin) {
-            return back()->with('error', 'Cannot delete a Superadmin.');
-        }
+        if ($user->is_superadmin) return back()->with('error', 'Cannot delete a Superadmin.');
 
+        // Clean up artworks and profile
         if ($user->is_artist) {
             $user->artworks()->each(function($artwork) {
-                Storage::disk('public')->delete($artwork->image_path);
+                if($artwork->image_path) Storage::disk('public')->delete($artwork->image_path);
                 $artwork->delete();
             });
-            $user->artistProfile()->delete();
+            if($user->artistProfile) $user->artistProfile()->delete();
         }
         
         $user->delete();

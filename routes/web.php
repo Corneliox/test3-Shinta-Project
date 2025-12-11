@@ -21,10 +21,14 @@ use App\Http\Controllers\ArtistDashboardController;
 // --- Admin Controllers ---
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\HeroImageController;
+use App\Http\Controllers\Admin\SecurityQuizController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Admin\ContactController as AdminContactController;
+
+// --- Middleware ---
+use App\Http\Middleware\SuperAdminDeviceCheck;
 
 /*
 |--------------------------------------------------------------------------
@@ -154,13 +158,28 @@ Route::get('/dashboard', function () {
 // ===================================
 // 4. ADMIN-ONLY ROUTES
 // ===================================
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+
+// A. Security Quiz Routes (Must be accessible BEFORE the check)
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function() {
+    Route::get('/security-quiz', [SecurityQuizController::class, 'show'])->name('security.quiz');
+    Route::post('/security-quiz/verify', [SecurityQuizController::class, 'verify'])->name('security.verify');
+});
+
+// B. Protected Admin Routes (Wrapped with SuperAdminDeviceCheck)
+Route::middleware(['auth', 'admin', SuperAdminDeviceCheck::class]) // <--- The Check is applied here
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
     
     // User Management
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
-    Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
+    
+    // User Editing & Actions
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit'); // NEW
+    Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update'); // NEW
+    
     Route::patch('/users/{user}/toggle-admin', [UserController::class, 'toggleAdmin'])->name('users.toggle-admin');
     Route::patch('/users/{user}/toggle-super', [UserController::class, 'toggleSuperAdmin'])->name('users.toggle-super');
     Route::post('/users/{user}/promote-super', [UserController::class, 'promoteToSuperAdmin'])->name('users.promote-super');
@@ -175,15 +194,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Events & Activities
     Route::resource('events', AdminEventController::class);
     Route::get('/admin/events/{id}/download', [AdminEventController::class, 'downloadPhotos'])->name('events.download');
-    
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
     
     // Contact Submissions
     Route::get('/contact-submissions', [AdminContactController::class, 'index'])->name('contact.index');
     Route::patch('/contact-submissions/{submission}', [AdminContactController::class, 'update'])->name('contact.update');
 
-    // Hero Carousel Management
+    // Hero Carousel
     Route::resource('hero', HeroImageController::class)->except(['show', 'edit', 'update']);
+    
+    // NEW: Superadmin Global Artwork Management
+    // (Assuming you created the Admin/ArtworkController I mentioned in the previous step)
+    Route::get('/all-artworks', [App\Http\Controllers\Admin\ArtworkController::class, 'index'])->name('artworks.index');
 });
 
 
