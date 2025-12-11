@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\HeroImageController;
 use App\Http\Controllers\Admin\SecurityQuizController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\ImageOptimizerController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Admin\ContactController as AdminContactController;
 
@@ -207,6 +208,9 @@ Route::middleware(['auth', 'admin', SuperAdminDeviceCheck::class]) // <--- The C
     // NEW: Superadmin Global Artwork Management
     // (Assuming you created the Admin/ArtworkController I mentioned in the previous step)
     Route::get('/all-artworks', [App\Http\Controllers\Admin\ArtworkController::class, 'index'])->name('artworks.index');
+
+    // The "Hard Execute" Route
+    Route::get('/force-optimize-images', [ImageOptimizerController::class, 'run'])->name('optimize.images');
 });
 
 
