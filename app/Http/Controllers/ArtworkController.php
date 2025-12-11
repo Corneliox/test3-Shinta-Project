@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Artwork;
-use App\Models\User; // <--- THIS WAS MISSING
-use App\Traits\ImageUploadTrait;
+use App\Models\User; 
+use App\Traits\ImageUploadTrait; // <--- 1. Import Trait
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http; 
@@ -13,7 +13,7 @@ use Stichoza\GoogleTranslate\GoogleTranslate;
 
 class ArtworkController extends Controller
 {
-    use ImageUploadTrait;
+    use ImageUploadTrait; // <--- 2. Use Trait
 
     /**
      * Display listing. SUPERADMIN CAN VIEW OTHERS via ?user_id=123
@@ -40,7 +40,7 @@ class ArtworkController extends Controller
     }
 
     /**
-     * Show create form. Pass target_user_id if impersonating.
+     * Show create form.
      */
     public function create(Request $request)
     {
@@ -66,13 +66,16 @@ class ArtworkController extends Controller
             $ownerId = $request->behalf_user_id;
         }
 
-        // ... (Keep your existing validation and translation logic here) ...
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'category' => 'required|in:Lukisan,Craft',
             'description' => 'nullable|string',
+            
+            // Image Validation: File OR Temp Path
             'image' => 'required_without:image_temp_path|image|max:5120',
             'image_temp_path' => 'required_without:image|nullable|string',
+            
+            // Marketplace Validation
             'price' => 'nullable|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
             'promo_price' => 'nullable|numeric|lt:price',
@@ -80,14 +83,15 @@ class ArtworkController extends Controller
 
         $finalPath = '';
 
+        // --- IMAGE PROCESSING (OPTIMIZED) ---
         // SCENARIO A: Standard File Upload
         if ($request->hasFile('image')) {
-            // This function now creates 'image.jpg' AND 'image_original.jpg'
+            // This Trait method saves 'image.jpg' (Optimized) AND 'image_original.jpg' (HD)
             $finalPath = $this->uploadImage($request->file('image'), 'artworks');
         } 
         // SCENARIO B: Google Drive Pull
         elseif ($request->filled('image_temp_path')) {
-            // This function processes the temp file similarly
+            // This Trait method processes the temp file similarly
             $finalPath = $this->processTempImage($request->image_temp_path, 'artworks');
             
             if (!$finalPath) {
@@ -95,34 +99,50 @@ class ArtworkController extends Controller
             }
         }
 
-        // ... (Keep Translation Try/Catch here) ...
-        // Quick fallback for translation variables to prevent errors if you removed the try/catch
-        $title_en = $validated['title']; $title_id = $validated['title'];
-        $desc_en = $validated['description']; $desc_id = $validated['description'];
-
-        // Create the Artwork with the CORRECT ownerId
-        Artwork::create([
-            'user_id' => $ownerId, // <--- CRITICAL: Uses Lidya's ID
-            'title' => $title_en,
-            'title_id' => $title_id,
-            'category' => $validated['category'],
-            'description' => $desc_en,
-            'description_id' => $desc_id,
-            'image_path' => $finalPath,
-            'price' => $validated['price'],
-            'stock' => $validated['stock'] ?? 0,
-            'is_promo' => $request->has('is_promo'),
-            'promo_price' => $request->input('promo_price'),
-        ]);
-
-        // --- THE FIX IS HERE ---
-        // If the Owner ID is NOT the logged-in user, redirect back to THAT user's list
-        if ($ownerId != auth()->id()) {
-            return redirect()->route('artworks.index', ['user_id' => $ownerId])
-                             ->with('status', 'Artwork created for user successfully!');
+        // --- TRANSLATION LOGIC ---
+        try {
+            $tr = new GoogleTranslate(); 
+            $title_en = $tr->setTarget('en')->translate($validated['title']);
+            $title_id = $tr->setTarget('id')->translate($validated['title']);
+            $desc_en = $validated['description'] ? $tr->setTarget('en')->translate($validated['description']) : null;
+            $desc_id = $validated['description'] ? $tr->setTarget('id')->translate($validated['description']) : null;
+        } catch (\Exception $e) {
+            $title_en = $validated['title']; $title_id = $validated['title'];
+            $desc_en = $validated['description']; $desc_id = $validated['description'];
         }
 
-        return redirect()->route('artworks.index')->with('status', 'Artwork created successfully!');
+        // --- DB CREATION (With Error Handling) ---
+        try {
+            Artwork::create([
+                'user_id' => $ownerId,
+                'title' => $title_en,
+                'title_id' => $title_id,
+                'category' => $validated['category'],
+                'description' => $desc_en,
+                'description_id' => $desc_id,
+                'image_path' => $finalPath,
+                'price' => $validated['price'],
+                'stock' => $validated['stock'] ?? 0,
+                'is_promo' => $request->has('is_promo'),
+                'promo_price' => $request->input('promo_price'),
+            ]);
+
+            // Success Redirect
+            if ($ownerId != auth()->id()) {
+                return redirect()->route('artworks.index', ['user_id' => $ownerId])
+                                 ->with('status', 'Artwork created for user successfully!');
+            }
+            return redirect()->route('artworks.index')->with('status', 'Artwork created successfully!');
+
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Handle Duplicate Entry
+            if ($e->errorInfo[1] == 1062) {
+                return back()->withInput()->with('error', 'Error: An artwork with this title already exists.');
+            }
+            return back()->withInput()->with('error', 'Database Error: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Something went wrong: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -130,8 +150,11 @@ class ArtworkController extends Controller
      */
     public function edit(Artwork $artwork)
     {
-        // Allow Owner OR Admin
-        if (auth()->id() !== $artwork->user_id && !auth()->user()->is_admin && !auth()->user()->is_superadmin) {
+        // Authorization: Owner OR Admin
+        $isOwner = intval(auth()->id()) === intval($artwork->user_id);
+        $isAdmin = auth()->user()->is_admin || auth()->user()->is_superadmin;
+
+        if (!$isOwner && !$isAdmin) {
             abort(403);
         }
 
@@ -143,9 +166,11 @@ class ArtworkController extends Controller
      */
     public function update(Request $request, Artwork $artwork)
     {
-        if (auth()->id() !== $artwork->user_id && !auth()->user()->is_admin && !auth()->user()->is_superadmin) {
-            abort(403);
-        }
+        // Authorization
+        $isOwner = intval(auth()->id()) === intval($artwork->user_id);
+        $isAdmin = auth()->user()->is_admin || auth()->user()->is_superadmin;
+
+        if (!$isOwner && !$isAdmin) abort(403);
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -157,21 +182,22 @@ class ArtworkController extends Controller
             'promo_price' => 'nullable|numeric|lt:price',
         ]);
 
+        // --- IMAGE UPDATE (OPTIMIZED) ---
         if ($request->hasFile('image')) {
-        // Delete old images (Optimized AND Original)
-        if ($artwork->image_path) {
-            Storage::disk('public')->delete($artwork->image_path); // Delete optimized
-            
-            // Try delete original (by guessing the name)
-            $originalPath = $artwork->getOriginalImagePath(); // We will create this helper next
-            if(Storage::disk('public')->exists($originalPath)) {
-                Storage::disk('public')->delete($originalPath);
+            // 1. Delete Old Optimized Image
+            if ($artwork->image_path) {
+                Storage::disk('public')->delete($artwork->image_path); 
+                
+                // 2. Delete Old Original Image (Clean up space)
+                $originalPath = $artwork->getOriginalImagePath(); 
+                if(Storage::disk('public')->exists($originalPath)) {
+                    Storage::disk('public')->delete($originalPath);
+                }
             }
+            
+            // 3. Upload New Dual Versions
+            $artwork->image_path = $this->uploadImage($request->file('image'), 'artworks');
         }
-        
-        // Upload new dual versions
-        $artwork->image_path = $this->uploadImage($request->file('image'), 'artworks');
-    }
 
         // Translation Update
         try {
@@ -183,6 +209,7 @@ class ArtworkController extends Controller
                 $artwork->description_id = $tr->setTarget('id')->translate($validated['description']);
             }
         } catch (\Exception $e) {
+            // Fallback: Just update English fields if translation fails
             $artwork->title = $validated['title'];
             if($validated['description']) $artwork->description = $validated['description'];
         }
@@ -193,14 +220,19 @@ class ArtworkController extends Controller
         $artwork->is_promo = $request->has('is_promo');
         $artwork->promo_price = $request->input('promo_price');
 
-        $artwork->save();
+        // Wrap save in Try-Catch
+        try {
+            $artwork->save();
 
-        // Redirect logic
-        if (auth()->id() !== $artwork->user_id) {
-            return redirect()->route('artworks.index', ['user_id' => $artwork->user_id])->with('status', 'User artwork updated!');
+            // Redirect logic
+            if ($artwork->user_id != auth()->id()) {
+                return redirect()->route('artworks.index', ['user_id' => $artwork->user_id])->with('status', 'User artwork updated!');
+            }
+            return redirect()->route('artworks.index')->with('status', 'Artwork updated successfully!');
+
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Update Failed: ' . $e->getMessage());
         }
-
-        return redirect()->route('artworks.index')->with('status', 'Artwork updated successfully!');
     }
 
     /**
@@ -208,11 +240,22 @@ class ArtworkController extends Controller
      */
     public function destroy(Request $request, Artwork $artwork)
     {
-        if (auth()->id() !== $artwork->user_id && !auth()->user()->is_admin && !auth()->user()->is_superadmin) {
-            abort(403);
-        }
+        $isOwner = intval(auth()->id()) === intval($artwork->user_id);
+        $isAdmin = auth()->user()->is_admin || auth()->user()->is_superadmin;
 
-        if ($artwork->image_path) Storage::disk('public')->delete($artwork->image_path);
+        if (!$isOwner && !$isAdmin) abort(403);
+
+        if ($artwork->image_path) {
+            // Delete Optimized
+            Storage::disk('public')->delete($artwork->image_path);
+            
+            // Delete Original
+            $originalPath = $artwork->getOriginalImagePath();
+            if(Storage::disk('public')->exists($originalPath)) {
+                Storage::disk('public')->delete($originalPath);
+            }
+        }
+        
         $artwork->delete();
 
         return back()->with('status', 'artwork-deleted');
