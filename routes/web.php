@@ -182,6 +182,7 @@ Route::middleware(['auth', 'admin', SuperAdminDeviceCheck::class]) // <--- The C
     
     Route::patch('/users/{user}/toggle-admin', [UserController::class, 'toggleAdmin'])->name('users.toggle-admin');
     Route::patch('/users/{user}/toggle-super', [UserController::class, 'toggleSuperAdmin'])->name('users.toggle-super');
+    Route::patch('/users/{user}/toggle-artist', [UserController::class, 'toggleArtist'])->name('users.toggle-artist');
     Route::post('/users/{user}/promote-super', [UserController::class, 'promoteToSuperAdmin'])->name('users.promote-super');
     Route::post('/users/reveal-super', [UserController::class, 'revealSuperAdmins'])->name('users.reveal-super');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');

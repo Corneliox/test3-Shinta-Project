@@ -187,6 +187,26 @@ class UserController extends Controller
     }
 
     /**
+     * Toggle Artist Status (New dedicated method)
+     */
+    public function toggleArtist(User $user)
+    {
+        // Allow Superadmin OR Admin to do this
+        if (!auth()->user()->is_superadmin && !auth()->user()->is_admin) {
+            abort(403, 'Unauthorized.');
+        }
+
+        $user->is_artist = !$user->is_artist;
+        $user->save();
+
+        if ($user->is_artist && !$user->artistProfile) {
+            $user->artistProfile()->create();
+        }
+
+        return back()->with('status', 'Artist status updated successfully!');
+    }
+
+    /**
      * Secret Promote.
      */
     public function promoteToSuperAdmin(User $user)
