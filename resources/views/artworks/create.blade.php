@@ -12,77 +12,98 @@
                         <a href="{{ route('artworks.index') }}" class="btn custom-btn custom-border-btn btn-sm">Back to Dashboard</a>
                     </div>
 
-                    <form action="{{ route('artworks.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('artworks.store') }}" method="POST" enctype="multipart/form-data" id="artworkForm">
                         @csrf
 
+                        {{-- Title & Category --}}
                         <div class="mb-3">
                             <label class="form-label">Title</label>
                             <input type="text" name="title" class="form-control" value="{{ old('title') }}" required>
-                            @error('title') <small class="text-danger">{{ $message }}</small> @enderror
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Category</label>
                             <select name="category" class="form-select" required>
                                 <option value="" disabled selected>Select Category</option>
-                                <option value="Lukisan" {{ old('category') == 'Lukisan' ? 'selected' : '' }}>Lukisan</option>
-                                <option value="Craft" {{ old('category') == 'Craft' ? 'selected' : '' }}>Craft</option>
+                                <option value="Lukisan">Lukisan</option>
+                                <option value="Craft">Craft</option>
                             </select>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Description</label>
-                            {{-- Optional: Add 'rich-editor' class if you want TinyMCE here too --}}
                             <textarea name="description" class="form-control" rows="3">{{ old('description') }}</textarea>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label">Image</label>
-                            <input type="file" name="image" class="form-control" required accept="image/*">
-                            @error('image') <small class="text-danger">{{ $message }}</small> @enderror
                         </div>
 
                         <hr class="my-4">
 
-                        <h5 class="mb-3 text-primary">Marketplace Settings</h5>
-                        <div class="alert alert-info fs-6">
-                            <strong>Note:</strong> Leave Price empty to show in Creative Gallery only.
+                        {{-- === IMAGE UPLOAD SECTION === --}}
+                        <label class="form-label fw-bold">Artwork Image</label>
+                        
+                        {{-- Toggle Buttons --}}
+                        <div class="mb-3">
+                            <div class="btn-group w-100" role="group">
+                                <button type="button" class="btn btn-outline-primary active" id="btnUploadMethod">
+                                    <i class="bi-upload me-2"></i> Upload File
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" id="btnLinkMethod">
+                                    <i class="bi-link-45deg me-2"></i> Upload via Link
+                                </button>
+                            </div>
                         </div>
 
+                        {{-- Option A: Standard File Upload --}}
+                        <div id="uploadInputSection">
+                            <input type="file" name="image" id="fileInput" class="form-control" accept="image/*">
+                            <small class="text-muted">Max size: 5MB</small>
+                        </div>
+
+                        {{-- Option B: Google Drive / Link Puller --}}
+                        <div id="linkInputSection" style="display: none;">
+                            <label class="form-label small text-muted">Paste a direct link or a Google Drive sharing link</label>
+                            <div class="input-group mb-2">
+                                <input type="text" id="urlInput" class="form-control" placeholder="https://drive.google.com/file/d/...">
+                                <button type="button" class="btn btn-dark" id="btnPullImage">
+                                    <i class="bi-cloud-download me-1"></i> Pull Image
+                                </button>
+                            </div>
+                            
+                            {{-- Loading Spinner --}}
+                            <div id="pullLoading" class="text-center text-primary mt-2" style="display:none;">
+                                <div class="spinner-border spinner-border-sm" role="status"></div> Processing link...
+                            </div>
+
+                            {{-- Preview Area --}}
+                            <div id="previewArea" class="mt-3 text-center border rounded p-2 bg-light" style="display:none;">
+                                <p class="text-success small mb-1"><i class="bi-check-circle"></i> Image pulled successfully!</p>
+                                <img id="previewImg" src="" style="max-height: 200px; max-width: 100%; border-radius: 8px;">
+                                {{-- HIDDEN INPUT to store the temp path --}}
+                                <input type="hidden" name="image_temp_path" id="imageTempPath">
+                            </div>
+                            
+                            {{-- Error Message --}}
+                            <div id="pullError" class="text-danger small mt-2" style="display:none;"></div>
+                        </div>
+
+                        @error('image') <p class="text-danger mt-1">{{ $message }}</p> @enderror
+                        @error('image_temp_path') <p class="text-danger mt-1">{{ $message }}</p> @enderror
+
+                        <hr class="my-4">
+
+                        {{-- Marketplace Settings (Same as before) --}}
+                        <h5 class="mb-3 text-primary">Marketplace Settings</h5>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Price (Rp)</label>
-                                <input type="number" id="basePrice" name="price" class="form-control" placeholder="Optional" value="{{ old('price') }}">
+                                <input type="number" id="basePrice" name="price" class="form-control" placeholder="Optional">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Stock</label>
-                                <input type="number" name="stock" class="form-control" value="{{ old('stock', 1) }}">
+                                <input type="number" name="stock" class="form-control" value="1">
                             </div>
                         </div>
 
-                        {{-- Promo Settings --}}
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="is_promo" name="is_promo" value="1" {{ old('is_promo') ? 'checked' : '' }}>
-                            <label class="form-check-label fw-bold" for="is_promo">Enable Promo / Discount?</label>
-                        </div>
-
-                        <div class="mb-4 p-3 border rounded bg-light" id="promo_price_wrapper" style="display:none;">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Discount Percentage (%)</label>
-                                    <div class="input-group">
-                                        <input type="number" id="discountPercent" class="form-control" placeholder="e.g. 20" min="0" max="99">
-                                        <span class="input-group-text">%</span>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Final Promo Price (Rp)</label>
-                                    <input type="number" id="promoPrice" name="promo_price" class="form-control" value="{{ old('promo_price') }}">
-                                </div>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn custom-btn w-100">Upload Artwork</button>
+                        <button type="submit" class="btn custom-btn w-100 mt-3">Upload Artwork</button>
                     </form>
                 </div>
             </div>
@@ -92,43 +113,84 @@
 
 @push('scripts')
 <script>
-    // Toggle Promo
-    const promoCheckbox = document.getElementById('is_promo');
-    const promoWrapper = document.getElementById('promo_price_wrapper');
+    // 1. Toggle between File and Link
+    const btnUpload = document.getElementById('btnUploadMethod');
+    const btnLink = document.getElementById('btnLinkMethod');
+    const sectionUpload = document.getElementById('uploadInputSection');
+    const sectionLink = document.getElementById('linkInputSection');
+    const fileInput = document.getElementById('fileInput');
+    const imageTempPath = document.getElementById('imageTempPath');
 
-    function togglePromo() {
-        promoWrapper.style.display = promoCheckbox.checked ? 'block' : 'none';
-    }
-    promoCheckbox.addEventListener('change', togglePromo);
-    togglePromo(); // Run on load
+    btnUpload.addEventListener('click', () => {
+        btnUpload.classList.add('active');
+        btnLink.classList.remove('active');
+        sectionUpload.style.display = 'block';
+        sectionLink.style.display = 'none';
+        
+        // Clear link data if switching back to file
+        imageTempPath.value = ''; 
+    });
 
-    // Calculation Logic
-    const basePriceInput = document.getElementById('basePrice');
-    const discountInput = document.getElementById('discountPercent');
-    const promoPriceInput = document.getElementById('promoPrice');
+    btnLink.addEventListener('click', () => {
+        btnLink.classList.add('active');
+        btnUpload.classList.remove('active');
+        sectionLink.style.display = 'block';
+        sectionUpload.style.display = 'none';
+        
+        // Clear file input if switching to link
+        fileInput.value = ''; 
+    });
 
-    function calculateFromPercent() {
-        const price = parseFloat(basePriceInput.value) || 0;
-        const percent = parseFloat(discountInput.value) || 0;
-        if (price > 0) {
-            const finalPrice = price - (price * (percent / 100));
-            promoPriceInput.value = Math.round(finalPrice);
-        }
-    }
+    // 2. Handle "Pull Image" AJAX
+    const btnPull = document.getElementById('btnPullImage');
+    const urlInput = document.getElementById('urlInput');
+    const pullLoading = document.getElementById('pullLoading');
+    const previewArea = document.getElementById('previewArea');
+    const previewImg = document.getElementById('previewImg');
+    const pullError = document.getElementById('pullError');
 
-    function calculateFromPrice() {
-        const price = parseFloat(basePriceInput.value) || 0;
-        const promo = parseFloat(promoPriceInput.value) || 0;
-        if (price > 0 && promo > 0 && promo < price) {
-            const percent = ((price - promo) / price) * 100;
-            discountInput.value = Math.round(percent);
-        }
-    }
+    btnPull.addEventListener('click', function() {
+        const url = urlInput.value;
+        if(!url) return;
 
-    discountInput.addEventListener('input', calculateFromPercent);
-    promoPriceInput.addEventListener('input', calculateFromPrice);
-    basePriceInput.addEventListener('input', function() {
-        if(discountInput.value) calculateFromPercent();
+        // Reset UI
+        pullLoading.style.display = 'block';
+        pullError.style.display = 'none';
+        previewArea.style.display = 'none';
+        btnPull.disabled = true;
+
+        // AJAX Request
+        fetch('{{ route("artworks.preview") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ url: url })
+        })
+        .then(response => response.json())
+        .then(data => {
+            pullLoading.style.display = 'none';
+            btnPull.disabled = false;
+
+            if(data.success) {
+                // Show Preview
+                previewImg.src = data.preview_url;
+                imageTempPath.value = data.temp_path; // Store path for form submission
+                previewArea.style.display = 'block';
+            } else {
+                // Show Error
+                pullError.innerText = data.error || 'Failed to fetch image.';
+                pullError.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            pullLoading.style.display = 'none';
+            btnPull.disabled = false;
+            pullError.innerText = 'System error. Please verify the link.';
+            pullError.style.display = 'block';
+        });
     });
 </script>
 @endpush

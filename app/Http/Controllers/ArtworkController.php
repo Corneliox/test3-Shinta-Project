@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Artwork;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Stichoza\GoogleTranslate\GoogleTranslate; // <--- IMPORT THIS
+use Illuminate\Support\Facades\Http; // Import HTTP Client
+use Illuminate\Support\Str;
+use Stichoza\GoogleTranslate\GoogleTranslate;
 
 class ArtworkController extends Controller
 {
@@ -30,7 +32,6 @@ class ArtworkController extends Controller
 
     /**
      * Show the form for creating a new artwork.
-     * (This was the missing method causing the error)
      */
     public function create()
     {
@@ -48,14 +49,36 @@ class ArtworkController extends Controller
             'category' => 'required|in:Lukisan,Craft',
             'description' => 'nullable|string',
             // 'description_id' is generated automatically now
-            'image' => 'required|image|max:5120',
+            
+            // Updated validation: allow either direct upload OR temp path
+            'image' => 'required_without:image_temp_path|image|max:5120',
+            'image_temp_path' => 'required_without:image|nullable|string',
+            
             // New Validation rules
             'price' => 'nullable|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
             'promo_price' => 'nullable|numeric|lt:price', // Promo must be less than Price
         ]);
 
-        $path = $request->file('image')->store('artworks', 'public');
+        $finalPath = '';
+
+        // SCENARIO A: User uploaded a file directly
+        if ($request->hasFile('image')) {
+            $finalPath = $request->file('image')->store('artworks', 'public');
+        } 
+        // SCENARIO B: User used "Pull Image" (move temp file to permanent location)
+        elseif ($request->filled('image_temp_path')) {
+            $tempPath = $request->image_temp_path;
+            
+            if (Storage::disk('public')->exists($tempPath)) {
+                $newFilename = 'artworks/' . basename($tempPath);
+                // Move from temp folder to main artworks folder
+                Storage::disk('public')->move($tempPath, $newFilename);
+                $finalPath = $newFilename;
+            } else {
+                return back()->withErrors(['image' => 'Temporary image expired or not found. Please upload again.'])->withInput();
+            }
+        }
 
         // --- AUTOMATIC TRANSLATION LOGIC ---
         // Wrap in try-catch to prevent crash if internet fails or key is missing
@@ -85,7 +108,7 @@ class ArtworkController extends Controller
             'category' => $validated['category'],
             'description' => $desc_en,    // Save English
             'description_id' => $desc_id, // Save Indonesian
-            'image_path' => $path,
+            'image_path' => $finalPath,   // Save the determined path
             // Save new fields
             'price' => $validated['price'],
             'stock' => $validated['stock'] ?? 0,
@@ -130,7 +153,9 @@ class ArtworkController extends Controller
 
         if ($request->hasFile('image')) {
             // Delete old image if exists
-            // Storage::disk('public')->delete($artwork->image_path); 
+            if ($artwork->image_path) {
+                 Storage::disk('public')->delete($artwork->image_path); 
+            }
             $path = $request->file('image')->store('artworks', 'public');
             $artwork->image_path = $path;
         }
@@ -185,7 +210,9 @@ class ArtworkController extends Controller
         }
 
         // 2. Delete the image file from storage
-        Storage::disk('public')->delete($artwork->image_path);
+        if ($artwork->image_path) {
+            Storage::disk('public')->delete($artwork->image_path);
+        }
 
         // 3. Delete the artwork record from the database
         $artwork->delete();
@@ -206,5 +233,49 @@ class ArtworkController extends Controller
         return view('artworks.show', [
             'artwork' => $artwork
         ]);
+    }
+
+    /**
+     * NEW: AJAX Handler to Pull Image from Link
+     */
+    public function previewImage(Request $request)
+    {
+        $request->validate(['url' => 'required|url']);
+        $url = $request->url;
+
+        // 1. Convert Google Drive Share Link to Direct Download Link
+        // Pattern: https://drive.google.com/file/d/{ID}/view... -> https://drive.google.com/uc?id={ID}&export=download
+        if (str_contains($url, 'drive.google.com')) {
+            preg_match('/\/d\/(.*?)\//', $url, $matches);
+            if (isset($matches[1])) {
+                $fileId = $matches[1];
+                $url = "https://drive.google.com/uc?export=download&id={$fileId}";
+            }
+        }
+
+        try {
+            // 2. Fetch the Image Content
+            $response = Http::get($url);
+
+            if ($response->failed()) {
+                return response()->json(['error' => 'Failed to download image. Check the link accessibility.'], 422);
+            }
+
+            // 3. Save to a Temporary Folder
+            $content = $response->body();
+            $filename = 'temp_' . uniqid() . '.jpg'; // Assume JPG for simplicity, or detect mime type more robustly if needed
+            $tempPath = 'artworks/temp/' . $filename;
+            
+            Storage::disk('public')->put($tempPath, $content);
+
+            return response()->json([
+                'success' => true,
+                'preview_url' => Storage::url($tempPath), // For the <img> tag
+                'temp_path' => $tempPath // To send back when submitting form
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error processing link: ' . $e->getMessage()], 500);
+        }
     }
 }

@@ -117,6 +117,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/{artwork}', [ArtworkController::class, 'update'])->name('update');    // Update
         Route::delete('/{artwork}', [ArtworkController::class, 'destroy'])->name('destroy'); // Delete
         
+        // NEW: Route to handle the "Pull Image" AJAX request
+        Route::post('/preview-from-url', [ArtworkController::class, 'previewImage'])->name('preview');
+
         // Buy Action
         Route::get('/{artwork}/buy', [MarketplaceController::class, 'buy'])->name('buy'); 
     });
