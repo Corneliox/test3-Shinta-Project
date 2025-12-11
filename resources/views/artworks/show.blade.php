@@ -5,7 +5,7 @@
 @section('content')
 
     {{-- 1. HERO SECTION WITH ARTWORK IMAGE --}}
-    <section class="hero-section" style="background-image: url('{{ Storage::url($artwork->image_path) }}'); background-size: cover; background-position: center; min-height: 450px;">
+    <section class="hero-section" style="background-image: url('{{ $artwork->high_res_url }}'); background-size: cover; background-position: center; min-height: 450px;">
         <div class="row mt-3 ms-3 mb-4">
             <div class="col-12">
                 <a href="{{ route('creative') }}" class="btn custom-btn">
@@ -32,7 +32,7 @@
                 <div class="col-lg-8 col-12">
                     
                     {{-- Floated Image --}}
-                    <img src="{{ Storage::url($artwork->image_path) }}" 
+                    <img src="{{ $artwork->high_res_url }}" 
                          class="img-fluid shadow-lg float-md-end ms-md-4 mb-3" 
                          alt="Artwork image of {{ $artwork->title }}" 
                          style="border-radius: 20px; max-width: 300px; width: 40%;">

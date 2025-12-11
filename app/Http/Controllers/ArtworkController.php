@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Artwork;
 use App\Models\User; // <--- THIS WAS MISSING
+use App\Traits\ImageUploadTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http; 
@@ -12,6 +13,8 @@ use Stichoza\GoogleTranslate\GoogleTranslate;
 
 class ArtworkController extends Controller
 {
+    use ImageUploadTrait;
+
     /**
      * Display listing. SUPERADMIN CAN VIEW OTHERS via ?user_id=123
      */
@@ -76,14 +79,19 @@ class ArtworkController extends Controller
         ]);
 
         $finalPath = '';
+
+        // SCENARIO A: Standard File Upload
         if ($request->hasFile('image')) {
-            $finalPath = $request->file('image')->store('artworks', 'public');
-        } elseif ($request->filled('image_temp_path')) {
-            $tempPath = $request->image_temp_path;
-            if (Storage::disk('public')->exists($tempPath)) {
-                $newFilename = 'artworks/' . basename($tempPath);
-                Storage::disk('public')->move($tempPath, $newFilename);
-                $finalPath = $newFilename;
+            // This function now creates 'image.jpg' AND 'image_original.jpg'
+            $finalPath = $this->uploadImage($request->file('image'), 'artworks');
+        } 
+        // SCENARIO B: Google Drive Pull
+        elseif ($request->filled('image_temp_path')) {
+            // This function processes the temp file similarly
+            $finalPath = $this->processTempImage($request->image_temp_path, 'artworks');
+            
+            if (!$finalPath) {
+                return back()->withErrors(['image' => 'Image link expired. Pull again.'])->withInput();
             }
         }
 
@@ -150,9 +158,20 @@ class ArtworkController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            if ($artwork->image_path) Storage::disk('public')->delete($artwork->image_path); 
-            $artwork->image_path = $request->file('image')->store('artworks', 'public');
+        // Delete old images (Optimized AND Original)
+        if ($artwork->image_path) {
+            Storage::disk('public')->delete($artwork->image_path); // Delete optimized
+            
+            // Try delete original (by guessing the name)
+            $originalPath = $artwork->getOriginalImagePath(); // We will create this helper next
+            if(Storage::disk('public')->exists($originalPath)) {
+                Storage::disk('public')->delete($originalPath);
+            }
         }
+        
+        // Upload new dual versions
+        $artwork->image_path = $this->uploadImage($request->file('image'), 'artworks');
+    }
 
         // Translation Update
         try {

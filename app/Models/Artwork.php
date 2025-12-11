@@ -101,4 +101,36 @@ class Artwork extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * Get the path to the original (High-Res) image.
+     * Logic: Replaces ".jpg" with "_original.jpg"
+     */
+    public function getOriginalImagePath()
+    {
+        $path = $this->image_path;
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
+        $filename = pathinfo($path, PATHINFO_FILENAME);
+        $dirname = pathinfo($path, PATHINFO_DIRNAME);
+
+        // Reconstruct path with _original suffix
+        return $dirname . '/' . $filename . '_original.' . $extension;
+    }
+
+    /**
+     * Check if original exists, otherwise return normal path.
+     * Use this in the Details View.
+     */
+    public function getHighResUrlAttribute()
+    {
+        $originalPath = $this->getOriginalImagePath();
+
+        // If the original version exists on disk, return its URL
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($originalPath)) {
+            return \Illuminate\Support\Facades\Storage::url($originalPath);
+        }
+
+        // Fallback to the standard (optimized) one if original is missing
+        return \Illuminate\Support\Facades\Storage::url($this->image_path);
+    }
 }
