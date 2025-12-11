@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Artwork;
+use App\Models\User; // <--- THIS WAS MISSING
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Http; // Required for Link Pull
+use Illuminate\Support\Facades\Http; 
 use Illuminate\Support\Str;
 use Stichoza\GoogleTranslate\GoogleTranslate;
 
@@ -23,15 +24,15 @@ class ArtworkController extends Controller
             $targetUser = User::findOrFail($request->user_id);
         }
 
-        // Load artworks for the TARGET user (not necessarily the logged-in user)
+        // Load artworks for the TARGET user
         $lukisan = $targetUser->artworks()->where('category', 'Lukisan')->latest()->get();
         $crafts = $targetUser->artworks()->where('category', 'Craft')->latest()->get();
 
         return view('artworks.index', [
             'lukisan' => $lukisan,
             'crafts' => $crafts,
-            'is_impersonating' => $targetUser->id !== $request->user()->id, // To show alert in view
-            'target_user' => $targetUser // Pass the user object for links
+            'is_impersonating' => $targetUser->id !== $request->user()->id, 
+            'target_user' => $targetUser 
         ]);
     }
 
@@ -42,7 +43,6 @@ class ArtworkController extends Controller
     {
         $targetUserId = null;
 
-        // If Superadmin clicked "Create" while viewing another user's list
         if ($request->has('user_id') && ($request->user()->is_superadmin || $request->user()->is_admin)) {
             $targetUserId = $request->user_id;
         }
@@ -51,14 +51,13 @@ class ArtworkController extends Controller
     }
 
     /**
-     * Store new artwork (Optionally on behalf of another user).
+     * Store new artwork.
      */
     public function store(Request $request)
     {
         // 1. Determine the OWNER ID
         $ownerId = auth()->id();
 
-        // If 'behalf_user_id' is sent AND user is admin, overwrite ownerId
         if ($request->filled('behalf_user_id') && (auth()->user()->is_superadmin || auth()->user()->is_admin)) {
             $ownerId = $request->behalf_user_id;
         }
@@ -89,21 +88,20 @@ class ArtworkController extends Controller
             }
         }
 
-        // --- TRANSLATION LOGIC (Abbreviated for brevity, keep your try-catch block here) ---
-        $title_en = $validated['title']; $title_id = $validated['title'];
-        $desc_en = $validated['description']; $desc_id = $validated['description'];
+        // --- TRANSLATION ---
         try {
             $tr = new GoogleTranslate(); 
             $title_en = $tr->setTarget('en')->translate($validated['title']);
             $title_id = $tr->setTarget('id')->translate($validated['title']);
-            if($validated['description']) {
-                $desc_en = $tr->setTarget('en')->translate($validated['description']);
-                $desc_id = $tr->setTarget('id')->translate($validated['description']);
-            }
-        } catch (\Exception $e) {}
+            $desc_en = $validated['description'] ? $tr->setTarget('en')->translate($validated['description']) : null;
+            $desc_id = $validated['description'] ? $tr->setTarget('id')->translate($validated['description']) : null;
+        } catch (\Exception $e) {
+            $title_en = $validated['title']; $title_id = $validated['title'];
+            $desc_en = $validated['description']; $desc_id = $validated['description'];
+        }
 
         Artwork::create([
-            'user_id' => $ownerId, // <--- SAVING AS TARGET USER
+            'user_id' => $ownerId, 
             'title' => $title_en,
             'title_id' => $title_id,
             'category' => $validated['category'],
@@ -116,39 +114,34 @@ class ArtworkController extends Controller
             'promo_price' => $request->input('promo_price'),
         ]);
 
-        // Redirect back to that user's list if admin
+        // Redirect logic
         if ($ownerId !== auth()->id()) {
-            return redirect()->route('artworks.index', ['user_id' => $ownerId])
-                             ->with('status', 'Artwork created for user successfully!');
+            return redirect()->route('artworks.index', ['user_id' => $ownerId])->with('status', 'Artwork added for user!');
         }
 
         return redirect()->route('artworks.index')->with('status', 'Artwork created successfully!');
     }
 
+    /**
+     * Show edit form.
+     */
     public function edit(Artwork $artwork)
     {
-        // Authorization: Allow if Owner OR Admin
-        // We use intval() to ensure 1 matches "1"
-        $isOwner = intval(auth()->id()) === intval($artwork->user_id);
-        $isAdmin = auth()->user()->is_admin ?? false; // Assuming you have is_admin column
-
-        if (!$isOwner && !$isAdmin) {
-            abort(403, 'Unauthorized action.');
+        // Allow Owner OR Admin
+        if (auth()->id() !== $artwork->user_id && !auth()->user()->is_admin && !auth()->user()->is_superadmin) {
+            abort(403);
         }
 
-        return view('artworks.edit', [
-            'artwork' => $artwork
-        ]);
+        return view('artworks.edit', ['artwork' => $artwork]);
     }
 
+    /**
+     * Update artwork.
+     */
     public function update(Request $request, Artwork $artwork)
     {
-        // Authorization
-        $isOwner = intval(auth()->id()) === intval($artwork->user_id);
-        $isAdmin = auth()->user()->is_admin ?? false;
-
-        if (!$isOwner && !$isAdmin) {
-            abort(403, 'Unauthorized action.');
+        if (auth()->id() !== $artwork->user_id && !auth()->user()->is_admin && !auth()->user()->is_superadmin) {
+            abort(403);
         }
 
         $validated = $request->validate([
@@ -166,6 +159,7 @@ class ArtworkController extends Controller
             $artwork->image_path = $request->file('image')->store('artworks', 'public');
         }
 
+        // Translation Update
         try {
             $tr = new GoogleTranslate(); 
             $artwork->title = $tr->setTarget('en')->translate($validated['title']);
@@ -187,35 +181,32 @@ class ArtworkController extends Controller
 
         $artwork->save();
 
-        // Check if admin is editing someone else's work
+        // Redirect logic
         if (auth()->id() !== $artwork->user_id) {
-            return redirect()->route('artworks.index', ['user_id' => $artwork->user_id])
-                            ->with('status', 'User artwork updated successfully!');
+            return redirect()->route('artworks.index', ['user_id' => $artwork->user_id])->with('status', 'User artwork updated!');
         }
 
         return redirect()->route('artworks.index')->with('status', 'Artwork updated successfully!');
     }
 
+    /**
+     * Delete artwork.
+     */
     public function destroy(Request $request, Artwork $artwork)
     {
-        // Authorization
-        $isOwner = intval(auth()->id()) === intval($artwork->user_id);
-        $isAdmin = auth()->user()->is_admin ?? false;
-
-        if (!$isOwner && !$isAdmin) {
-            abort(403, 'Unauthorized action.');
+        if (auth()->id() !== $artwork->user_id && !auth()->user()->is_admin && !auth()->user()->is_superadmin) {
+            abort(403);
         }
 
-        // 2. Delete the image file
-        if ($artwork->image_path) {
-            Storage::disk('public')->delete($artwork->image_path);
-        }
-
+        if ($artwork->image_path) Storage::disk('public')->delete($artwork->image_path);
         $artwork->delete();
 
         return back()->with('status', 'artwork-deleted');
     }
 
+    /**
+     * Public Show.
+     */
     public function show(Artwork $artwork)
     {
         $artwork->load('user.artistProfile');
@@ -223,14 +214,13 @@ class ArtworkController extends Controller
     }
 
     /**
-     * AJAX Handler for Image Pull
+     * AJAX Preview.
      */
     public function previewImage(Request $request)
     {
         $request->validate(['url' => 'required|url']);
         $url = $request->url;
 
-        // Convert Google Drive Link
         if (str_contains($url, 'drive.google.com')) {
             preg_match('/\/d\/(.*?)\//', $url, $matches);
             if (isset($matches[1])) {
@@ -240,7 +230,7 @@ class ArtworkController extends Controller
 
         try {
             $response = Http::get($url);
-            if ($response->failed()) return response()->json(['error' => 'Failed to download image.'], 422);
+            if ($response->failed()) return response()->json(['error' => 'Failed to download.'], 422);
 
             $filename = 'temp_' . uniqid() . '.jpg';
             $tempPath = 'artworks/temp/' . $filename;
