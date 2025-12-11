@@ -11,34 +11,64 @@ use Stichoza\GoogleTranslate\GoogleTranslate;
 
 class ArtworkController extends Controller
 {
+    /**
+     * Display listing. SUPERADMIN CAN VIEW OTHERS via ?user_id=123
+     */
     public function index(Request $request)
     {
-        $user = $request->user();
-        $lukisan = $user->artworks()->where('category', 'Lukisan')->latest()->get();
-        $crafts = $user->artworks()->where('category', 'Craft')->latest()->get();
+        $targetUser = $request->user(); // Default: Logged in user
+
+        // SUPERADMIN OVERRIDE: Check if viewing another user
+        if ($request->has('user_id') && ($request->user()->is_superadmin || $request->user()->is_admin)) {
+            $targetUser = User::findOrFail($request->user_id);
+        }
+
+        // Load artworks for the TARGET user (not necessarily the logged-in user)
+        $lukisan = $targetUser->artworks()->where('category', 'Lukisan')->latest()->get();
+        $crafts = $targetUser->artworks()->where('category', 'Craft')->latest()->get();
 
         return view('artworks.index', [
             'lukisan' => $lukisan,
             'crafts' => $crafts,
+            'is_impersonating' => $targetUser->id !== $request->user()->id, // To show alert in view
+            'target_user' => $targetUser // Pass the user object for links
         ]);
     }
 
-    public function create()
+    /**
+     * Show create form. Pass target_user_id if impersonating.
+     */
+    public function create(Request $request)
     {
-        return view('artworks.create');
+        $targetUserId = null;
+
+        // If Superadmin clicked "Create" while viewing another user's list
+        if ($request->has('user_id') && ($request->user()->is_superadmin || $request->user()->is_admin)) {
+            $targetUserId = $request->user_id;
+        }
+
+        return view('artworks.create', compact('targetUserId'));
     }
 
+    /**
+     * Store new artwork (Optionally on behalf of another user).
+     */
     public function store(Request $request)
     {
+        // 1. Determine the OWNER ID
+        $ownerId = auth()->id();
+
+        // If 'behalf_user_id' is sent AND user is admin, overwrite ownerId
+        if ($request->filled('behalf_user_id') && (auth()->user()->is_superadmin || auth()->user()->is_admin)) {
+            $ownerId = $request->behalf_user_id;
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'category' => 'required|in:Lukisan,Craft',
             'description' => 'nullable|string',
-            
-            // Allow either File OR Temp Path
             'image' => 'required_without:image_temp_path|image|max:5120',
             'image_temp_path' => 'required_without:image|nullable|string',
-            
             'price' => 'nullable|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
             'promo_price' => 'nullable|numeric|lt:price',
@@ -46,38 +76,34 @@ class ArtworkController extends Controller
 
         $finalPath = '';
 
-        // 1. Handle File Upload
         if ($request->hasFile('image')) {
             $finalPath = $request->file('image')->store('artworks', 'public');
-        } 
-        // 2. Handle Link Pull (Move Temp File)
-        elseif ($request->filled('image_temp_path')) {
+        } elseif ($request->filled('image_temp_path')) {
             $tempPath = $request->image_temp_path;
             if (Storage::disk('public')->exists($tempPath)) {
                 $newFilename = 'artworks/' . basename($tempPath);
                 Storage::disk('public')->move($tempPath, $newFilename);
                 $finalPath = $newFilename;
             } else {
-                return back()->withErrors(['image' => 'Image link expired. Please pull again.'])->withInput();
+                return back()->withErrors(['image' => 'Link expired. Pull again.']);
             }
         }
 
-        // --- TRANSLATION ---
+        // --- TRANSLATION LOGIC (Abbreviated for brevity, keep your try-catch block here) ---
+        $title_en = $validated['title']; $title_id = $validated['title'];
+        $desc_en = $validated['description']; $desc_id = $validated['description'];
         try {
             $tr = new GoogleTranslate(); 
             $title_en = $tr->setTarget('en')->translate($validated['title']);
             $title_id = $tr->setTarget('id')->translate($validated['title']);
-            $desc_en = $validated['description'] ? $tr->setTarget('en')->translate($validated['description']) : null;
-            $desc_id = $validated['description'] ? $tr->setTarget('id')->translate($validated['description']) : null;
-        } catch (\Exception $e) {
-            $title_en = $validated['title'];
-            $title_id = $validated['title'];
-            $desc_en = $validated['description'];
-            $desc_id = $validated['description'];
-        }
+            if($validated['description']) {
+                $desc_en = $tr->setTarget('en')->translate($validated['description']);
+                $desc_id = $tr->setTarget('id')->translate($validated['description']);
+            }
+        } catch (\Exception $e) {}
 
         Artwork::create([
-            'user_id' => auth()->id(),
+            'user_id' => $ownerId, // <--- SAVING AS TARGET USER
             'title' => $title_en,
             'title_id' => $title_id,
             'category' => $validated['category'],
@@ -89,6 +115,12 @@ class ArtworkController extends Controller
             'is_promo' => $request->has('is_promo'),
             'promo_price' => $request->input('promo_price'),
         ]);
+
+        // Redirect back to that user's list if admin
+        if ($ownerId !== auth()->id()) {
+            return redirect()->route('artworks.index', ['user_id' => $ownerId])
+                             ->with('status', 'Artwork created for user successfully!');
+        }
 
         return redirect()->route('artworks.index')->with('status', 'Artwork created successfully!');
     }
@@ -154,6 +186,12 @@ class ArtworkController extends Controller
         $artwork->promo_price = $request->input('promo_price');
 
         $artwork->save();
+
+        // Check if admin is editing someone else's work
+        if (auth()->id() !== $artwork->user_id) {
+            return redirect()->route('artworks.index', ['user_id' => $artwork->user_id])
+                            ->with('status', 'User artwork updated successfully!');
+        }
 
         return redirect()->route('artworks.index')->with('status', 'Artwork updated successfully!');
     }

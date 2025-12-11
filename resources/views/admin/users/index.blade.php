@@ -82,6 +82,15 @@
                                                 </button>
                                             </form>
 
+                                            {{-- NEW: MANAGE ARTWORKS BUTTON (Only for Artists) --}}
+                                            @if($user->is_superadmin || $user->is_artist)
+                                                <a href="{{ route('artworks.index', ['user_id' => $user->id]) }}" 
+                                                class="text-green-600 hover:text-green-900 text-xs font-bold uppercase tracking-wide"
+                                                title="Manage this user's art">
+                                                Manage Art
+                                                </a>
+                                            @endif
+
                                             {{-- 3. Superadmin Actions --}}
                                             @if(auth()->user()->is_superadmin)
                                                 

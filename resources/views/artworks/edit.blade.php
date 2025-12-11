@@ -7,10 +7,27 @@
             <div class="col-lg-8 col-12 mx-auto">
                 <div class="custom-block bg-white shadow-lg p-5">
                     
+                    {{-- HEADER & SMART BACK BUTTON --}}
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h3 class="mb-0">Edit Artwork</h3>
-                        <a href="{{ route('artworks.index') }}" class="btn custom-btn custom-border-btn btn-sm">Back to Dashboard</a>
+                        
+                        {{-- Logic: If Admin is editing someone else's work, go back to THAT user's list --}}
+                        @if(auth()->id() !== $artwork->user_id)
+                            <a href="{{ route('artworks.index', ['user_id' => $artwork->user_id]) }}" class="btn custom-btn custom-border-btn btn-sm">
+                                <i class="bi-arrow-left me-1"></i> Back to {{ $artwork->user->name }}'s Art
+                            </a>
+                        @else
+                            <a href="{{ route('artworks.index') }}" class="btn custom-btn custom-border-btn btn-sm">Back to Dashboard</a>
+                        @endif
                     </div>
+
+                    {{-- ADMIN NOTICE --}}
+                    @if(auth()->id() !== $artwork->user_id)
+                        <div class="alert alert-warning border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
+                            <p class="font-bold">Admin Mode Active</p>
+                            <p>You are editing an artwork that belongs to: <strong>{{ $artwork->user->name }}</strong></p>
+                        </div>
+                    @endif
 
                     <form action="{{ route('artworks.update', $artwork->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
@@ -90,7 +107,7 @@
 
 @push('scripts')
 <script>
-    // Exact same script logic as create.blade.php
+    // Copy the same script logic from create.blade.php here
     const promoCheckbox = document.getElementById('is_promo');
     const promoWrapper = document.getElementById('promo_price_wrapper');
     const basePriceInput = document.getElementById('basePrice');

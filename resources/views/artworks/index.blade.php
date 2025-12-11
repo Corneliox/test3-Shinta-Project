@@ -4,6 +4,14 @@
 
 @section('content')
 
+@if(isset($is_impersonating) && $is_impersonating)
+    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
+        <p class="font-bold">Admin Mode Active</p>
+        <p>You are managing artworks for: <strong>{{ $target_user->name }}</strong></p>
+        <a href="{{ route('admin.users.index') }}" class="underline text-sm">Return to User List</a>
+    </div>
+@endif
+
     {{-- HERO HEADER --}}
     <section class="hero-section" style="min-height: 250px;">
         <div class="container">
@@ -51,7 +59,7 @@
                         
                         <div class="mt-4 text-center">
                             {{-- LINK TO CREATE PAGE --}}
-                            <a href="{{ route('artworks.create') }}" class="btn custom-btn w-100">
+                            <a href="{{ route('artworks.create', ['user_id' => isset($target_user) ? $target_user->id : null]) }}" class="btn custom-btn w-100">
                                 <i class="bi-plus-circle me-1"></i> Upload Artwork
                             </a>
                         </div>

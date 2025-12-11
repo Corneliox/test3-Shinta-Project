@@ -15,6 +15,14 @@
                     <form action="{{ route('artworks.store') }}" method="POST" enctype="multipart/form-data" id="artworkForm">
                         @csrf
 
+                        {{-- NEW: If admin passed a User ID, store it here --}}
+                        @if(isset($targetUserId) && $targetUserId)
+                            <input type="hidden" name="behalf_user_id" value="{{ $targetUserId }}">
+                            <div class="alert alert-warning">
+                                <strong>Admin Notice:</strong> You are adding this artwork for User ID: {{ $targetUserId }}
+                            </div>
+                        @endif
+
                         {{-- 1. BASIC INFO --}}
                         <div class="mb-3">
                             <label class="form-label">Title</label>
