@@ -95,13 +95,29 @@ class ArtworkController extends Controller
 
     public function edit(Artwork $artwork)
     {
-        if (auth()->id() !== $artwork->user_id) abort(403);
-        return view('artworks.edit', ['artwork' => $artwork]);
+        // Authorization: Allow if Owner OR Admin
+        // We use intval() to ensure 1 matches "1"
+        $isOwner = intval(auth()->id()) === intval($artwork->user_id);
+        $isAdmin = auth()->user()->is_admin ?? false; // Assuming you have is_admin column
+
+        if (!$isOwner && !$isAdmin) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return view('artworks.edit', [
+            'artwork' => $artwork
+        ]);
     }
 
     public function update(Request $request, Artwork $artwork)
     {
-        if ($artwork->user_id !== auth()->id()) abort(403);
+        // Authorization
+        $isOwner = intval(auth()->id()) === intval($artwork->user_id);
+        $isAdmin = auth()->user()->is_admin ?? false;
+
+        if (!$isOwner && !$isAdmin) {
+            abort(403, 'Unauthorized action.');
+        }
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -144,9 +160,21 @@ class ArtworkController extends Controller
 
     public function destroy(Request $request, Artwork $artwork)
     {
-        if ($request->user()->id !== $artwork->user_id) abort(403);
-        if ($artwork->image_path) Storage::disk('public')->delete($artwork->image_path);
+        // Authorization
+        $isOwner = intval(auth()->id()) === intval($artwork->user_id);
+        $isAdmin = auth()->user()->is_admin ?? false;
+
+        if (!$isOwner && !$isAdmin) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // 2. Delete the image file
+        if ($artwork->image_path) {
+            Storage::disk('public')->delete($artwork->image_path);
+        }
+
         $artwork->delete();
+
         return back()->with('status', 'artwork-deleted');
     }
 
