@@ -94,7 +94,7 @@
 
                             <div class="p-3 d-flex flex-column flex-grow-1">
                                 <h5 class="mb-2">{{ $event->title }}</h5>
-                                <p class="text-muted">{{ Str::limit($event->description, 100) }}</p>
+                                <p>{!! Str::limit(strip_tags($event->description), 150) !!}</p>
                                 
                                 <a href="{{ route('event.details', $event) }}" class="btn custom-btn mt-auto" style="width: fit-content;">Learn More</a>
                             </div>

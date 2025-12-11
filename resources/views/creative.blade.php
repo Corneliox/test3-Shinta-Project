@@ -1,7 +1,5 @@
 @extends('layouts.main') 
 
-<!-- Ubah halaman menjadi tema tampilan marketplace -->
-
 {{-- Add this to use the 'Str::limit' helper for the description --}}
 @use('Illuminate\Support\Str')
 
@@ -64,7 +62,8 @@
                                                         
                                                         <div class="artwork-overlay">
                                                             <p class="artwork-overlay-text">
-                                                                {{ Str::limit($artwork->description, 100) ?? 'No description available.' }}
+                                                                {{-- FIX: Strip tags to prevent HTML code from showing --}}
+                                                                {!! Str::limit(strip_tags($artwork->description), 100) ?? 'No description available.' !!}
                                                             </p>
                                                         </div>
                                                     </div>
@@ -122,7 +121,8 @@
                                                         
                                                         <div class="artwork-overlay">
                                                             <p class="artwork-overlay-text">
-                                                                {{ Str::limit($artwork->description, 100) ?? 'No description available.' }}
+                                                                {{-- FIX: Strip tags to prevent HTML code from showing --}}
+                                                                {!! Str::limit(strip_tags($artwork->description), 100) ?? 'No description available.' !!}
                                                             </p>
                                                         </div>
                                                     </div>

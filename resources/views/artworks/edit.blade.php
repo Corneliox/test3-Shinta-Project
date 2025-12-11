@@ -6,13 +6,16 @@
         <div class="row">
             <div class="col-lg-8 col-12 mx-auto">
                 <div class="custom-block bg-white shadow-lg p-5">
-                    <h3 class="mb-4">Edit Artwork</h3>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="mb-0">Edit Artwork</h3>
+                        <a href="{{ route('artworks.index') }}" class="btn custom-btn custom-border-btn btn-sm">Back to Dashboard</a>
+                    </div>
 
-                    <form action="{{ route('artworks.update', $artwork->slug) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('artworks.update', $artwork->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PATCH')
 
-                        {{-- 1. Basic Info --}}
                         <div class="mb-3">
                             <label class="form-label">Title</label>
                             <input type="text" name="title" class="form-control" value="{{ old('title', $artwork->title) }}" required>
@@ -31,7 +34,6 @@
                             <textarea name="description" class="form-control" rows="4">{{ old('description', $artwork->description) }}</textarea>
                         </div>
 
-                        {{-- 2. Image --}}
                         <div class="mb-4">
                             <label class="form-label">Artwork Image</label>
                             <div class="mb-2">
@@ -43,17 +45,12 @@
 
                         <hr class="my-4">
 
-                        {{-- 3. MARKETPLACE SETTINGS --}}
                         <h5 class="mb-3 text-primary">Marketplace Settings</h5>
-                        <div class="alert alert-info fs-6">
-                            <i class="bi-info-circle me-2"></i>
-                            <strong>Logic:</strong> If you set a <strong>Price</strong>, this item will appear in the <strong>Marketplace</strong>.
-                        </div>
-
+                        
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Price (Rp)</label>
-                                <input type="number" id="basePrice" name="price" class="form-control" placeholder="e.g. 500000" value="{{ old('price', $artwork->price) }}">
+                                <input type="number" id="basePrice" name="price" class="form-control" value="{{ old('price', $artwork->price) }}">
                             </div>
 
                             <div class="col-md-6 mb-3">
@@ -62,7 +59,6 @@
                             </div>
                         </div>
 
-                        {{-- Promo Settings --}}
                         <div class="form-check form-switch mb-3">
                             <input class="form-check-input" type="checkbox" id="is_promo" name="is_promo" value="1" {{ $artwork->is_promo ? 'checked' : '' }}>
                             <label class="form-check-label fw-bold" for="is_promo">Enable Promo / Discount?</label>
@@ -70,7 +66,6 @@
 
                         <div class="mb-4 p-3 border rounded bg-light" id="promo_price_wrapper" style="{{ $artwork->is_promo ? '' : 'display:none;' }}">
                             <div class="row">
-                                {{-- Percentage Input --}}
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Discount Percentage (%)</label>
                                     <div class="input-group">
@@ -78,14 +73,11 @@
                                         <span class="input-group-text">%</span>
                                     </div>
                                 </div>
-
-                                {{-- Promo Price Input --}}
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Final Promo Price (Rp)</label>
                                     <input type="number" id="promoPrice" name="promo_price" class="form-control" value="{{ old('promo_price', $artwork->promo_price) }}">
                                 </div>
                             </div>
-                            <small class="text-muted">Adjusting one field will automatically update the other.</small>
                         </div>
 
                         <button type="submit" class="btn custom-btn w-100">Update Artwork</button>
@@ -98,25 +90,21 @@
 
 @push('scripts')
 <script>
-    // 1. Toggle Promo Visibility
+    // Exact same script logic as create.blade.php
     const promoCheckbox = document.getElementById('is_promo');
     const promoWrapper = document.getElementById('promo_price_wrapper');
+    const basePriceInput = document.getElementById('basePrice');
+    const discountInput = document.getElementById('discountPercent');
+    const promoPriceInput = document.getElementById('promoPrice');
 
     promoCheckbox.addEventListener('change', function() {
         promoWrapper.style.display = this.checked ? 'block' : 'none';
     });
 
-    // 2. Live Price Calculation Logic
-    const basePriceInput = document.getElementById('basePrice');
-    const discountInput = document.getElementById('discountPercent');
-    const promoPriceInput = document.getElementById('promoPrice');
-
     function calculateFromPercent() {
         const price = parseFloat(basePriceInput.value) || 0;
         const percent = parseFloat(discountInput.value) || 0;
-
         if (price > 0) {
-            // Logic: 100000 - (100000 * 0.49) = 51000
             const finalPrice = price - (price * (percent / 100));
             promoPriceInput.value = Math.round(finalPrice);
         }
@@ -125,24 +113,19 @@
     function calculateFromPrice() {
         const price = parseFloat(basePriceInput.value) || 0;
         const promo = parseFloat(promoPriceInput.value) || 0;
-
         if (price > 0 && promo > 0 && promo < price) {
-            // Logic: (100000 - 20000) / 100000 = 0.8 = 80%
             const percent = ((price - promo) / price) * 100;
             discountInput.value = Math.round(percent);
         }
     }
 
-    // Event Listeners
     discountInput.addEventListener('input', calculateFromPercent);
     promoPriceInput.addEventListener('input', calculateFromPrice);
-    
-    // Also recalculate if Base Price changes
     basePriceInput.addEventListener('input', function() {
         if(discountInput.value) calculateFromPercent();
     });
 
-    // Initial Calculation on Load (if editing)
+    // Run on load to set percentage if editing
     if(basePriceInput.value && promoPriceInput.value) {
         calculateFromPrice();
     }

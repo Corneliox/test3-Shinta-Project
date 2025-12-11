@@ -193,7 +193,7 @@
                     <h2 class="text-center">{{ __('messages.activities_title') }}</h2>
                 </div>
                 <div class="col-12">
-                    <div class="custom-block bg-white shadow-sm p-5" style="border-left: 5px solid #9251ac;">
+                    <div class="custom-block bg-white shadow-sm p-5" style="border-left: 5px solid #9251ac; text-align: left;">
                         <ul class="list-unstyled text-muted" style="line-height: 2.2;">
                             @foreach(explode("\n", __('messages.activities_list')) as $activity)
                                 @if(!empty(trim($activity)))

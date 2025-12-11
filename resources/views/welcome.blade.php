@@ -71,13 +71,7 @@
                         <button type="submit" class="btn custom-btn w-100 mt-3 shadow-sm">Search</button>
                     </form>
 
-                    <!-- <div class="text-center text-lg-start">
-                        <a href="{{ route('about') }}" class="btn custom-border-btn w-100">
-                            Tentang WOPANCO
-                        </a>
-                    </div> -->
-
-                </div>
+                    </div>
 
             </div>
         </div>
@@ -124,7 +118,8 @@
                                             <div class="artist-info-content">
                                                 <h6 class="text-white mb-1">{{ $artist->name }}</h6>
                                                 <p class="text-white-50 mb-0 small" style="font-size: 0.85rem; line-height: 1.3;">
-                                                    {{ Str::limit($artist->artistProfile->about ?? 'Member of WOPANCO', 60) }}
+                                                    {{-- FIX: Strip tags for artist bio --}}
+                                                    {!! Str::limit(strip_tags($artist->artistProfile->about ?? 'Member of WOPANCO'), 60) !!}
                                                 </p>
                                             </div>
                                         </div>
@@ -166,7 +161,8 @@
                                             <div class="d-flex">
                                                 <div>
                                                     <h3 class="text-white mb-4">{{ $pinned_event->title }}</h5>
-                                                    <p class="text-white">{{ Str::limit($pinned_event->description, 150) }}</p>
+                                                    {{-- FIX: Strip tags for pinned event description --}}
+                                                    <p class="text-white">{!! Str::limit(strip_tags($pinned_event->description), 150) !!}</p>
                                                 </div>
                                                 {{-- The badge will now be sized correctly by the new CSS --}}
                                                 <span class="badge bg-finance ms-auto">{{ $pinned_event->start_at->format('M d') }}</span>
@@ -210,7 +206,8 @@
 
                                 <div class="p-3 d-flex flex-column flex-grow-1">
                                     <h5 class="mb-2">{{ $event->title }}</h5>
-                                    <p class="text-muted">{{ Str::limit($event->description, 100) }}</p>
+                                    {{-- FIX: Strip tags for newest event descriptions --}}
+                                    <p class="text-muted">{!! Str::limit(strip_tags($event->description), 100) !!}</p>
                                     
                                     <a href="{{ route('event.details', $event) }}" class="btn custom-btn mt-auto" style="width: fit-content;">Learn More</a>
                                 </div>
@@ -268,7 +265,8 @@
                                                 
                                                 <div class="artwork-overlay">
                                                     <p class="artwork-overlay-text">
-                                                        {{ Str::limit($artwork->description, 100) ?? 'No description available.' }}
+                                                        {{-- FIX: Strip tags for Lukisan --}}
+                                                        {!! Str::limit(strip_tags($artwork->description), 100) ?? 'No description available.' !!}
                                                     </p>
                                                 </div>
                                             </div>
@@ -308,7 +306,8 @@
                                                 
                                                 <div class="artwork-overlay">
                                                     <p class="artwork-overlay-text">
-                                                        {{ Str::limit($artwork->description, 100) ?? 'No description available.' }}
+                                                        {{-- FIX: Strip tags for Craft --}}
+                                                        {!! Str::limit(strip_tags($artwork->description), 100) ?? 'No description available.' !!}
                                                     </p>
                                                 </div>
                                             </div>
@@ -357,7 +356,6 @@
                 {{-- Left Side: Google Map --}}
                 <div class="col-lg-5 col-12 mb-4 mb-lg-0">
                 <iframe class="google-map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.203023267856!2d110.39271837587637!3d-6.985324669288132!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e708b4929760129%3A0x6753066922207904!2sPuri%20Anjasmoro!5e0!3m2!1sen!2sid!4v1700000000000!5m2!1sen!2sid" width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>    
-                <!-- <iframe class="google-map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2595.065641062665!2d-122.4230416990949!3d37.80335401520422!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80858127459fabad%3A0x808ba520e5e9edb7!2sFrancisco%20Park!5e1!3m2!1sen!2sth!4v1684340239744!5m2!1sen!2sth" width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe> -->
                 </div>
 
                 {{-- Right Side: Contact Info (Standardized) --}}

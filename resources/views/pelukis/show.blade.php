@@ -23,7 +23,7 @@
                     <p class="text-white">
                         {{-- The "About" description from the database --}}
                         @if($profile && $profile->about)
-                            {{ $profile->about }}
+                            {!! Str::limit(strip_tags($profile->about), 300) !!}
                         @else
                             This artist hasn't written their "about" section yet.
                         @endif
@@ -57,7 +57,7 @@
                                                 
                                                 <div class="artwork-overlay">
                                                     <p class="artwork-overlay-text">
-                                                        {{ Str::limit($artwork->description, 100) ?? 'No description available.' }}
+                                                        {{ Str::limit(strip_tags($artwork->description), 100) ?? 'No description available.' }}
                                                     </p>
                                                 </div>
                                             </div>
@@ -98,7 +98,7 @@
                                                 
                                                 <div class="artwork-overlay">
                                                     <p class="artwork-overlay-text">
-                                                        {{ Str::limit($artwork->description, 100) ?? 'No description available.' }}
+                                                        {{ Str::limit(strip_tags($artwork->description), 100) ?? 'No description available.' }}
                                                     </p>
                                                 </div>
                                             </div>
