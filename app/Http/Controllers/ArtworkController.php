@@ -22,16 +22,20 @@ class ArtworkController extends Controller
     {
         $targetUser = $request->user(); // Default: Logged in user
 
-        // SUPERADMIN OVERRIDE: Check if viewing another user
+        // SUPERADMIN OVERRIDE
         if ($request->has('user_id') && ($request->user()->is_superadmin || $request->user()->is_admin)) {
             $targetUser = User::findOrFail($request->user_id);
         }
 
-        // Load artworks for the TARGET user
-        $lukisan = $targetUser->artworks()->where('category', 'Lukisan')->latest()->get();
-        $crafts = $targetUser->artworks()->where('category', 'Craft')->latest()->get();
+        // OPTIMIZATION: Fetch ALL artworks in one query
+        $all_artworks = $targetUser->artworks()->latest()->get();
+
+        // Filter them in memory (faster than 3 DB queries)
+        $lukisan = $all_artworks->where('category', 'Lukisan');
+        $crafts = $all_artworks->where('category', 'Craft');
 
         return view('artworks.index', [
+            'all_artworks' => $all_artworks, // New Variable
             'lukisan' => $lukisan,
             'crafts' => $crafts,
             'is_impersonating' => $targetUser->id !== $request->user()->id, 

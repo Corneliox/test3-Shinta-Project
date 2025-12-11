@@ -34,7 +34,6 @@
                 <div class="col-lg-3 col-12 mb-5">
                     <div class="custom-block bg-white shadow-lg p-4">
                         <div class="text-center mb-4">
-                            {{-- FIX: Use $target_user so it shows Lidya's face, not yours --}}
                             @if($target_user->artistProfile && $target_user->artistProfile->profile_picture)
                                 <img src="{{ Storage::url($target_user->artistProfile->profile_picture) }}" class="rounded-circle img-fluid mb-3" style="width: 100px; height: 100px; object-fit: cover;">
                             @else
@@ -60,7 +59,6 @@
                         </ul>
                         
                         <div class="mt-4 text-center">
-                            {{-- FIX: Pass user_id to Create Page --}}
                             <a href="{{ route('artworks.create', ['user_id' => $target_user->id]) }}" class="btn custom-btn w-100">
                                 <i class="bi-plus-circle me-1"></i> Upload Artwork
                             </a>
@@ -79,14 +77,20 @@
 
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h2>{{ $target_user->id !== auth()->id() ? $target_user->name . "'s Artworks" : 'My Artworks' }}</h2>
-                        <span class="badge bg-secondary">{{ $lukisan->count() + $crafts->count() }} Items</span>
+                        <span class="badge bg-secondary">{{ $all_artworks->count() }} Items</span>
                     </div>
 
-                    {{-- TABS for Categories --}}
+                    {{-- TABS --}}
                     <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+                        {{-- 1. ALL TAB (Active) --}}
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link active text-dark" id="lukisan-tab" data-bs-toggle="tab" data-bs-target="#lukisan-tab-pane" type="button" role="tab">Lukisan</button>
+                            <button class="nav-link active text-dark" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-tab-pane" type="button" role="tab">All</button>
                         </li>
+                        {{-- 2. LUKISAN TAB --}}
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link text-dark" id="lukisan-tab" data-bs-toggle="tab" data-bs-target="#lukisan-tab-pane" type="button" role="tab">Lukisan</button>
+                        </li>
+                        {{-- 3. CRAFT TAB --}}
                         <li class="nav-item" role="presentation">
                             <button class="nav-link text-dark" id="craft-tab" data-bs-toggle="tab" data-bs-target="#craft-tab-pane" type="button" role="tab">Craft</button>
                         </li>
@@ -94,8 +98,24 @@
 
                     <div class="tab-content" id="myTabContent">
                         
-                        {{-- TAB 1: LUKISAN --}}
-                        <div class="tab-pane fade show active" id="lukisan-tab-pane" role="tabpanel">
+                        {{-- PANE 1: ALL ARTWORKS (Default) --}}
+                        <div class="tab-pane fade show active" id="all-tab-pane" role="tabpanel">
+                            <div class="row">
+                                @forelse($all_artworks as $artwork)
+                                    <div class="col-md-6 col-12 mb-4">
+                                        @include('artworks.partials.artwork-card-manage', ['artwork' => $artwork])
+                                    </div>
+                                @empty
+                                    <div class="col-12 text-center py-5">
+                                        <p class="text-muted">No artworks uploaded yet.</p>
+                                        <a href="{{ route('artworks.create', ['user_id' => $target_user->id]) }}" class="btn custom-border-btn btn-sm">Upload One</a>
+                                    </div>
+                                @endforelse
+                            </div>
+                        </div>
+
+                        {{-- PANE 2: LUKISAN --}}
+                        <div class="tab-pane fade" id="lukisan-tab-pane" role="tabpanel">
                             <div class="row">
                                 @forelse($lukisan as $artwork)
                                     <div class="col-md-6 col-12 mb-4">
@@ -103,15 +123,13 @@
                                     </div>
                                 @empty
                                     <div class="col-12 text-center py-5">
-                                        <p class="text-muted">No paintings uploaded yet.</p>
-                                        {{-- FIX: Empty State Button must also pass user_id --}}
-                                        <a href="{{ route('artworks.create', ['user_id' => $target_user->id]) }}" class="btn custom-border-btn btn-sm">Upload One</a>
+                                        <p class="text-muted">No paintings found.</p>
                                     </div>
                                 @endforelse
                             </div>
                         </div>
 
-                        {{-- TAB 2: CRAFT --}}
+                        {{-- PANE 3: CRAFT --}}
                         <div class="tab-pane fade" id="craft-tab-pane" role="tabpanel">
                             <div class="row">
                                 @forelse($crafts as $artwork)
@@ -120,9 +138,7 @@
                                     </div>
                                 @empty
                                     <div class="col-12 text-center py-5">
-                                        <p class="text-muted">No crafts uploaded yet.</p>
-                                        {{-- FIX: Empty State Button must also pass user_id --}}
-                                        <a href="{{ route('artworks.create', ['user_id' => $target_user->id]) }}" class="btn custom-border-btn btn-sm">Upload One</a>
+                                        <p class="text-muted">No crafts found.</p>
                                     </div>
                                 @endforelse
                             </div>
