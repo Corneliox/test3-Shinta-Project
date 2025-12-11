@@ -32,7 +32,7 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     
-                    {{-- FIX: Scrollable wrapper --}}
+                    {{-- Scrollable wrapper --}}
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
                             <thead class="bg-gray-50 dark:bg-gray-700">
@@ -67,39 +67,47 @@
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <div class="flex justify-end items-center gap-2">
+                                        <div class="flex justify-end items-center gap-3">
                                             
-                                            {{-- Toggle Artist --}}
+                                            {{-- 1. EDIT BUTTON (NEW) --}}
+                                            <a href="{{ route('admin.users.edit', $user->id) }}" class="text-blue-600 hover:text-blue-900 font-bold text-xs uppercase tracking-wide">
+                                                Edit
+                                            </a>
+
+                                            {{-- 2. Toggle Artist --}}
                                             <form method="POST" action="{{ route('admin.users.update', $user) }}">
                                                 @csrf @method('PATCH')
-                                                <button type="submit" class="text-indigo-600 hover:text-indigo-900 text-xs font-bold">
+                                                <button type="submit" class="text-indigo-600 hover:text-indigo-900 text-xs font-bold uppercase tracking-wide">
                                                     {{ $user->is_artist ? 'Un-Artist' : 'Artist' }}
                                                 </button>
                                             </form>
 
+                                            {{-- 3. Superadmin Actions --}}
                                             @if(auth()->user()->is_superadmin)
+                                                
                                                 {{-- Toggle Admin --}}
                                                 <form method="POST" action="{{ route('admin.users.toggle-admin', $user) }}">
                                                     @csrf @method('PATCH')
-                                                    <button type="submit" class="text-amber-600 hover:text-amber-900 text-xs font-bold">
+                                                    <button type="submit" class="text-amber-600 hover:text-amber-900 text-xs font-bold uppercase tracking-wide">
                                                         {{ $user->is_admin ? 'Demote' : 'Admin' }}
                                                     </button>
                                                 </form>
 
+                                                {{-- Demote Superadmin --}}
                                                 @if($user->is_superadmin && $user->id !== auth()->id())
                                                     <form method="POST" action="{{ route('admin.users.toggle-super', $user) }}" onsubmit="return confirm('Demote Superadmin?');">
                                                         @csrf @method('PATCH')
-                                                        <button type="submit" class="text-purple-600 hover:text-purple-900 text-xs font-bold">
+                                                        <button type="submit" class="text-purple-600 hover:text-purple-900 text-xs font-bold uppercase tracking-wide">
                                                             Demote S
                                                         </button>
                                                     </form>
                                                 @endif
                                             @endif
 
-                                            {{-- Delete --}}
+                                            {{-- 4. Delete --}}
                                             <form method="POST" action="{{ route('admin.users.destroy', $user) }}" onsubmit="return confirm('Delete user?');">
                                                 @csrf @method('DELETE')
-                                                <button class="text-red-600 hover:text-red-900 text-xs font-bold">Del</button>
+                                                <button class="text-red-600 hover:text-red-900 text-xs font-bold uppercase tracking-wide">Del</button>
                                             </form>
 
                                         </div>
@@ -119,7 +127,7 @@
         </div>
     </div>
 
-    {{-- Keep your Javascript for God Mode here... --}}
+    {{-- Javascript for God Mode --}}
     <script>
         let clickCounts = {};
         let headerClicks = 0;
