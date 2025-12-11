@@ -16,7 +16,7 @@
 @section('content')
 
     {{-- 1. HERO SECTION (Event Image) --}}
-    <section class="hero-section" style="background-image: url('{{ Storage::url($event->image_path) }}'); background-size: cover; background-position: center; min-height: 450px;">
+    <section class="hero-section" style="background-image: url('{{ $event->high_res_url }}'); background-size: cover; background-position: center; min-height: 450px;">
         <div class="row mt-3 ms-3 mb-4">
             <div class="col-12">
                 <a href="{{ route('event') }}" class="btn custom-btn">
@@ -43,7 +43,7 @@
                 <div class="col-lg-8 col-12">
 
                     {{-- Floated image for text-wrap effect --}}
-                    <img src="{{ Storage::url($event->image_path) }}" 
+                    <img src="{{ $event->high_res_url }}" 
                          class="img-fluid shadow-lg float-md-end ms-md-4 mb-3" 
                          alt="{{ $event->title }}" 
                          style="border-radius: var(--border-radius-large); max-width: 300px; width: 40%;">

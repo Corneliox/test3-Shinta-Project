@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Artwork;
 use App\Models\Event;
-use App\Models\HeroImage; // Assuming you have this model
+// use App\Models\HeroImage; // Assuming you have this model
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -14,17 +14,19 @@ class ImageOptimizerController extends Controller
     public function run()
     {
         // Increase limits for this heavy script
-        ini_set('max_execution_time', 300); // 5 minutes
+        ini_set('max_execution_time', 600); // Increased to 10 minutes
         ini_set('memory_limit', '512M');
 
         $log = [];
         $count = 0;
 
+        $log[] = "Starting stricter optimization (Max 1024px, Q65)...";
+
         // 1. Optimize Artworks
         $artworks = Artwork::all();
         foreach ($artworks as $art) {
             if ($this->optimizeFile($art->image_path)) {
-                $log[] = "Optimized Artwork: " . $art->title;
+                $log[] = "Processed Artwork: " . ($art->title ?? $art->id);
                 $count++;
             }
         }
@@ -33,24 +35,23 @@ class ImageOptimizerController extends Controller
         $events = Event::all();
         foreach ($events as $event) {
             if ($this->optimizeFile($event->image_path)) {
-                $log[] = "Optimized Event: " . $event->title;
+                $log[] = "Processed Event: " . ($event->title ?? $event->id);
                 $count++;
             }
         }
 
         // 3. Optimize Hero Images (if applicable)
-        // Adjust this loop if your HeroImage model works differently
         if (class_exists('App\Models\HeroImage')) {
-            $heroes = HeroImage::all();
-            foreach ($heroes as $hero) {
-                if ($this->optimizeFile($hero->image_path)) {
-                    $log[] = "Optimized Hero Image ID: " . $hero->id;
-                    $count++;
-                }
-            }
+            // $heroes = \App\Models\HeroImage::all(); // Adjust namespace if needed
+            // foreach ($heroes as $hero) {
+            //     if ($this->optimizeFile($hero->image_path)) {
+            //         $log[] = "Processed Hero Image ID: " . $hero->id;
+            //         $count++;
+            //     }
+            // }
         }
 
-        return "<h1>Optimization Complete!</h1><p>Processed $count images.</p><pre>" . implode("\n", $log) . "</pre>";
+        return "<h1>Optimization Complete!</h1><p>Processed $count images with stricter settings.</p><pre style='background:#f4f4f4;padding:15px;max-height:400px;overflow:auto;'>" . implode("\n", $log) . "</pre>";
     }
 
     /**
@@ -58,42 +59,46 @@ class ImageOptimizerController extends Controller
      */
     private function optimizeFile($filePath)
     {
-        if (!$filePath || !Storage::disk('public')->exists($filePath)) {
-            return false; // File doesn't exist
-        }
+        if (!$filePath) return false;
 
         $fullPath = Storage::disk('public')->path($filePath);
         $info = pathinfo($fullPath);
         
-        // Skip if it looks like we already optimized it (check for _original existence)
         $originalName = $info['filename'] . '_original.' . $info['extension'];
-        $originalPathRel = $info['dirname'] . '/' . $originalName;
-        
-        // FIX: The pathinfo returns absolute path for dirname, we need relative for Storage
+        // Need relative path for Storage facade
         $relativePathDir = dirname($filePath);
         $originalPathStorage = $relativePathDir . '/' . $originalName;
 
+        // Determine SOURCE and DESTINATION
         if (Storage::disk('public')->exists($originalPathStorage)) {
-            return false; // Already has a backup, assume optimized
+            // CASE A: Re-optimizing. Source is the existing backup.
+            // We overwrite the current optimized file with a smaller version.
+            $sourcePath = Storage::disk('public')->path($originalPathStorage);
+        } else {
+            // CASE B: First time optimizing.
+            if (!Storage::disk('public')->exists($filePath)) return false;
+
+            // 1. Move current BIG file to _original backup
+            Storage::disk('public')->move($filePath, $originalPathStorage);
+            // Source is now that backup
+            $sourcePath = Storage::disk('public')->path($originalPathStorage);
         }
 
-        // 1. Rename current BIG file to _original
-        Storage::disk('public')->move($filePath, $originalPathStorage);
-
-        // 2. Create new optimized version at the OLD path (so database links still work)
-        // We use the absolute path of the moved original as source
-        $sourcePath = Storage::disk('public')->path($originalPathStorage);
+        // Destination is always the current live path
         $destPath = Storage::disk('public')->path($filePath);
 
+        // Apply tighter resizing
         return $this->resizeImage($sourcePath, $destPath);
     }
 
     private function resizeImage($source, $destination)
     {
+        if (!file_exists($source)) return false;
+
         list($width, $height, $type) = getimagesize($source);
         
-        // Target: Max 1200px width
-        $maxWidth = 1200;
+        // --- UPDATED SETTING: Max 1024px width ---
+        $maxWidth = 1024;
         if ($width > $maxWidth) {
             $newWidth = $maxWidth;
             $newHeight = ($height / $width) * $newWidth;
@@ -110,8 +115,11 @@ class ImageOptimizerController extends Controller
         };
 
         if (!$imageResource) {
-            // Can't process? Just copy it back so site doesn't break
-            copy($source, $destination);
+            // If we can't read the original backup, and the destination doesn't exist, 
+            // restore the backup to destination to prevent broken links.
+            if (!file_exists($destination)) {
+                 copy($source, $destination);
+            }
             return false;
         }
 
@@ -124,18 +132,22 @@ class ImageOptimizerController extends Controller
             imagesavealpha($newImage, true);
         }
 
+        // High quality resampling
         imagecopyresampled($newImage, $imageResource, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
 
-        // Save Optimized
+        // Save Optimized with TIGHTER Compression
         switch ($type) {
-            case IMAGETYPE_JPEG: imagejpeg($newImage, $destination, 75); break; // 75% Quality
+            // --- UPDATED SETTING: 65% Quality ---
+            case IMAGETYPE_JPEG: imagejpeg($newImage, $destination, 65); break; 
             case IMAGETYPE_PNG: imagepng($newImage, $destination, 8); break;
-            case IMAGETYPE_WEBP: imagewebp($newImage, $destination, 75); break;
+            // --- UPDATED SETTING: 65% Quality ---
+            case IMAGETYPE_WEBP: imagewebp($newImage, $destination, 65); break;
         }
 
         imagedestroy($newImage);
         imagedestroy($imageResource);
 
+        clearstatcache(); // Clear cache to ensure file size is read correctly if checked immediately
         return true;
     }
 }
