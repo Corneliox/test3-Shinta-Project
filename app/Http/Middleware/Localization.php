@@ -15,15 +15,8 @@ class Localization
             // Jika user sudah memilih bahasa manual, gunakan itu
             App::setLocale(Session::get('locale'));
         } else {
-            // Jika belum, deteksi browser user (Auto-detect)
-            // Ambil 2 huruf pertama (misal: 'id-ID' jadi 'id')
-            $browserLang = substr($request->server('HTTP_ACCEPT_LANGUAGE'), 0, 2);
-            
-            if (in_array($browserLang, ['id', 'en'])) {
-                App::setLocale($browserLang);
-            } else {
-                App::setLocale('id'); // Default ke Indonesia
-            }
+            // Default selalu ke Indonesia, abaikan bahasa browser
+            App::setLocale('id');
         }
 
         return $next($request);

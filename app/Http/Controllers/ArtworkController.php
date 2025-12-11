@@ -29,6 +29,15 @@ class ArtworkController extends Controller
     }
 
     /**
+     * Show the form for creating a new artwork.
+     * (This was the missing method causing the error)
+     */
+    public function create()
+    {
+        return view('artworks.create');
+    }
+
+    /**
      * Store a new artwork.
      */
     public function store(Request $request)
@@ -49,15 +58,24 @@ class ArtworkController extends Controller
         $path = $request->file('image')->store('artworks', 'public');
 
         // --- AUTOMATIC TRANSLATION LOGIC ---
-        $tr = new GoogleTranslate(); // Auto-detects source language
+        // Wrap in try-catch to prevent crash if internet fails or key is missing
+        try {
+            $tr = new GoogleTranslate(); // Auto-detects source language
 
-        // 1. Title Translation
-        $title_en = $tr->setTarget('en')->translate($validated['title']);
-        $title_id = $tr->setTarget('id')->translate($validated['title']);
+            // 1. Title Translation
+            $title_en = $tr->setTarget('en')->translate($validated['title']);
+            $title_id = $tr->setTarget('id')->translate($validated['title']);
 
-        // 2. Description Translation
-        $desc_en = $validated['description'] ? $tr->setTarget('en')->translate($validated['description']) : null;
-        $desc_id = $validated['description'] ? $tr->setTarget('id')->translate($validated['description']) : null;
+            // 2. Description Translation
+            $desc_en = $validated['description'] ? $tr->setTarget('en')->translate($validated['description']) : null;
+            $desc_id = $validated['description'] ? $tr->setTarget('id')->translate($validated['description']) : null;
+        } catch (\Exception $e) {
+            // Fallback if translation fails
+            $title_en = $validated['title'];
+            $title_id = $validated['title'];
+            $desc_en = $validated['description'];
+            $desc_id = $validated['description'];
+        }
         // -----------------------------------
 
         Artwork::create([
@@ -118,19 +136,27 @@ class ArtworkController extends Controller
         }
 
         // --- AUTOMATIC TRANSLATION LOGIC (UPDATE) ---
-        $tr = new GoogleTranslate(); 
+        try {
+            $tr = new GoogleTranslate(); 
 
-        // 1. Title
-        $artwork->title = $tr->setTarget('en')->translate($validated['title']);
-        $artwork->title_id = $tr->setTarget('id')->translate($validated['title']);
+            // 1. Title
+            $artwork->title = $tr->setTarget('en')->translate($validated['title']);
+            $artwork->title_id = $tr->setTarget('id')->translate($validated['title']);
 
-        // 2. Description
-        if($validated['description']) {
-            $artwork->description = $tr->setTarget('en')->translate($validated['description']);
-            $artwork->description_id = $tr->setTarget('id')->translate($validated['description']);
-        } else {
-            $artwork->description = null;
-            $artwork->description_id = null;
+            // 2. Description
+            if($validated['description']) {
+                $artwork->description = $tr->setTarget('en')->translate($validated['description']);
+                $artwork->description_id = $tr->setTarget('id')->translate($validated['description']);
+            } else {
+                $artwork->description = null;
+                $artwork->description_id = null;
+            }
+        } catch (\Exception $e) {
+            // Fallback
+            $artwork->title = $validated['title'];
+            if($validated['description']) {
+                $artwork->description = $validated['description'];
+            }
         }
         // --------------------------------------------
 
