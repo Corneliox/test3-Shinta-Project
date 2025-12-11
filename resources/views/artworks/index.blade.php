@@ -4,21 +4,13 @@
 
 @section('content')
 
-@if(isset($is_impersonating) && $is_impersonating)
-    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
-        <p class="font-bold">Admin Mode Active</p>
-        <p>You are managing artworks for: <strong>{{ $target_user->name }}</strong></p>
-        <a href="{{ route('admin.users.index') }}" class="underline text-sm">Return to User List</a>
-    </div>
-@endif
-
     {{-- HERO HEADER --}}
     <section class="hero-section" style="min-height: 250px;">
         <div class="container">
             <div class="row align-items-center" style="min-height: 250px;">
                 <div class="col-12">
                     <h1 class="text-center text-white">Artist Dashboard</h1>
-                    <p class="text-center text-white">Manage your portfolio, artworks, and sales.</p>
+                    <p class="text-center text-white">Manage portfolio, artworks, and sales.</p>
                 </div>
             </div>
         </div>
@@ -26,18 +18,29 @@
 
     <section class="section-padding">
         <div class="container">
+            
+            {{-- ADMIN MODE BANNER --}}
+            @if(isset($is_impersonating) && $is_impersonating)
+                <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
+                    <p class="font-bold">Admin Mode Active</p>
+                    <p>You are managing artworks for: <strong>{{ $target_user->name }}</strong></p>
+                    <a href="{{ route('admin.users.index') }}" class="underline text-sm">Return to User List</a>
+                </div>
+            @endif
+
             <div class="row">
                 
                 {{-- LEFT SIDEBAR --}}
                 <div class="col-lg-3 col-12 mb-5">
                     <div class="custom-block bg-white shadow-lg p-4">
                         <div class="text-center mb-4">
-                            @if(auth()->user()->artistProfile && auth()->user()->artistProfile->profile_picture)
-                                <img src="{{ Storage::url(auth()->user()->artistProfile->profile_picture) }}" class="rounded-circle img-fluid mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+                            {{-- FIX: Use $target_user so it shows Lidya's face, not yours --}}
+                            @if($target_user->artistProfile && $target_user->artistProfile->profile_picture)
+                                <img src="{{ Storage::url($target_user->artistProfile->profile_picture) }}" class="rounded-circle img-fluid mb-3" style="width: 100px; height: 100px; object-fit: cover;">
                             @else
                                 <img src="{{ asset('images/topics/undraw_happy_music_g6wc.png') }}" class="rounded-circle img-fluid mb-3" style="width: 100px; height: 100px; object-fit: cover;">
                             @endif
-                            <h5 class="mb-1">{{ auth()->user()->name }}</h5>
+                            <h5 class="mb-1">{{ $target_user->name }}</h5>
                             <p class="text-muted small">Artist</p>
                         </div>
 
@@ -50,16 +53,15 @@
                                 </a>
                             </li>
                             <li class="nav-item mb-2">
-                                <a href="{{ route('artworks.index') }}" class="nav-link text-primary fw-bold">
-                                    <i class="bi-palette me-2"></i> My Artworks
+                                <a href="{{ route('artworks.index', ['user_id' => $target_user->id]) }}" class="nav-link text-primary fw-bold">
+                                    <i class="bi-palette me-2"></i> Artworks
                                 </a>
                             </li>
-                            {{-- Add more links here later (Orders, etc) --}}
                         </ul>
                         
                         <div class="mt-4 text-center">
-                            {{-- LINK TO CREATE PAGE --}}
-                            <a href="{{ route('artworks.create', ['user_id' => isset($target_user) ? $target_user->id : null]) }}" class="btn custom-btn w-100">
+                            {{-- FIX: Pass user_id to Create Page --}}
+                            <a href="{{ route('artworks.create', ['user_id' => $target_user->id]) }}" class="btn custom-btn w-100">
                                 <i class="bi-plus-circle me-1"></i> Upload Artwork
                             </a>
                         </div>
@@ -76,7 +78,7 @@
                     @endif
 
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2>My Artworks</h2>
+                        <h2>{{ $target_user->id !== auth()->id() ? $target_user->name . "'s Artworks" : 'My Artworks' }}</h2>
                         <span class="badge bg-secondary">{{ $lukisan->count() + $crafts->count() }} Items</span>
                     </div>
 
@@ -102,7 +104,8 @@
                                 @empty
                                     <div class="col-12 text-center py-5">
                                         <p class="text-muted">No paintings uploaded yet.</p>
-                                        <a href="{{ route('artworks.create') }}" class="btn custom-border-btn btn-sm">Upload One</a>
+                                        {{-- FIX: Empty State Button must also pass user_id --}}
+                                        <a href="{{ route('artworks.create', ['user_id' => $target_user->id]) }}" class="btn custom-border-btn btn-sm">Upload One</a>
                                     </div>
                                 @endforelse
                             </div>
@@ -118,7 +121,8 @@
                                 @empty
                                     <div class="col-12 text-center py-5">
                                         <p class="text-muted">No crafts uploaded yet.</p>
-                                        <a href="{{ route('artworks.create') }}" class="btn custom-border-btn btn-sm">Upload One</a>
+                                        {{-- FIX: Empty State Button must also pass user_id --}}
+                                        <a href="{{ route('artworks.create', ['user_id' => $target_user->id]) }}" class="btn custom-border-btn btn-sm">Upload One</a>
                                     </div>
                                 @endforelse
                             </div>
