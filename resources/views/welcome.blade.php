@@ -368,24 +368,24 @@
 
                     {{-- Admin Phone --}}
                     <p class="d-flex align-items-center mb-1">
-                        <span class="me-2">{{ __('messages.contact_admin_label') }}</span>
-                        <a href="https://wa.me/6289668411463" target="_blank" class="site-footer-link">
+                        <span class="me-2" style="width: 67px">{{ __('messages.contact_admin_label') }}</span>
+                        <a href="https://wa.me/6289668411463" target="_blank" class="site-footer-link" style="text-transform: lowercase; font-size: 0.75rem;">
                             {{ __('messages.contact_admin') }}
                         </a>
                     </p>
 
                     {{-- Email --}}
                     <p class="d-flex align-items-center mb-1">
-                        <span class="me-2">Email</span>
-                        <a href="mailto:{{ __('messages.contact_email') }}" class="site-footer-link">
+                        <span class="me-2" style="width: 67px">Email</span>
+                        <a href="mailto:{{ __('messages.contact_email') }}" class="site-footer-link" style="text-transform: lowercase; font-size: 0.75rem;">
                             {{ __('messages.contact_email') }}
                         </a>
                     </p>
 
                     {{-- Instagram --}}
                     <p class="d-flex align-items-center">
-                        <span class="me-2">Instagram</span>
-                        <a href="https://instagram.com/wopanco.indonesia" target="_blank" class="site-footer-link">
+                        <span class="me-2" style="width: 67px">Instagram</span>
+                        <a href="https://instagram.com/wopanco.indonesia" target="_blank" class="site-footer-link" style="text-transform: lowercase; font-size: 0.75rem;">
                             {{ __('messages.contact_ig') }}
                         </a>
                     </p>
