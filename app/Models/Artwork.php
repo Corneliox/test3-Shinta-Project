@@ -21,6 +21,7 @@ class Artwork extends Model
         'description',
         'category',
         'image_path',
+        'additional_images',
         'price',
         'stock',
         'reserved_stock',
@@ -32,6 +33,7 @@ class Artwork extends Model
     protected $casts = [
         'reserved_until' => 'datetime',
         'is_promo' => 'boolean',
+        'additional_images' => 'array',
     ];
 
     // --- HELPER METHODS ---

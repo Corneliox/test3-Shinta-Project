@@ -35,7 +35,7 @@ class ArtworkController extends Controller
         $crafts = $all_artworks->where('category', 'Craft');
 
         return view('artworks.index', [
-            'all_artworks' => $all_artworks, // New Variable
+            'all_artworks' => $all_artworks,
             'lukisan' => $lukisan,
             'crafts' => $crafts,
             'is_impersonating' => $targetUser->id !== $request->user()->id, 
@@ -70,7 +70,8 @@ class ArtworkController extends Controller
             $ownerId = $request->behalf_user_id;
         }
 
-        $validated = $request->validate([
+        // 2. Validate
+        $rules = [
             'title' => 'required|string|max:255',
             'category' => 'required|in:Lukisan,Craft',
             'description' => 'nullable|string',
@@ -83,23 +84,38 @@ class ArtworkController extends Controller
             'price' => 'nullable|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
             'promo_price' => 'nullable|numeric|lt:price',
-        ]);
+        ];
+
+        // NEW: If Craft, allow up to 2 EXTRA images (Total 3)
+        if ($request->category === 'Craft') {
+            $rules['extra_images.*'] = 'image|max:5120';
+            $rules['extra_images'] = 'max:2'; // Limit array count
+        }
+
+        $validated = $request->validate($rules);
 
         $finalPath = '';
 
         // --- IMAGE PROCESSING (OPTIMIZED) ---
         // SCENARIO A: Standard File Upload
         if ($request->hasFile('image')) {
-            // This Trait method saves 'image.jpg' (Optimized) AND 'image_original.jpg' (HD)
             $finalPath = $this->uploadImage($request->file('image'), 'artworks');
         } 
         // SCENARIO B: Google Drive Pull
         elseif ($request->filled('image_temp_path')) {
-            // This Trait method processes the temp file similarly
             $finalPath = $this->processTempImage($request->image_temp_path, 'artworks');
             
             if (!$finalPath) {
                 return back()->withErrors(['image' => 'Image link expired. Pull again.'])->withInput();
+            }
+        }
+
+        // --- HANDLE EXTRA IMAGES (CRAFT ONLY) ---
+        $additionalPaths = [];
+        if ($request->category === 'Craft' && $request->hasFile('extra_images')) {
+            foreach ($request->file('extra_images') as $file) {
+                // Reuse optimization trait
+                $additionalPaths[] = $this->uploadImage($file, 'artworks/extras');
             }
         }
 
@@ -125,6 +141,7 @@ class ArtworkController extends Controller
                 'description' => $desc_en,
                 'description_id' => $desc_id,
                 'image_path' => $finalPath,
+                'additional_images' => $additionalPaths, // <--- SAVE ARRAY
                 'price' => $validated['price'],
                 'stock' => $validated['stock'] ?? 0,
                 'is_promo' => $request->has('is_promo'),
@@ -176,7 +193,7 @@ class ArtworkController extends Controller
 
         if (!$isOwner && !$isAdmin) abort(403);
 
-        $validated = $request->validate([
+        $rules = [
             'title' => 'required|string|max:255',
             'category' => 'required|in:Lukisan,Craft',
             'description' => 'nullable|string',
@@ -184,23 +201,58 @@ class ArtworkController extends Controller
             'price' => 'nullable|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
             'promo_price' => 'nullable|numeric|lt:price',
-        ]);
+        ];
 
-        // --- IMAGE UPDATE (OPTIMIZED) ---
+        if ($request->category === 'Craft') {
+            $rules['extra_images.*'] = 'image|max:5120';
+        }
+
+        $validated = $request->validate($rules);
+
+        // --- 1. IMAGE UPDATE (OPTIMIZED) ---
         if ($request->hasFile('image')) {
-            // 1. Delete Old Optimized Image
+            // Delete Old Images
             if ($artwork->image_path) {
                 Storage::disk('public')->delete($artwork->image_path); 
-                
-                // 2. Delete Old Original Image (Clean up space)
                 $originalPath = $artwork->getOriginalImagePath(); 
                 if(Storage::disk('public')->exists($originalPath)) {
                     Storage::disk('public')->delete($originalPath);
                 }
             }
-            
-            // 3. Upload New Dual Versions
+            // Upload New
             $artwork->image_path = $this->uploadImage($request->file('image'), 'artworks');
+        }
+
+        // --- 2. HANDLE EXTRA IMAGES ---
+        $currentExtras = $artwork->additional_images ?? [];
+        
+        // If switching to Lukisan, clear extras
+        if ($validated['category'] === 'Lukisan') {
+            foreach($currentExtras as $path) Storage::disk('public')->delete($path);
+            $currentExtras = [];
+        } 
+        // If Craft, allow adding more
+        elseif ($request->hasFile('extra_images')) {
+            // Check limits (Current + New <= 2 extras)
+            if (count($currentExtras) + count($request->file('extra_images')) > 2) {
+                return back()->withErrors(['extra_images' => 'Maximum 3 images total allowed (1 Main + 2 Extras). Please delete some first.']);
+            }
+            
+            foreach ($request->file('extra_images') as $file) {
+                $currentExtras[] = $this->uploadImage($file, 'artworks/extras');
+            }
+        }
+
+        // --- 3. HANDLE DELETING SPECIFIC EXTRAS ---
+        if ($request->has('delete_extras')) {
+            $filesToDelete = $request->delete_extras;
+            $currentExtras = array_values(array_filter($currentExtras, function($path) use ($filesToDelete) {
+                if (in_array($path, $filesToDelete)) {
+                    Storage::disk('public')->delete($path);
+                    return false; // Remove from array
+                }
+                return true; // Keep
+            }));
         }
 
         // Translation Update
@@ -213,11 +265,11 @@ class ArtworkController extends Controller
                 $artwork->description_id = $tr->setTarget('id')->translate($validated['description']);
             }
         } catch (\Exception $e) {
-            // Fallback: Just update English fields if translation fails
             $artwork->title = $validated['title'];
             if($validated['description']) $artwork->description = $validated['description'];
         }
 
+        $artwork->additional_images = $currentExtras; // Save updated array
         $artwork->category = $validated['category'];
         $artwork->price = $validated['price'];
         $artwork->stock = $validated['stock'] ?? 0;
@@ -249,14 +301,19 @@ class ArtworkController extends Controller
 
         if (!$isOwner && !$isAdmin) abort(403);
 
+        // Delete Main Images
         if ($artwork->image_path) {
-            // Delete Optimized
             Storage::disk('public')->delete($artwork->image_path);
-            
-            // Delete Original
             $originalPath = $artwork->getOriginalImagePath();
             if(Storage::disk('public')->exists($originalPath)) {
                 Storage::disk('public')->delete($originalPath);
+            }
+        }
+
+        // Delete Extra Images
+        if (!empty($artwork->additional_images)) {
+            foreach ($artwork->additional_images as $extraPath) {
+                Storage::disk('public')->delete($extraPath);
             }
         }
         

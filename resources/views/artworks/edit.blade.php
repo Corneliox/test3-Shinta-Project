@@ -49,7 +49,8 @@
 
                         <div class="mb-3">
                             <label class="form-label">Category</label>
-                            <select name="category" class="form-select">
+                            {{-- Added ID for JS --}}
+                            <select name="category" id="categorySelect" class="form-select">
                                 <option value="Lukisan" {{ $artwork->category == 'Lukisan' ? 'selected' : '' }}>Lukisan</option>
                                 <option value="Craft" {{ $artwork->category == 'Craft' ? 'selected' : '' }}>Craft</option>
                             </select>
@@ -61,12 +62,49 @@
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label">Artwork Image</label>
+                            <label class="form-label">Main Artwork Image</label>
                             <div class="mb-2">
                                 <img src="{{ Storage::url($artwork->image_path) }}" alt="Current Image" style="height: 100px; border-radius: 10px;">
                             </div>
                             <input type="file" name="image" class="form-control">
                             <small class="text-muted">Leave empty to keep current image.</small>
+                        </div>
+
+                        {{-- NEW: EXTRA IMAGES MANAGEMENT (Hidden unless Craft) --}}
+                        <div id="extraImagesSection" class="mb-4 p-3 bg-light border rounded" style="{{ $artwork->category == 'Craft' ? '' : 'display:none;' }}">
+                            <h6 class="fw-bold text-primary mb-3">Additional Craft Images</h6>
+                            
+                            {{-- 1. Existing Extras --}}
+                            @if($artwork->additional_images && count($artwork->additional_images) > 0)
+                                <div class="row g-2 mb-3">
+                                    @foreach($artwork->additional_images as $path)
+                                        <div class="col-4 position-relative text-center">
+                                            <div class="border rounded p-1 bg-white">
+                                                <img src="{{ Storage::url($path) }}" class="img-fluid" style="height: 80px; object-fit: cover;">
+                                                <div class="form-check mt-1 d-flex justify-content-center">
+                                                    <input class="form-check-input me-1" type="checkbox" name="delete_extras[]" value="{{ $path }}" id="del_{{ $loop->index }}">
+                                                    <label class="form-check-label text-danger small fw-bold" for="del_{{ $loop->index }}">Delete</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+
+                            {{-- 2. Upload New --}}
+                            @php
+                                $count = $artwork->additional_images ? count($artwork->additional_images) : 0;
+                                $remaining = 2 - $count;
+                            @endphp
+
+                            @if($remaining > 0)
+                                <label class="form-label small fw-bold">Add more images (Max {{ $remaining }} more)</label>
+                                <input type="file" name="extra_images[]" class="form-control" multiple accept="image/*">
+                            @else
+                                <div class="alert alert-warning py-2 small mb-0">
+                                    <i class="bi-exclamation-triangle me-1"></i> Max 3 images total reached (1 Main + 2 Extras). To upload new ones, select "Delete" on existing images above and click Update.
+                                </div>
+                            @endif
                         </div>
 
                         <hr class="my-4">
@@ -116,7 +154,22 @@
 
 @push('scripts')
 <script>
-    // Copy the same script logic from create.blade.php here
+    // 1. CATEGORY LISTENER (EXTRA IMAGES)
+    const catSelect = document.getElementById('categorySelect');
+    const extraSection = document.getElementById('extraImagesSection');
+    
+    function toggleExtras() {
+        if (catSelect.value === 'Craft') {
+            extraSection.style.display = 'block';
+        } else {
+            extraSection.style.display = 'none';
+        }
+    }
+    
+    catSelect.addEventListener('change', toggleExtras);
+    // Note: Initial state is handled by blade style="{{...}}"
+
+    // 2. PROMO PRICE CALCULATOR
     const promoCheckbox = document.getElementById('is_promo');
     const promoWrapper = document.getElementById('promo_price_wrapper');
     const basePriceInput = document.getElementById('basePrice');

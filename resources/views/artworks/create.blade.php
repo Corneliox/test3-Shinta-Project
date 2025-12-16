@@ -40,10 +40,10 @@
 
                         <div class="mb-3">
                             <label class="form-label">Category</label>
-                            <select name="category" class="form-select" required>
+                            <select name="category" id="categorySelect" class="form-select" required>
                                 <option value="" disabled selected>Select Category</option>
-                                <option value="Lukisan" {{ old('category') == 'Lukisan' ? 'selected' : '' }}>Lukisan</option>
-                                <option value="Craft" {{ old('category') == 'Craft' ? 'selected' : '' }}>Craft</option>
+                                <option value="Lukisan" {{ old('category') == 'Lukisan' ? 'selected' : '' }}>Lukisan (1 Image Max)</option>
+                                <option value="Craft" {{ old('category') == 'Craft' ? 'selected' : '' }}>Craft (Max 3 Images)</option>
                             </select>
                         </div>
 
@@ -55,7 +55,7 @@
                         <hr class="my-4">
 
                         {{-- 2. IMAGE UPLOAD (FILE or LINK) --}}
-                        <label class="form-label fw-bold">Artwork Image</label>
+                        <label class="form-label fw-bold">Main Artwork Image <span class="text-danger">*</span></label>
                         
                         {{-- Toggle Buttons --}}
                         <div class="mb-3">
@@ -105,6 +105,13 @@
 
                         @error('image') <p class="text-danger mt-1">{{ $message }}</p> @enderror
                         @error('image_temp_path') <p class="text-danger mt-1">{{ $message }}</p> @enderror
+
+                        {{-- NEW: EXTRA IMAGES (Hidden by default) --}}
+                        <div id="extraImagesSection" class="mt-4 p-3 bg-light border rounded" style="display: none;">
+                            <label class="form-label fw-bold text-primary">Additional Craft Images (Optional)</label>
+                            <p class="text-muted small">You can upload up to 2 extra photos for Crafts.</p>
+                            <input type="file" name="extra_images[]" class="form-control" multiple accept="image/*">
+                        </div>
 
                         <hr class="my-4">
 
@@ -236,7 +243,24 @@
     });
 
     // ===============================
-    // 2. PROMO PRICE CALCULATOR
+    // 2. CATEGORY LISTENER (EXTRA IMAGES)
+    // ===============================
+    const catSelect = document.getElementById('categorySelect');
+    const extraSection = document.getElementById('extraImagesSection');
+
+    function toggleExtras() {
+        if (catSelect.value === 'Craft') {
+            extraSection.style.display = 'block';
+        } else {
+            extraSection.style.display = 'none';
+        }
+    }
+
+    catSelect.addEventListener('change', toggleExtras);
+    toggleExtras(); // Run on load (for old input)
+
+    // ===============================
+    // 3. PROMO PRICE CALCULATOR
     // ===============================
     const promoCheckbox = document.getElementById('is_promo');
     const promoWrapper = document.getElementById('promo_price_wrapper');
