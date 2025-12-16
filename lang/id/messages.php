@@ -78,7 +78,7 @@ Workshop Melukis Totebag bersama Cemil Dining Kotta Hotels, 2025
 Kerjasama dengan Unika Soegijopranoto dalam Project Hibah Dikti, Sains dan Teknologi Program Inovasi Seni Nusantara, 2025",
 
     'structure_title' => 'Struktur Organisasi',
-    'footer_grant' => 'Hibah Direktorat Jendral Pendidikan Tinggi, Sains dan Teknologi - Program Inovasi Seni Nusantara (PISN)',
+    'footer_grant' => 'Hibah Direktorat Jenderal Riset dan Pengembangan - Kementerian Pendidikan Tinggi, Sains, dan Teknologi.',
 
     // Organization Roles
     'org_advisor' => 'Penasehat',

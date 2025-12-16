@@ -96,8 +96,11 @@
                             
                             @foreach ($artists as $artist)
                             <div class="artist-scroll-item">
-                                <a href="{{ route('pelukis.show', $artist) }}" class="text-decoration-none">
-                                    
+                                @if($artist->slug)
+                                    <a href="{{ route('pelukis.show', $artist) }}" class="text-decoration-none">
+                                @else
+                                    <a href="#" class="text-decoration-none" onclick="alert('Profile not ready yet'); return false;">
+                                @endif    
                                     <div class="artist-wrapper">
                                         
                                         {{-- 1. THE IMAGE --}}

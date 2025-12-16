@@ -78,7 +78,7 @@ Totebag Painting Workshop with Cemil Dining Kotta Hotels, 2025
 Collaboration with UNIKA Soegijopranoto for Higher Education Grant Project (PISN), 2025",
 
     'structure_title' => 'Organization Structure',
-    'footer_grant' => 'Grant from the Directorate General of Higher Education, Science, and Technology - Nusantara Art Innovation Program (PISN)',
+    'footer_grant' => 'Grant from the Directorate General of Research and Development - Ministry of Higher Education, Science, and Technology.',
 
     // Organization Roles
     'org_advisor' => 'Advisor',

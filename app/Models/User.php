@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 // Removed: use Laravel\Sanctum\HasApiTokens; 
 use App\Traits\LogsActivity;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -71,5 +72,20 @@ class User extends Authenticatable
     public function artworks()
     {
         return $this->hasMany(Artwork::class);
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function ($user) {
+            if (empty($user->slug)) {
+                $user->slug = Str::slug($user->name) . '-' . Str::lower(Str::random(4));
+            }
+        });
+
+        static::updating(function ($user) {
+            if ($user->isDirty('name') && empty($user->slug)) {
+                $user->slug = Str::slug($user->name) . '-' . Str::lower(Str::random(4));
+            }
+        });
     }
 }
