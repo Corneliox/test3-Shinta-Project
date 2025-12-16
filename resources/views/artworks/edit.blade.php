@@ -20,7 +20,6 @@
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h3 class="mb-0">Edit Artwork</h3>
                         
-                        {{-- Logic: If Admin is editing someone else's work, go back to THAT user's list --}}
                         @if(auth()->id() !== $artwork->user_id)
                             <a href="{{ route('artworks.index', ['user_id' => $artwork->user_id]) }}" class="btn custom-btn custom-border-btn btn-sm">
                                 <i class="bi-arrow-left me-1"></i> Back to {{ $artwork->user->name }}'s Art
@@ -63,18 +62,32 @@
 
                         <div class="mb-4">
                             <label class="form-label">Main Artwork Image</label>
-                            <div class="mb-2">
-                                <img src="{{ Storage::url($artwork->image_path) }}" alt="Current Image" style="height: 100px; border-radius: 10px;">
+                            
+                            {{-- PREVIEW & ROTATE UI --}}
+                            <div class="mb-3 text-center p-3 bg-light border rounded position-relative" style="min-height: 200px;">
+                                {{-- Current or New Image Preview --}}
+                                <img id="mainPreview" 
+                                     src="{{ Storage::url($artwork->image_path) }}" 
+                                     class="img-fluid rounded shadow-sm" 
+                                     style="max-height: 300px; transition: transform 0.3s ease;">
+                                
+                                {{-- Rotate Button --}}
+                                <button type="button" id="btnRotate" class="btn btn-dark btn-sm position-absolute bottom-0 end-0 m-3 shadow" title="Rotate 90° Right">
+                                    <i class="bi-arrow-clockwise"></i> Rotate
+                                </button>
                             </div>
-                            <input type="file" name="image" class="form-control">
-                            <small class="text-muted">Leave empty to keep current image.</small>
+
+                            <input type="file" name="image" id="fileInput" class="form-control" accept="image/*" onchange="previewFile(this)">
+                            <small class="text-muted">Leave empty to keep current image. You can still rotate the current image.</small>
+                            
+                            {{-- HIDDEN INPUT FOR ROTATION --}}
+                            <input type="hidden" name="rotation" id="rotationInput" value="0">
                         </div>
 
-                        {{-- NEW: EXTRA IMAGES MANAGEMENT (Hidden unless Craft) --}}
+                        {{-- EXTRA IMAGES MANAGEMENT (Hidden unless Craft) --}}
                         <div id="extraImagesSection" class="mb-4 p-3 bg-light border rounded" style="{{ $artwork->category == 'Craft' ? '' : 'display:none;' }}">
                             <h6 class="fw-bold text-primary mb-3">Additional Craft Images</h6>
                             
-                            {{-- 1. Existing Extras --}}
                             @if($artwork->additional_images && count($artwork->additional_images) > 0)
                                 <div class="row g-2 mb-3">
                                     @foreach($artwork->additional_images as $path)
@@ -91,7 +104,6 @@
                                 </div>
                             @endif
 
-                            {{-- 2. Upload New --}}
                             @php
                                 $count = $artwork->additional_images ? count($artwork->additional_images) : 0;
                                 $remaining = 2 - $count;
@@ -102,7 +114,7 @@
                                 <input type="file" name="extra_images[]" class="form-control" multiple accept="image/*">
                             @else
                                 <div class="alert alert-warning py-2 small mb-0">
-                                    <i class="bi-exclamation-triangle me-1"></i> Max 3 images total reached (1 Main + 2 Extras). To upload new ones, select "Delete" on existing images above and click Update.
+                                    <i class="bi-exclamation-triangle me-1"></i> Max 3 images total reached. Delete some to add new ones.
                                 </div>
                             @endif
                         </div>
@@ -154,7 +166,37 @@
 
 @push('scripts')
 <script>
-    // 1. CATEGORY LISTENER (EXTRA IMAGES)
+    // 1. ROTATION LOGIC
+    let currentRotation = 0;
+    const btnRotate = document.getElementById('btnRotate');
+    const mainPreview = document.getElementById('mainPreview');
+    const rotationInput = document.getElementById('rotationInput');
+
+    if(btnRotate) {
+        btnRotate.addEventListener('click', function() {
+            currentRotation = (currentRotation + 90) % 360;
+            mainPreview.style.transform = `rotate(${currentRotation}deg)`;
+            rotationInput.value = currentRotation;
+        });
+    }
+
+    function previewFile(input) {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                mainPreview.src = e.target.result;
+                
+                // Reset rotation on new file select
+                currentRotation = 0;
+                rotationInput.value = 0;
+                mainPreview.style.transform = 'rotate(0deg)';
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // 2. CATEGORY LISTENER (EXTRA IMAGES)
     const catSelect = document.getElementById('categorySelect');
     const extraSection = document.getElementById('extraImagesSection');
     
@@ -167,9 +209,8 @@
     }
     
     catSelect.addEventListener('change', toggleExtras);
-    // Note: Initial state is handled by blade style="{{...}}"
 
-    // 2. PROMO PRICE CALCULATOR
+    // 3. PROMO PRICE CALCULATOR
     const promoCheckbox = document.getElementById('is_promo');
     const promoWrapper = document.getElementById('promo_price_wrapper');
     const basePriceInput = document.getElementById('basePrice');
@@ -204,7 +245,6 @@
         if(discountInput.value) calculateFromPercent();
     });
 
-    // Run on load to set percentage if editing
     if(basePriceInput.value && promoPriceInput.value) {
         calculateFromPrice();
     }

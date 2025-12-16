@@ -15,22 +15,15 @@ class ArtworkController extends Controller
 {
     use ImageUploadTrait; // <--- 2. Use Trait
 
-    /**
-     * Display listing. SUPERADMIN CAN VIEW OTHERS via ?user_id=123
-     */
     public function index(Request $request)
     {
-        $targetUser = $request->user(); // Default: Logged in user
+        $targetUser = $request->user(); 
 
-        // SUPERADMIN OVERRIDE
         if ($request->has('user_id') && ($request->user()->is_superadmin || $request->user()->is_admin)) {
             $targetUser = User::findOrFail($request->user_id);
         }
 
-        // OPTIMIZATION: Fetch ALL artworks in one query
         $all_artworks = $targetUser->artworks()->latest()->get();
-
-        // Filter them in memory (faster than 3 DB queries)
         $lukisan = $all_artworks->where('category', 'Lukisan');
         $crafts = $all_artworks->where('category', 'Craft');
 
@@ -43,79 +36,44 @@ class ArtworkController extends Controller
         ]);
     }
 
-    /**
-     * Show create form.
-     */
     public function create(Request $request)
     {
         $targetUserId = null;
-
         if ($request->has('user_id') && ($request->user()->is_superadmin || $request->user()->is_admin)) {
             $targetUserId = $request->user_id;
         }
-
         return view('artworks.create', compact('targetUserId'));
     }
 
-    /**
-     * Store new artwork.
-     */
     public function store(Request $request)
     {
-        // 1. Determine the OWNER ID
         $ownerId = auth()->id();
-
-        // Check if Admin sent a specific User ID to create on behalf of
         if ($request->filled('behalf_user_id') && (auth()->user()->is_superadmin || auth()->user()->is_admin)) {
             $ownerId = $request->behalf_user_id;
         }
 
-        // 2. Validate
-        $rules = [
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
             'category' => 'required|in:Lukisan,Craft',
             'description' => 'nullable|string',
-            
-            // Image Validation: File OR Temp Path
             'image' => 'required_without:image_temp_path|image|max:5120',
             'image_temp_path' => 'required_without:image|nullable|string',
-            
-            // Marketplace Validation
             'price' => 'nullable|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
             'promo_price' => 'nullable|numeric|lt:price',
-        ];
-
-        // NEW: If Craft, allow up to 2 EXTRA images (Total 3)
-        if ($request->category === 'Craft') {
-            $rules['extra_images.*'] = 'image|max:5120';
-            $rules['extra_images'] = 'max:2'; // Limit array count
-        }
-
-        $validated = $request->validate($rules);
+        ]);
 
         $finalPath = '';
+        $rotation = $request->input('rotation', 0); // Capture Rotation
 
-        // --- IMAGE PROCESSING (OPTIMIZED) ---
-        // SCENARIO A: Standard File Upload
+        // --- IMAGE PROCESSING (ROTATED & OPTIMIZED) ---
         if ($request->hasFile('image')) {
-            $finalPath = $this->uploadImage($request->file('image'), 'artworks');
+            $finalPath = $this->uploadImage($request->file('image'), 'artworks', $rotation);
         } 
-        // SCENARIO B: Google Drive Pull
         elseif ($request->filled('image_temp_path')) {
-            $finalPath = $this->processTempImage($request->image_temp_path, 'artworks');
-            
+            $finalPath = $this->processTempImage($request->image_temp_path, 'artworks', $rotation);
             if (!$finalPath) {
                 return back()->withErrors(['image' => 'Image link expired. Pull again.'])->withInput();
-            }
-        }
-
-        // --- HANDLE EXTRA IMAGES (CRAFT ONLY) ---
-        $additionalPaths = [];
-        if ($request->category === 'Craft' && $request->hasFile('extra_images')) {
-            foreach ($request->file('extra_images') as $file) {
-                // Reuse optimization trait
-                $additionalPaths[] = $this->uploadImage($file, 'artworks/extras');
             }
         }
 
@@ -131,7 +89,7 @@ class ArtworkController extends Controller
             $desc_en = $validated['description']; $desc_id = $validated['description'];
         }
 
-        // --- DB CREATION (With Error Handling) ---
+        // --- DB CREATION ---
         try {
             Artwork::create([
                 'user_id' => $ownerId,
@@ -141,14 +99,12 @@ class ArtworkController extends Controller
                 'description' => $desc_en,
                 'description_id' => $desc_id,
                 'image_path' => $finalPath,
-                'additional_images' => $additionalPaths, // <--- SAVE ARRAY
                 'price' => $validated['price'],
                 'stock' => $validated['stock'] ?? 0,
                 'is_promo' => $request->has('is_promo'),
                 'promo_price' => $request->input('promo_price'),
             ]);
 
-            // Success Redirect
             if ($ownerId != auth()->id()) {
                 return redirect()->route('artworks.index', ['user_id' => $ownerId])
                                  ->with('status', 'Artwork created for user successfully!');
@@ -156,7 +112,6 @@ class ArtworkController extends Controller
             return redirect()->route('artworks.index')->with('status', 'Artwork created successfully!');
 
         } catch (\Illuminate\Database\QueryException $e) {
-            // Handle Duplicate Entry
             if ($e->errorInfo[1] == 1062) {
                 return back()->withInput()->with('error', 'Error: An artwork with this title already exists.');
             }
@@ -166,34 +121,24 @@ class ArtworkController extends Controller
         }
     }
 
-    /**
-     * Show edit form.
-     */
     public function edit(Artwork $artwork)
     {
-        // Authorization: Owner OR Admin
-        $isOwner = intval(auth()->id()) === intval($artwork->user_id);
-        $isAdmin = auth()->user()->is_admin || auth()->user()->is_superadmin;
-
-        if (!$isOwner && !$isAdmin) {
-            abort(403);
-        }
-
-        return view('artworks.edit', ['artwork' => $artwork]);
-    }
-
-    /**
-     * Update artwork.
-     */
-    public function update(Request $request, Artwork $artwork)
-    {
-        // Authorization
         $isOwner = intval(auth()->id()) === intval($artwork->user_id);
         $isAdmin = auth()->user()->is_admin || auth()->user()->is_superadmin;
 
         if (!$isOwner && !$isAdmin) abort(403);
 
-        $rules = [
+        return view('artworks.edit', ['artwork' => $artwork]);
+    }
+
+    public function update(Request $request, Artwork $artwork)
+    {
+        $isOwner = intval(auth()->id()) === intval($artwork->user_id);
+        $isAdmin = auth()->user()->is_admin || auth()->user()->is_superadmin;
+
+        if (!$isOwner && !$isAdmin) abort(403);
+
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
             'category' => 'required|in:Lukisan,Craft',
             'description' => 'nullable|string',
@@ -201,15 +146,11 @@ class ArtworkController extends Controller
             'price' => 'nullable|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
             'promo_price' => 'nullable|numeric|lt:price',
-        ];
+        ]);
 
-        if ($request->category === 'Craft') {
-            $rules['extra_images.*'] = 'image|max:5120';
-        }
+        $rotation = $request->input('rotation', 0); // Capture Rotation
 
-        $validated = $request->validate($rules);
-
-        // --- 1. IMAGE UPDATE (OPTIMIZED) ---
+        // --- IMAGE UPDATE (ROTATED & OPTIMIZED) ---
         if ($request->hasFile('image')) {
             // Delete Old Images
             if ($artwork->image_path) {
@@ -220,39 +161,19 @@ class ArtworkController extends Controller
                 }
             }
             // Upload New
-            $artwork->image_path = $this->uploadImage($request->file('image'), 'artworks');
+            $artwork->image_path = $this->uploadImage($request->file('image'), 'artworks', $rotation);
         }
-
-        // --- 2. HANDLE EXTRA IMAGES ---
-        $currentExtras = $artwork->additional_images ?? [];
-        
-        // If switching to Lukisan, clear extras
-        if ($validated['category'] === 'Lukisan') {
-            foreach($currentExtras as $path) Storage::disk('public')->delete($path);
-            $currentExtras = [];
-        } 
-        // If Craft, allow adding more
-        elseif ($request->hasFile('extra_images')) {
-            // Check limits (Current + New <= 2 extras)
-            if (count($currentExtras) + count($request->file('extra_images')) > 2) {
-                return back()->withErrors(['extra_images' => 'Maximum 3 images total allowed (1 Main + 2 Extras). Please delete some first.']);
-            }
-            
-            foreach ($request->file('extra_images') as $file) {
-                $currentExtras[] = $this->uploadImage($file, 'artworks/extras');
-            }
-        }
-
-        // --- 3. HANDLE DELETING SPECIFIC EXTRAS ---
-        if ($request->has('delete_extras')) {
-            $filesToDelete = $request->delete_extras;
-            $currentExtras = array_values(array_filter($currentExtras, function($path) use ($filesToDelete) {
-                if (in_array($path, $filesToDelete)) {
-                    Storage::disk('public')->delete($path);
-                    return false; // Remove from array
-                }
-                return true; // Keep
-            }));
+        // Handle "Rotate Existing Image" (No new file, just rotate)
+        elseif ($rotation != 0 && $artwork->image_path) {
+             // Re-process the existing original
+             $originalPath = $artwork->getOriginalImagePath();
+             if (Storage::disk('public')->exists($originalPath)) {
+                 $fullOriginalPath = Storage::disk('public')->path($originalPath);
+                 // 1. Rotate & Update Optimized
+                 $this->resizeAndSave($fullOriginalPath, $artwork->image_path, true, $rotation, false); 
+                 // 2. Rotate & Update Original
+                 $this->resizeAndSave($fullOriginalPath, $originalPath, true, $rotation, true); 
+             }
         }
 
         // Translation Update
@@ -269,18 +190,15 @@ class ArtworkController extends Controller
             if($validated['description']) $artwork->description = $validated['description'];
         }
 
-        $artwork->additional_images = $currentExtras; // Save updated array
         $artwork->category = $validated['category'];
         $artwork->price = $validated['price'];
         $artwork->stock = $validated['stock'] ?? 0;
         $artwork->is_promo = $request->has('is_promo');
         $artwork->promo_price = $request->input('promo_price');
 
-        // Wrap save in Try-Catch
         try {
             $artwork->save();
 
-            // Redirect logic
             if ($artwork->user_id != auth()->id()) {
                 return redirect()->route('artworks.index', ['user_id' => $artwork->user_id])->with('status', 'User artwork updated!');
             }
@@ -291,9 +209,6 @@ class ArtworkController extends Controller
         }
     }
 
-    /**
-     * Delete artwork.
-     */
     public function destroy(Request $request, Artwork $artwork)
     {
         $isOwner = intval(auth()->id()) === intval($artwork->user_id);
@@ -301,7 +216,6 @@ class ArtworkController extends Controller
 
         if (!$isOwner && !$isAdmin) abort(403);
 
-        // Delete Main Images
         if ($artwork->image_path) {
             Storage::disk('public')->delete($artwork->image_path);
             $originalPath = $artwork->getOriginalImagePath();
@@ -309,31 +223,17 @@ class ArtworkController extends Controller
                 Storage::disk('public')->delete($originalPath);
             }
         }
-
-        // Delete Extra Images
-        if (!empty($artwork->additional_images)) {
-            foreach ($artwork->additional_images as $extraPath) {
-                Storage::disk('public')->delete($extraPath);
-            }
-        }
-        
         $artwork->delete();
 
         return back()->with('status', 'artwork-deleted');
     }
 
-    /**
-     * Public Show.
-     */
     public function show(Artwork $artwork)
     {
         $artwork->load('user.artistProfile');
         return view('artworks.show', ['artwork' => $artwork]);
     }
 
-    /**
-     * AJAX Preview.
-     */
     public function previewImage(Request $request)
     {
         $request->validate(['url' => 'required|url']);

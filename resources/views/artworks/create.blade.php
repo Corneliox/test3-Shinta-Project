@@ -69,10 +69,23 @@
                             </div>
                         </div>
 
-                        {{-- Option A: Standard File Upload --}}
+                        {{-- Option A: Standard File Upload WITH ROTATION --}}
                         <div id="uploadInputSection">
-                            <input type="file" name="image" id="fileInput" class="form-control" accept="image/*">
+                            {{-- Preview & Rotate UI --}}
+                            <div class="mb-3 text-center p-3 bg-light border rounded position-relative" id="filePreviewContainer" style="display:none;">
+                                <img id="mainPreview" src="#" class="img-fluid rounded shadow-sm" style="max-height: 300px; transition: transform 0.3s ease;">
+                                
+                                {{-- Rotate Button --}}
+                                <button type="button" id="btnRotate" class="btn btn-dark btn-sm position-absolute bottom-0 end-0 m-3 shadow" title="Rotate 90° Right">
+                                    <i class="bi-arrow-clockwise"></i> Rotate
+                                </button>
+                            </div>
+
+                            <input type="file" name="image" id="fileInput" class="form-control" accept="image/*" onchange="previewFile(this)">
                             <small class="text-muted">Max size: 5MB</small>
+                            
+                            {{-- HIDDEN INPUT FOR ROTATION --}}
+                            <input type="hidden" name="rotation" id="rotationInput" value="0">
                         </div>
 
                         {{-- Option B: Google Drive / Link Puller --}}
@@ -192,7 +205,50 @@
         fileInput.value = ''; // Clear file input
     });
 
-    // AJAX Pull Logic
+    // ===============================
+    // 2. IMAGE PREVIEW & ROTATION
+    // ===============================
+    let currentRotation = 0;
+    const btnRotate = document.getElementById('btnRotate');
+    const mainPreview = document.getElementById('mainPreview');
+    const filePreviewContainer = document.getElementById('filePreviewContainer');
+    const rotationInput = document.getElementById('rotationInput');
+
+    // Rotation Button Click
+    if(btnRotate) {
+        btnRotate.addEventListener('click', function() {
+            // Increment by 90 degrees
+            currentRotation = (currentRotation + 90) % 360;
+            // Update Visuals
+            mainPreview.style.transform = `rotate(${currentRotation}deg)`;
+            // Update Hidden Input for Server
+            rotationInput.value = currentRotation;
+        });
+    }
+
+    // File Selection Handler
+    function previewFile(input) {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                mainPreview.src = e.target.result;
+                filePreviewContainer.style.display = 'block';
+                
+                // Reset rotation on new file select
+                currentRotation = 0;
+                rotationInput.value = 0;
+                mainPreview.style.transform = 'rotate(0deg)';
+            }
+            reader.readAsDataURL(file);
+        } else {
+            filePreviewContainer.style.display = 'none';
+        }
+    }
+
+    // ===============================
+    // 3. AJAX PULL LOGIC (Link)
+    // ===============================
     const btnPull = document.getElementById('btnPullImage');
     const urlInput = document.getElementById('urlInput');
     const pullLoading = document.getElementById('pullLoading');
@@ -204,13 +260,11 @@
         const url = urlInput.value;
         if(!url) return;
 
-        // UI Reset
         pullLoading.style.display = 'block';
         pullError.style.display = 'none';
         previewArea.style.display = 'none';
         btnPull.disabled = true;
 
-        // Fetch
         fetch('{{ route("artworks.preview") }}', {
             method: 'POST',
             headers: {
@@ -226,7 +280,7 @@
 
             if(data.success) {
                 previewImg.src = data.preview_url;
-                imageTempPath.value = data.temp_path; // THIS IS CRITICAL
+                imageTempPath.value = data.temp_path; 
                 previewArea.style.display = 'block';
             } else {
                 pullError.innerText = data.error || 'Failed to fetch image.';
@@ -243,7 +297,7 @@
     });
 
     // ===============================
-    // 2. CATEGORY LISTENER (EXTRA IMAGES)
+    // 4. CATEGORY LISTENER (EXTRA IMAGES)
     // ===============================
     const catSelect = document.getElementById('categorySelect');
     const extraSection = document.getElementById('extraImagesSection');
@@ -257,10 +311,10 @@
     }
 
     catSelect.addEventListener('change', toggleExtras);
-    toggleExtras(); // Run on load (for old input)
+    toggleExtras(); 
 
     // ===============================
-    // 3. PROMO PRICE CALCULATOR
+    // 5. PROMO PRICE CALCULATOR
     // ===============================
     const promoCheckbox = document.getElementById('is_promo');
     const promoWrapper = document.getElementById('promo_price_wrapper');
@@ -268,14 +322,12 @@
     const discountInput = document.getElementById('discountPercent');
     const promoPriceInput = document.getElementById('promoPrice');
 
-    // Toggle Promo Section
     function togglePromo() {
         promoWrapper.style.display = promoCheckbox.checked ? 'block' : 'none';
     }
     promoCheckbox.addEventListener('change', togglePromo);
-    togglePromo(); // Run once on load to set initial state
+    togglePromo(); 
 
-    // Math Functions
     function calculateFromPercent() {
         const price = parseFloat(basePriceInput.value) || 0;
         const percent = parseFloat(discountInput.value) || 0;
@@ -294,11 +346,9 @@
         }
     }
 
-    // Listeners
     discountInput.addEventListener('input', calculateFromPercent);
     promoPriceInput.addEventListener('input', calculateFromPrice);
     
-    // Recalculate if base price changes
     basePriceInput.addEventListener('input', function() {
         if(discountInput.value && promoCheckbox.checked) {
             calculateFromPercent();

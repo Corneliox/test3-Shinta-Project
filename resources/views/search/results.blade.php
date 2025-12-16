@@ -29,7 +29,7 @@
     <section class="section-padding">
         <div class="container">
 
-            {{-- === 2. ARTISTS SECTION (FIXED VARIABLES) === --}}
+            {{-- === 2. ARTISTS SECTION === --}}
             @if($artists->count() > 0)
                 <h2 class="mb-4">Artists</h2>
                 <div class="row">
@@ -37,16 +37,15 @@
                         <div class="col-lg-4 col-md-6 col-12 mb-4 d-flex">
                             <div class="custom-block bg-white shadow-lg h-100 d-flex flex-column">
                                 <a href="{{ route('pelukis.show', $artist->slug) }}">
-                                    
-                                    {{-- FIX: Changed 'profile_picture_path' to 'profile_picture' --}}
                                     <img src="{{ $artist->artistProfile?->profile_picture ? Storage::url($artist->artistProfile->profile_picture) : asset('images/topics/undraw_happy_music_g6wc.png') }}" class="custom-block-image img-fluid" alt="{{ $artist->name }}">
-
                                 </a>
                                 <div class="p-3 d-flex flex-column flex-grow-1">
                                     <h5 class="mb-2">{{ $artist->name }}</h5>
                                     
-                                    {{-- FIX: Changed 'bio' to 'about' --}}
-                                    <p class="text-muted">{{ Str::limit($artist->artistProfile?->about ?? 'No bio available.', 100) }}</p>
+                                    {{-- FIX: Added strip_tags() to remove <p> from TinyMCE --}}
+                                    <p class="text-muted">
+                                        {{ Str::limit(strip_tags($artist->artistProfile?->about ?? 'No bio available.'), 100) }}
+                                    </p>
 
                                     <a href="{{ route('pelukis.show', $artist->slug) }}" class="btn custom-btn mt-auto" style="width: fit-content;">View Profile</a>
                                 </div>
@@ -71,7 +70,12 @@
                                 <div class="p-3 d-flex flex-column flex-grow-1">
                                     <h5 class="mb-2">{{ $artwork->title }} <span class="badge bg-info ms-2">{{ $artwork->category }}</span></h5>
                                     <p class="text-muted">by {{ $artwork->user->name }}</p>
-                                    <p class="text-muted">{{ Str::limit($artwork->description, 100) }}</p>
+                                    
+                                    {{-- FIX: Added strip_tags() --}}
+                                    <p class="text-muted">
+                                        {{ Str::limit(strip_tags($artwork->description), 100) }}
+                                    </p>
+
                                     <a href="{{ route('artworks.show', $artwork->slug) }}" class="btn custom-btn mt-auto" style="width: fit-content;">View Artwork</a>
                                 </div>
                             </div>
@@ -98,7 +102,12 @@
                                 </div>
                                 <div class="p-3 d-flex flex-column flex-grow-1">
                                     <h5 class="mb-2">{{ $event->title }}</h5>
-                                    <p class="text-muted">{{ Str::limit($event->description, 100) }}</p>
+                                    
+                                    {{-- FIX: Added strip_tags() --}}
+                                    <p class="text-muted">
+                                        {{ Str::limit(strip_tags($event->description), 100) }}
+                                    </p>
+
                                     <a href="{{ route('event.details', $event) }}" class="btn custom-btn mt-auto" style="width: fit-content;">Learn More</a>
                                 </div>
                             </div>

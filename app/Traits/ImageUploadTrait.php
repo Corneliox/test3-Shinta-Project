@@ -10,29 +10,32 @@ trait ImageUploadTrait
 {
     /**
      * Handle Image Upload: Saves Optimized (Default) and Original (Backup)
+     * Updated: Now accepts $rotation parameter
      */
-    public function uploadImage($file, $directory = 'artworks')
+    public function uploadImage($file, $directory = 'artworks', $rotation = 0)
     {
-        // 1. Generate Unique Filename
         $extension = $file->getClientOriginalExtension();
         $basename = uniqid() . '_' . time();
         $filename = $basename . '.' . $extension;
         $originalFilename = $basename . '_original.' . $extension;
 
-        // 2. Save the HIGH RES version ( _original )
-        Storage::disk('public')->putFileAs($directory, $file, $originalFilename);
+        // 1. Process & Save the HIGH RES version (Rotated if needed)
+        // We pass 'true' for $isOriginal to skip heavy resizing but apply rotation
+        $this->resizeAndSave($file, $directory . '/' . $originalFilename, false, $rotation, true);
 
-        // 3. Process & Save the OPTIMIZED version (Standard Name)
-        $this->resizeAndSave($file, $directory . '/' . $filename);
+        // 2. Process & Save the OPTIMIZED version (Standard Name)
+        // We use the NEWLY saved original as source to ensure rotation is applied to the small one too
+        $sourcePath = Storage::disk('public')->path($directory . '/' . $originalFilename);
+        $this->resizeAndSave($sourcePath, $directory . '/' . $filename, true, 0, false); 
+        // Note: Rotation is 0 here because the source (original) is already rotated.
 
-        // Return the path to the OPTIMIZED version (so DB uses this by default)
         return $directory . '/' . $filename;
     }
 
     /**
      * Handle Image from Temp Path (For your Google Drive Pull feature)
      */
-    public function processTempImage($tempPath, $targetDirectory = 'artworks')
+    public function processTempImage($tempPath, $targetDirectory = 'artworks', $rotation = 0)
     {
         if (!Storage::disk('public')->exists($tempPath)) return null;
 
@@ -43,22 +46,23 @@ trait ImageUploadTrait
         $filename = $basename . '.' . $extension;
         $originalFilename = $basename . '_original.' . $extension;
 
-        // 1. Move Temp to "Original"
-        Storage::disk('public')->move($tempPath, $targetDirectory . '/' . $originalFilename);
+        // 1. Move/Process Original (Apply Rotation here)
+        $this->resizeAndSave($fullTempPath, $targetDirectory . '/' . $originalFilename, true, $rotation, true);
 
         // 2. Create Optimized Version from that Original
         $sourcePath = Storage::disk('public')->path($targetDirectory . '/' . $originalFilename);
-        
-        // Mock an UploadedFile to reuse the resizer
-        $this->resizeAndSave($sourcePath, $targetDirectory . '/' . $filename, true);
+        $this->resizeAndSave($sourcePath, $targetDirectory . '/' . $filename, true, 0, false);
+
+        // Cleanup temp
+        if(Storage::disk('public')->exists($tempPath)) Storage::disk('public')->delete($tempPath);
 
         return $targetDirectory . '/' . $filename;
     }
 
     /**
-     * Native PHP Resizer (No Composer Packages needed)
+     * Native PHP Resizer with Rotation Support
      */
-    private function resizeAndSave($source, $targetPath, $isPath = false)
+    private function resizeAndSave($source, $targetPath, $isPath = false, $rotation = 0, $isHighRes = false)
     {
         // Get source path
         $srcPath = $isPath ? $source : $source->getRealPath();
@@ -66,16 +70,6 @@ trait ImageUploadTrait
         // Get dimensions and type
         list($width, $height, $type) = getimagesize($srcPath);
         
-        // Calculate new dimensions (Max Width 1200px - keeps aspect ratio)
-        $maxWidth = 1200; 
-        if ($width > $maxWidth) {
-            $newWidth = $maxWidth;
-            $newHeight = ($height / $width) * $newWidth;
-        } else {
-            $newWidth = $width;
-            $newHeight = $height;
-        }
-
         // Create resource from source
         $imageResource = match ($type) {
             IMAGETYPE_JPEG => imagecreatefromjpeg($srcPath),
@@ -85,18 +79,40 @@ trait ImageUploadTrait
         };
 
         if (!$imageResource) {
-            // Fallback: If type not supported, just copy the file
-            Storage::disk('public')->copy(
-                str_replace(storage_path('app/public/'), '', $srcPath), // fix path for copy
-                $targetPath
-            );
+            // Fallback: Just copy if type not supported
+            if ($isPath && !file_exists($targetPath)) {
+                 copy($srcPath, Storage::disk('public')->path($targetPath));
+            }
             return;
         }
 
-        // Create new empty image
+        // --- 1. APPLY ROTATION ---
+        if ($rotation != 0) {
+            // PHP rotates Counter Clockwise. User wants Clockwise.
+            // 90 (Right) -> -90 (PHP)
+            $imageResource = imagerotate($imageResource, -1 * $rotation, 0);
+            
+            // Update dimensions after rotation
+            $width = imagesx($imageResource);
+            $height = imagesy($imageResource);
+        }
+
+        // --- 2. CALCULATE NEW DIMENSIONS ---
+        // If High Res, keep original size (unless massive > 3000). If Optimized, cap at 1200.
+        $maxWidth = $isHighRes ? 3000 : 1200; 
+
+        if ($width > $maxWidth) {
+            $newWidth = $maxWidth;
+            $newHeight = ($height / $width) * $newWidth;
+        } else {
+            $newWidth = $width;
+            $newHeight = $height;
+        }
+
+        // Create new canvas
         $newImage = imagecreatetruecolor($newWidth, $newHeight);
 
-        // Preserve Transparency for PNG/WEBP
+        // Handle Transparency for PNG/WEBP
         if ($type == IMAGETYPE_PNG || $type == IMAGETYPE_WEBP) {
             imagecolortransparent($newImage, imagecolorallocatealpha($newImage, 0, 0, 0, 127));
             imagealphablending($newImage, false);
@@ -113,11 +129,13 @@ trait ImageUploadTrait
         $dir = dirname($fullDestPath);
         if (!file_exists($dir)) mkdir($dir, 0755, true);
 
-        // Save with 75% Quality (Good balance for <1MB)
+        // Save with Appropriate Quality
+        $quality = $isHighRes ? 90 : 75; 
+
         switch ($type) {
-            case IMAGETYPE_JPEG: imagejpeg($newImage, $fullDestPath, 75); break;
+            case IMAGETYPE_JPEG: imagejpeg($newImage, $fullDestPath, $quality); break;
             case IMAGETYPE_PNG: imagepng($newImage, $fullDestPath, 8); break; // 0-9 compression
-            case IMAGETYPE_WEBP: imagewebp($newImage, $fullDestPath, 75); break;
+            case IMAGETYPE_WEBP: imagewebp($newImage, $fullDestPath, $quality); break;
         }
 
         // Cleanup memory
