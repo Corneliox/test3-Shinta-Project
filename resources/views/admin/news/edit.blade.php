@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Write New Article') }}
+            {{ __('Edit Article') }}
         </h2>
     </x-slot>
 
@@ -9,37 +9,46 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
                 
-                <form action="{{ route('admin.news.store') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('admin.news.update', $news->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
+                    @method('PATCH')
 
                     {{-- Title --}}
                     <div class="mb-4">
                         <label class="block font-bold mb-2 text-gray-700 dark:text-gray-300">Article Title</label>
-                        <input type="text" name="title" value="{{ old('title') }}" class="w-full rounded border-gray-300 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-600 focus:border-indigo-500 focus:ring-indigo-500" required>
+                        <input type="text" name="title" value="{{ old('title', $news->title) }}" class="w-full rounded border-gray-300 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500" required>
                     </div>
 
                     {{-- Thumbnail --}}
                     <div class="mb-4">
-                        <label class="block font-bold mb-2 text-gray-700 dark:text-gray-300">Main Thumbnail (Card Image)</label>
-                        <input type="file" name="thumbnail" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600" accept="image/*" required>
+                        <label class="block font-bold mb-2 text-gray-700 dark:text-gray-300">Update Thumbnail</label>
+                        
+                        @if($news->thumbnail)
+                            <div class="mb-2">
+                                <img src="{{ Storage::url($news->thumbnail) }}" class="h-32 rounded shadow-sm">
+                            </div>
+                        @endif
+
+                        <input type="file" name="thumbnail" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" accept="image/*">
+                        <p class="text-gray-500 text-xs mt-1">Leave empty to keep current image.</p>
                     </div>
 
                     {{-- THE EDITOR --}}
                     <div class="mb-4">
                         <label class="block font-bold mb-2 text-gray-700 dark:text-gray-300">Content</label>
-                        <textarea id="news-editor" name="content" rows="20">{{ old('content') }}</textarea>
+                        <textarea id="news-editor" name="content" rows="20">{!! old('content', $news->content) !!}</textarea>
                     </div>
 
                     {{-- Publish Toggle --}}
                     <div class="mb-4">
                         <label class="inline-flex items-center">
-                            <input type="checkbox" name="is_published" value="1" checked class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
-                            <span class="ml-2 text-gray-700 dark:text-gray-300">Publish Immediately</span>
+                            <input type="checkbox" name="is_published" value="1" {{ $news->is_published ? 'checked' : '' }} class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
+                            <span class="ml-2 text-gray-700 dark:text-gray-300">Published</span>
                         </label>
                     </div>
 
                     <div class="flex items-center gap-4">
-                        <x-primary-button>{{ __('Post Article') }}</x-primary-button>
+                        <x-primary-button>{{ __('Update Article') }}</x-primary-button>
                         <a href="{{ route('admin.news.index') }}" class="text-gray-600 hover:text-gray-900 underline">Cancel</a>
                     </div>
                 </form>
@@ -47,7 +56,7 @@
         </div>
     </div>
 
-    {{-- TINY MCE SCRIPT --}}
+    {{-- TINY MCE SCRIPT (Identical to Create) --}}
     <script src="https://cdn.tiny.cloud/1/w0mxt01iygm8l26kqy3w3okjhxfjp66y9mpfory164br98jq/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
     <script>
       tinymce.init({
