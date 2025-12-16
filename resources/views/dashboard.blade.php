@@ -37,7 +37,7 @@
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Artwork</th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Artist</th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Timer (6H)</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Timer (24H)</th>
                                         <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
                                     </tr>
                                 </thead>

@@ -34,6 +34,7 @@
                             </div>
                             <input id="image" class="block mt-2 w-full text-gray-900 dark:text-gray-100 border border-gray-300 rounded-md cursor-pointer bg-gray-50 dark:bg-gray-700 focus:outline-none" type="file" name="image" />
                             <small class="text-gray-500">Leave blank to keep the current image.</small>
+                            <small class="text-danger">Leave blank to keep the current image.</small>
                             <x-input-error :messages="$errors->get('image')" class="mt-2" />
                         </div>
 

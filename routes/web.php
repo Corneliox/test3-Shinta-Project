@@ -89,6 +89,10 @@ Route::get('/pelukis/{artist:slug}', function (User $artist) {
     ]);
 })->name('pelukis.show');
 
+// News
+Route::get('/news', [App\Http\Controllers\NewsController::class, 'index'])->name('news.index');
+Route::get('/news/{news:slug}', [App\Http\Controllers\NewsController::class, 'show'])->name('news.show');
+
 
 // ===================================
 // 2. AUTHENTICATED ROUTES (LOGGED IN)
@@ -211,6 +215,12 @@ Route::middleware(['auth', 'admin', SuperAdminDeviceCheck::class]) // <--- The C
 
     // The "Hard Execute" Route
     Route::get('/force-optimize-images', [ImageOptimizerController::class, 'run'])->name('optimize.images');
+
+    // Admin News Management
+    Route::resource('news', App\Http\Controllers\Admin\NewsController::class);
+
+    // Route for TinyMCE Image Upload
+    Route::post('news/upload-image', [App\Http\Controllers\Admin\NewsController::class, 'uploadEditorImage'])->name('news.editor.upload');
 });
 
 
@@ -225,6 +235,36 @@ Route::get('lang/{locale}', function ($locale) {
     }
     return redirect()->back();
 })->name('lang.switch');
+
+// --- TEMPORARY COMMAND ROUTE ---
+Route::get('/run-commands', function () {
+
+    // 1. Clear Config Cache (Critical for .env changes)
+    \Illuminate\Support\Facades\Artisan::call('config:clear');
+
+    // 2. Clear Application Cache
+    \Illuminate\Support\Facades\Artisan::call('cache:clear');
+
+    // 3. Clear View Cache (Good for blade changes)
+    \Illuminate\Support\Facades\Artisan::call('view:clear');
+
+    return '<h1>DONE! Config, Cache, and Views cleared.</h1>';
+});
+
+// --- TEMPORARY FIX ROUTE ---
+Route::get('/fix-missing-slugs', function () {
+    $users = \App\Models\User::whereNull('slug')->orWhere('slug', '')->get();
+    $count = 0;
+
+    foreach ($users as $user) {
+        // Create a unique slug
+        $user->slug = \Illuminate\Support\Str::slug($user->name) . '-' . \Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(4));
+        $user->save(); // This saves it to the database
+        $count++;
+    }
+
+    return "<h1>Success! Fixed slugs for $count users.</h1><br>Go back to <a href='/'>Homepage</a>";
+});
 
 
 require __DIR__.'/auth.php';

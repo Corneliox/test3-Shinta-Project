@@ -66,7 +66,7 @@ class MarketplaceController extends Controller
         // 1. Reserve Stock
         $artwork->decrement('stock');
         $artwork->increment('reserved_stock');
-        $artwork->update(['reserved_until' => now()->addHours(6)]);
+        $artwork->update(['reserved_until' => now()->addHours(24)]);
 
         // 2. FIND THE GATEKEEPER ADMIN
         $gatekeeper = \App\Models\User::where('is_shop_contact', true)->first();

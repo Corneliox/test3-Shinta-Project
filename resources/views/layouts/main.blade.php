@@ -214,6 +214,9 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('about') }}">About us</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('news.*') ? 'active' : '' }}" href="{{ route('news.index') }}">News</a>
+                            </li>
 
                             {{-- MOBILE AUTH LINKS --}}
                             @auth

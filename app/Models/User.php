@@ -29,7 +29,8 @@ class User extends Authenticatable
         'is_admin',       // Role
         'is_superadmin',  // Role (God Mode)
         'phone',          // General Phone
-        'is_shop_contact' // The Gate Flag
+        'is_shop_contact', // The Gate Flag
+        'slug',           // Added slug to fillable just in case
     ];
 
     /**
@@ -74,16 +75,26 @@ class User extends Authenticatable
         return $this->hasMany(Artwork::class);
     }
 
+    /**
+     * Booted method to handle Slug Generation
+     */
     protected static function booted(): void
     {
+        // 1. On Create
         static::creating(function ($user) {
             if (empty($user->slug)) {
                 $user->slug = Str::slug($user->name) . '-' . Str::lower(Str::random(4));
             }
         });
 
+        // 2. On Update (FIXED LOGIC)
         static::updating(function ($user) {
-            if ($user->isDirty('name') && empty($user->slug)) {
+            // Generate slug if it is MISSING, even if the name didn't change
+            if (empty($user->slug)) {
+                $user->slug = Str::slug($user->name) . '-' . Str::lower(Str::random(4));
+            }
+            // Also regenerate if the name CHANGED
+            elseif ($user->isDirty('name')) {
                 $user->slug = Str::slug($user->name) . '-' . Str::lower(Str::random(4));
             }
         });

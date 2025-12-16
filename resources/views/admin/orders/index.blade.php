@@ -28,7 +28,7 @@
                                         <th class="px-6 py-3 text-left font-medium uppercase whitespace-nowrap">Item</th>
                                         <th class="px-6 py-3 text-left font-medium uppercase whitespace-nowrap">Artist</th>
                                         <th class="px-6 py-3 text-left font-medium uppercase whitespace-nowrap">Price</th>
-                                        <th class="px-6 py-3 text-left font-medium uppercase whitespace-nowrap">Timer (6H)</th>
+                                        <th class="px-6 py-3 text-left font-medium uppercase whitespace-nowrap">Timer (24H)</th>
                                         <th class="px-6 py-3 text-right font-medium uppercase whitespace-nowrap">Action</th>
                                     </tr>
                                 </thead>
