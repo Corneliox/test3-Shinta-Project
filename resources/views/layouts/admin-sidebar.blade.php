@@ -78,6 +78,18 @@
             </a>
         </li>
 
+        {{-- News & Articles --}}
+        <li>
+            <a href="{{ route('news.index') }}" 
+               class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group {{ request()->routeIs('news.*') ? 'bg-gray-100 dark:bg-gray-700' : '' }}">
+                {{-- Newspaper Icon --}}
+                <svg class="w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
+                </svg>
+                <span class="flex-1 ms-3 whitespace-nowrap">News & Articles</span>
+            </a>
+        </li>
+
         {{-- Activity Logs --}}
         <li>
             <a href="{{ route('admin.activity-logs.index') }}" 
