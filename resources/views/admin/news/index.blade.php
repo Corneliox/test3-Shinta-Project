@@ -39,29 +39,33 @@
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if($article->thumbnail)
-                                            <img src="{{ Storage::url($article->thumbnail) }}" class="h-10 w-16 object-cover rounded">
+                                            <img src="{{ Storage::url($article->thumbnail) }}" class="h-10 w-16 object-cover rounded shadow-sm">
                                         @else
-                                            <span class="text-gray-400">No Img</span>
+                                            <span class="text-gray-400 text-xs">No Img</span>
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 font-bold">
+                                    <td class="px-6 py-4 font-bold text-gray-800 dark:text-gray-200">
                                         {{ $article->title }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if($article->is_published)
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Published</span>
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 border border-green-200">
+                                                Published
+                                            </span>
                                         @else
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Draft</span>
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800 border border-gray-200">
+                                                Draft
+                                            </span>
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-gray-500">
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-500 dark:text-gray-400">
                                         {{ $article->created_at->format('d M Y') }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div class="flex justify-end gap-3">
                                             <a href="{{ route('admin.news.edit', $article) }}" class="text-indigo-600 hover:text-indigo-900 font-bold">Edit</a>
                                             
-                                            <form action="{{ route('admin.news.destroy', $article) }}" method="POST" onsubmit="return confirm('Delete this article?');">
+                                            <form action="{{ route('admin.news.destroy', $article) }}" method="POST" onsubmit="return confirm('Delete this article permanently?');">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="text-red-600 hover:text-red-900 font-bold">Delete</button>
@@ -71,7 +75,9 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">No news articles found.</td>
+                                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                                        No news articles found. <a href="{{ route('admin.news.create') }}" class="text-blue-600 underline">Create one now</a>.
+                                    </td>
                                 </tr>
                                 @endforelse
                             </tbody>
