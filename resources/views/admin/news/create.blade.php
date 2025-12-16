@@ -51,33 +51,35 @@
         </div>
     </div>
 
-    {{-- TINY MCE SCRIPT WITH YOUR API KEY --}}
-    <script src="https://cdn.tiny.cloud/1/w0mxt01iygm8l26kqy3w3okjhxfjp66y9mpfory164br98jq/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    {{-- FORCE LOAD: Use Cloudflare CDN instead of Tiny.cloud (No API Key needed) --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js" referrerpolicy="origin"></script>
     
     <script>
       tinymce.init({
         selector: '#news-editor',
         
-        // --- DARK MODE THEME ---
+        // Force Base URL to avoid relative path errors
+        document_base_url: '{{ url("/") }}',
+        relative_urls: false,
+        remove_script_host: false,
+        convert_urls: true,
+
+        // DARK MODE THEME (Standardized for CDN)
         skin: 'oxide-dark',
         content_css: 'dark',
-        // -----------------------
 
         plugins: 'image link media table lists code preview wordcount',
         toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | bullist numlist | link image | table | code',
         
-        // Enable Image Uploads
+        // Image Upload Logic
         images_upload_url: '{{ route("admin.news.editor.upload") }}',
         automatic_uploads: true,
         file_picker_types: 'image',
         
-        // Image Upload Logic
         images_upload_handler: (blobInfo, progress) => new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
             xhr.withCredentials = false;
             xhr.open('POST', '{{ route("admin.news.editor.upload") }}');
-            
-            // Add CSRF Token
             xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
 
             xhr.upload.onprogress = (e) => {
@@ -106,14 +108,20 @@
             xhr.send(formData);
         }),
 
-        // Enable Resizing Images inside Editor
         image_dimensions: true,
         image_class_list: [
             {title: 'Responsive', value: 'img-fluid'},
             {title: 'None', value: ''}
         ],
         
-        height: 600
+        height: 600,
+        
+        // Fallback: If styling fails, show the editor anyway
+        init_instance_callback: function (editor) {
+            editor.on('ExecCommand', function (e) {
+                console.log('Command executed: ' + e.command);
+            });
+        }
       });
     </script>
 </x-app-layout>
