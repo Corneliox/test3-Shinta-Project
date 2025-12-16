@@ -44,7 +44,7 @@
 </div>
 
 {{-- ADVANCED TINYMCE CONFIGURATION --}}
-<script src="https://cdn.tiny.cloud/1/YOUR_REAL_API_KEY_HERE/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://cdn.tiny.cloud/1/w0mxt01iygm8l26kqy3w3okjhxfjp66y9mpfory164br98jq/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
   tinymce.init({
     selector: '#news-editor',

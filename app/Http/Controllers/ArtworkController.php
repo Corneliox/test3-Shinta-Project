@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Artwork;
 use App\Models\User; 
-use App\Traits\ImageUploadTrait; // <--- 1. Import Trait
+use App\Traits\ImageUploadTrait; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http; 
@@ -13,17 +13,24 @@ use Stichoza\GoogleTranslate\GoogleTranslate;
 
 class ArtworkController extends Controller
 {
-    use ImageUploadTrait; // <--- 2. Use Trait
+    use ImageUploadTrait; 
 
+    /**
+     * Display listing. SUPERADMIN CAN VIEW OTHERS via ?user_id=123
+     */
     public function index(Request $request)
     {
         $targetUser = $request->user(); 
 
+        // SUPERADMIN OVERRIDE
         if ($request->has('user_id') && ($request->user()->is_superadmin || $request->user()->is_admin)) {
             $targetUser = User::findOrFail($request->user_id);
         }
 
+        // OPTIMIZATION: Fetch ALL artworks in one query
         $all_artworks = $targetUser->artworks()->latest()->get();
+
+        // Filter them in memory (faster than 3 DB queries)
         $lukisan = $all_artworks->where('category', 'Lukisan');
         $crafts = $all_artworks->where('category', 'Craft');
 
@@ -36,32 +43,56 @@ class ArtworkController extends Controller
         ]);
     }
 
+    /**
+     * Show create form.
+     */
     public function create(Request $request)
     {
         $targetUserId = null;
+
         if ($request->has('user_id') && ($request->user()->is_superadmin || $request->user()->is_admin)) {
             $targetUserId = $request->user_id;
         }
+
         return view('artworks.create', compact('targetUserId'));
     }
 
+    /**
+     * Store new artwork.
+     */
     public function store(Request $request)
     {
+        // 1. Determine the OWNER ID
         $ownerId = auth()->id();
+
+        // Check if Admin sent a specific User ID to create on behalf of
         if ($request->filled('behalf_user_id') && (auth()->user()->is_superadmin || auth()->user()->is_admin)) {
             $ownerId = $request->behalf_user_id;
         }
 
-        $validated = $request->validate([
+        // 2. Validate
+        $rules = [
             'title' => 'required|string|max:255',
             'category' => 'required|in:Lukisan,Craft',
             'description' => 'nullable|string',
+            
+            // Image Validation
             'image' => 'required_without:image_temp_path|image|max:5120',
             'image_temp_path' => 'required_without:image|nullable|string',
+            
+            // Marketplace Validation
             'price' => 'nullable|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
             'promo_price' => 'nullable|numeric|lt:price',
-        ]);
+        ];
+
+        // If Craft, allow up to 2 EXTRA images (Total 3)
+        if ($request->category === 'Craft') {
+            $rules['extra_images.*'] = 'image|max:5120';
+            $rules['extra_images'] = 'max:2'; 
+        }
+
+        $validated = $request->validate($rules);
 
         $finalPath = '';
         $rotation = $request->input('rotation', 0); // Capture Rotation
@@ -77,16 +108,33 @@ class ArtworkController extends Controller
             }
         }
 
-        // --- TRANSLATION LOGIC ---
+        // --- HANDLE EXTRA IMAGES (CRAFT ONLY) ---
+        $additionalPaths = [];
+        if ($request->category === 'Craft' && $request->hasFile('extra_images')) {
+            foreach ($request->file('extra_images') as $file) {
+                // We don't apply rotation to bulk extras for simplicity here
+                $additionalPaths[] = $this->uploadImage($file, 'artworks/extras');
+            }
+        }
+
+        // --- TRANSLATION LOGIC (UPDATED: NO TITLE TRANSLATION) ---
+        // 1. Title: Direct Assignment
+        $title_en = $validated['title']; 
+        $title_id = $validated['title'];
+
+        // 2. Description: Attempt Translation
+        $desc_en = $validated['description'];
+        $desc_id = $validated['description'];
+
         try {
             $tr = new GoogleTranslate(); 
-            $title_en = $tr->setTarget('en')->translate($validated['title']);
-            $title_id = $tr->setTarget('id')->translate($validated['title']);
-            $desc_en = $validated['description'] ? $tr->setTarget('en')->translate($validated['description']) : null;
-            $desc_id = $validated['description'] ? $tr->setTarget('id')->translate($validated['description']) : null;
+            // Only translate description if it exists
+            if($validated['description']) {
+                $desc_en = $tr->setTarget('en')->translate($validated['description']);
+                $desc_id = $tr->setTarget('id')->translate($validated['description']);
+            }
         } catch (\Exception $e) {
-            $title_en = $validated['title']; $title_id = $validated['title'];
-            $desc_en = $validated['description']; $desc_id = $validated['description'];
+            // Fallback (already set above)
         }
 
         // --- DB CREATION ---
@@ -99,12 +147,14 @@ class ArtworkController extends Controller
                 'description' => $desc_en,
                 'description_id' => $desc_id,
                 'image_path' => $finalPath,
+                'additional_images' => $additionalPaths, // Save Array
                 'price' => $validated['price'],
                 'stock' => $validated['stock'] ?? 0,
                 'is_promo' => $request->has('is_promo'),
                 'promo_price' => $request->input('promo_price'),
             ]);
 
+            // Success Redirect
             if ($ownerId != auth()->id()) {
                 return redirect()->route('artworks.index', ['user_id' => $ownerId])
                                  ->with('status', 'Artwork created for user successfully!');
@@ -121,6 +171,9 @@ class ArtworkController extends Controller
         }
     }
 
+    /**
+     * Show edit form.
+     */
     public function edit(Artwork $artwork)
     {
         $isOwner = intval(auth()->id()) === intval($artwork->user_id);
@@ -131,6 +184,9 @@ class ArtworkController extends Controller
         return view('artworks.edit', ['artwork' => $artwork]);
     }
 
+    /**
+     * Update artwork.
+     */
     public function update(Request $request, Artwork $artwork)
     {
         $isOwner = intval(auth()->id()) === intval($artwork->user_id);
@@ -138,7 +194,7 @@ class ArtworkController extends Controller
 
         if (!$isOwner && !$isAdmin) abort(403);
 
-        $validated = $request->validate([
+        $rules = [
             'title' => 'required|string|max:255',
             'category' => 'required|in:Lukisan,Craft',
             'description' => 'nullable|string',
@@ -146,11 +202,17 @@ class ArtworkController extends Controller
             'price' => 'nullable|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
             'promo_price' => 'nullable|numeric|lt:price',
-        ]);
+        ];
+
+        if ($request->category === 'Craft') {
+            $rules['extra_images.*'] = 'image|max:5120';
+        }
+
+        $validated = $request->validate($rules);
 
         $rotation = $request->input('rotation', 0); // Capture Rotation
 
-        // --- IMAGE UPDATE (ROTATED & OPTIMIZED) ---
+        // --- 1. IMAGE UPDATE (ROTATED & OPTIMIZED) ---
         if ($request->hasFile('image')) {
             // Delete Old Images
             if ($artwork->image_path) {
@@ -176,20 +238,57 @@ class ArtworkController extends Controller
              }
         }
 
-        // Translation Update
-        try {
-            $tr = new GoogleTranslate(); 
-            $artwork->title = $tr->setTarget('en')->translate($validated['title']);
-            $artwork->title_id = $tr->setTarget('id')->translate($validated['title']);
-            if($validated['description']) {
-                $artwork->description = $tr->setTarget('en')->translate($validated['description']);
-                $artwork->description_id = $tr->setTarget('id')->translate($validated['description']);
+        // --- 2. HANDLE EXTRA IMAGES ---
+        $currentExtras = $artwork->additional_images ?? [];
+        
+        // If switching to Lukisan, clear extras
+        if ($validated['category'] === 'Lukisan') {
+            foreach($currentExtras as $path) Storage::disk('public')->delete($path);
+            $currentExtras = [];
+        } 
+        // If Craft, allow adding more
+        elseif ($request->hasFile('extra_images')) {
+            if (count($currentExtras) + count($request->file('extra_images')) > 2) {
+                return back()->withErrors(['extra_images' => 'Maximum 3 images total allowed (1 Main + 2 Extras). Please delete some first.']);
             }
-        } catch (\Exception $e) {
-            $artwork->title = $validated['title'];
-            if($validated['description']) $artwork->description = $validated['description'];
+            foreach ($request->file('extra_images') as $file) {
+                $currentExtras[] = $this->uploadImage($file, 'artworks/extras');
+            }
         }
 
+        // --- 3. HANDLE DELETING SPECIFIC EXTRAS ---
+        if ($request->has('delete_extras')) {
+            $filesToDelete = $request->delete_extras;
+            $currentExtras = array_values(array_filter($currentExtras, function($path) use ($filesToDelete) {
+                if (in_array($path, $filesToDelete)) {
+                    Storage::disk('public')->delete($path);
+                    return false; // Remove from array
+                }
+                return true; // Keep
+            }));
+        }
+
+        // --- TRANSLATION LOGIC (UPDATED: NO TITLE TRANSLATION) ---
+        // 1. Title: Direct Assignment
+        $artwork->title = $validated['title'];
+        $artwork->title_id = $validated['title'];
+
+        // 2. Description: Keep Translating
+        if($validated['description']) {
+            try {
+                $tr = new GoogleTranslate(); 
+                $artwork->description = $tr->setTarget('en')->translate($validated['description']);
+                $artwork->description_id = $tr->setTarget('id')->translate($validated['description']);
+            } catch (\Exception $e) {
+                $artwork->description = $validated['description'];
+            }
+        } else {
+            $artwork->description = null;
+            $artwork->description_id = null;
+        }
+
+        // Save other fields
+        $artwork->additional_images = $currentExtras;
         $artwork->category = $validated['category'];
         $artwork->price = $validated['price'];
         $artwork->stock = $validated['stock'] ?? 0;
@@ -209,6 +308,9 @@ class ArtworkController extends Controller
         }
     }
 
+    /**
+     * Delete artwork.
+     */
     public function destroy(Request $request, Artwork $artwork)
     {
         $isOwner = intval(auth()->id()) === intval($artwork->user_id);
@@ -223,17 +325,31 @@ class ArtworkController extends Controller
                 Storage::disk('public')->delete($originalPath);
             }
         }
+
+        // Delete Extra Images
+        if (!empty($artwork->additional_images)) {
+            foreach ($artwork->additional_images as $extraPath) {
+                Storage::disk('public')->delete($extraPath);
+            }
+        }
+        
         $artwork->delete();
 
         return back()->with('status', 'artwork-deleted');
     }
 
+    /**
+     * Public Show.
+     */
     public function show(Artwork $artwork)
     {
         $artwork->load('user.artistProfile');
         return view('artworks.show', ['artwork' => $artwork]);
     }
 
+    /**
+     * AJAX Preview.
+     */
     public function previewImage(Request $request)
     {
         $request->validate(['url' => 'required|url']);

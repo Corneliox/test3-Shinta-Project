@@ -58,15 +58,15 @@ class Artwork extends Model
     // --- TRANSLATION ACCESSORS ---
 
     // Automatic Title Translator
-    public function getTitleAttribute($value)
-    {
-        // If current language is ID AND title_id is not empty, return title_id
-        if (App::getLocale() == 'id' && !empty($this->attributes['title_id'])) {
-            return $this->attributes['title_id'];
-        }
-        // Otherwise return default (English)
-        return $value;
-    }
+    // public function getTitleAttribute($value)
+    // {
+    //     // If current language is ID AND title_id is not empty, return title_id
+    //     if (App::getLocale() == 'id' && !empty($this->attributes['title_id'])) {
+    //         return $this->attributes['title_id'];
+    //     }
+    //     // Otherwise return default (English)
+    //     return $value;
+    // }
 
     // Automatic Description Translator
     public function getDescriptionAttribute($value)

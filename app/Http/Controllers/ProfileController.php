@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\ArtistProfile;
+use App\Traits\ImageUploadTrait; // <--- 1. IMPORT TRAIT
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,10 +13,12 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\Rule;
-use Stichoza\GoogleTranslate\GoogleTranslate; // <--- IMPORT THIS
+use Stichoza\GoogleTranslate\GoogleTranslate; 
 
 class ProfileController extends Controller
 {
+    use ImageUploadTrait; // <--- 2. USE TRAIT
+
     /**
      * Display the user's profile form.
      */
@@ -31,10 +34,6 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        // We removed the manual 'phone' validation here because
-        // you removed the input from the form.
-        
-        // Just fill the standard data (Name & Email)
         $request->user()->fill($request->validated());
 
         if ($request->user()->isDirty('email')) {
@@ -85,9 +84,8 @@ class ProfileController extends Controller
             'about' => 'nullable|string|max:1000',
             'profile_picture' => [
                 'nullable',
-                File::image() // Use advanced file validation
-                    ->max(2048) // 2MB Max
-                    ->dimensions(Rule::dimensions()->minWidth(200)->minHeight(200)),
+                File::image() 
+                    ->max(5120) // Increased to 5MB to match others
             ],
         ]);
 
@@ -96,29 +94,40 @@ class ProfileController extends Controller
             'user_id' => $request->user()->id,
         ]);
 
-        // 4. Handle the file upload
+        // 4. Handle the file upload with ROTATION & OPTIMIZATION
         if ($request->hasFile('profile_picture')) {
             // Delete the old picture if it exists
             if ($profile->profile_picture) {
                 Storage::disk('public')->delete($profile->profile_picture);
             }
 
-            // Store the new one and get its path
-            // This will store it in 'storage/app/public/artist_pics'
-            $path = $request->file('profile_picture')->store('artist_pics', 'public');
+            // Capture rotation
+            $rotation = $request->input('rotation', 0);
+
+            // Use Trait to upload (optimized + rotated)
+            // Note: We use 'artist_pics' folder here
+            $path = $this->uploadImage($request->file('profile_picture'), 'artist_pics', $rotation);
+            
             $profile->profile_picture = $path;
         }
 
         // 5. Save and Translate "About" text
         if (!empty($validated['about'])) {
-            $tr = new GoogleTranslate(); 
-            
-            // Save English Version
-            $profile->about = $tr->setTarget('en')->translate($validated['about']);
-            
-            // Save Indonesian Version (Assuming you added 'about_id' to database)
-            $profile->about_id = $tr->setTarget('id')->translate($validated['about']);
+            try {
+                $tr = new GoogleTranslate(); 
+                
+                // Save English Version
+                $profile->about = $tr->setTarget('en')->translate($validated['about']);
+                
+                // Save Indonesian Version 
+                $profile->about_id = $tr->setTarget('id')->translate($validated['about']);
+            } catch (\Exception $e) {
+                $profile->about = $validated['about'];
+            }
         } else {
+            // Only nullify if specifically cleared (or handle logic as needed)
+            // If just updating image, about might not be sent? 
+            // Assuming form sends existing data if unchanged.
             $profile->about = null;
             $profile->about_id = null;
         }
@@ -126,7 +135,6 @@ class ProfileController extends Controller
         $profile->save();
 
         // 6. Redirect back with a success message
-        // return redirect()->route('profile.user.show')->with('status', 'artist-profile-updated')->withFragment('artist-profile-form');
         return redirect()
             ->route('profile.user.show', [], 303)
             ->with('status', 'artist-profile-updated')
