@@ -15,21 +15,21 @@
                     {{-- Title --}}
                     <div class="mb-4">
                         <label class="block font-bold mb-2 text-gray-700 dark:text-gray-300">Article Title</label>
-                        <input type="text" name="title" value="{{ old('title') }}" class="w-full rounded border-gray-300 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500" placeholder="Enter a catchy title..." required>
+                        <input type="text" name="title" value="{{ old('title') }}" class="w-full rounded border-gray-300 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-600 focus:border-indigo-500 focus:ring-indigo-500" placeholder="Enter title..." required>
                         @error('title') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
 
                     {{-- Thumbnail --}}
                     <div class="mb-4">
                         <label class="block font-bold mb-2 text-gray-700 dark:text-gray-300">Main Thumbnail (Card Image)</label>
-                        <input type="file" name="thumbnail" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" accept="image/*" required>
+                        <input type="file" name="thumbnail" class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600" accept="image/*" required>
                         @error('thumbnail') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
 
                     {{-- THE EDITOR --}}
                     <div class="mb-4">
                         <label class="block font-bold mb-2 text-gray-700 dark:text-gray-300">Content</label>
-                        {{-- ID matches the selector in your script --}}
+                        {{-- Tip: Use the 'Table' button to create Text | Image layouts --}}
                         <textarea id="news-editor" name="content" rows="20">{{ old('content') }}</textarea>
                         @error('content') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
@@ -44,18 +44,25 @@
 
                     <div class="flex items-center gap-4 mt-6">
                         <x-primary-button>{{ __('Post Article') }}</x-primary-button>
-                        <a href="{{ route('admin.news.index') }}" class="text-gray-600 hover:text-gray-900 underline">Cancel</a>
+                        <a href="{{ route('admin.news.index') }}" class="text-gray-600 hover:text-gray-900 underline dark:text-gray-400">Cancel</a>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    {{-- YOUR TINYMCE SCRIPT --}}
+    {{-- TINY MCE SCRIPT WITH YOUR API KEY --}}
     <script src="https://cdn.tiny.cloud/1/w0mxt01iygm8l26kqy3w3okjhxfjp66y9mpfory164br98jq/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    
     <script>
       tinymce.init({
         selector: '#news-editor',
+        
+        // --- DARK MODE THEME ---
+        skin: 'oxide-dark',
+        content_css: 'dark',
+        // -----------------------
+
         plugins: 'image link media table lists code preview wordcount',
         toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | bullist numlist | link image | table | code',
         
@@ -64,7 +71,7 @@
         automatic_uploads: true,
         file_picker_types: 'image',
         
-        // Image Upload Handler Logic
+        // Image Upload Logic
         images_upload_handler: (blobInfo, progress) => new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
             xhr.withCredentials = false;
