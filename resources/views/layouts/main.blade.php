@@ -8,7 +8,7 @@
         <title>WOPANCO - Woman Painter Community</title>
         
         {{-- FAVICON --}}
-        <link rel="icon" type="image/png" href="{{ asset('images/wopanco2.png') }}">
+        <link rel="icon" sizes="96x96" type="image/png" href="{{ asset('images/wopanco2.png') }}">
         
         {{-- STYLESHEETS --}}
         <link rel="preconnect" href="https://fonts.googleapis.com">
