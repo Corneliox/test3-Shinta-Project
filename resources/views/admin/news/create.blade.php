@@ -55,73 +55,120 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js" referrerpolicy="origin"></script>
     
     <script>
-      tinymce.init({
-        selector: '#news-editor',
-        
-        // Force Base URL to avoid relative path errors
-        document_base_url: '{{ url("/") }}',
-        relative_urls: false,
-        remove_script_host: false,
-        convert_urls: true,
+tinymce.init({
+    selector: '#news-editor',
 
-        // DARK MODE THEME (Standardized for CDN)
-        skin: 'oxide-dark',
-        content_css: 'dark',
+    /* ===== URL FIXES ===== */
+    document_base_url: '{{ url("/") }}/',
+    relative_urls: false,
+    remove_script_host: false,
+    convert_urls: true,
 
-        plugins: 'image link media table lists code preview wordcount',
-        toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | bullist numlist | link image | table | code',
-        
-        // Image Upload Logic
-        images_upload_url: '{{ route("admin.news.editor.upload") }}',
-        automatic_uploads: true,
-        file_picker_types: 'image',
-        
-        images_upload_handler: (blobInfo, progress) => new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.withCredentials = false;
-            xhr.open('POST', '{{ route("admin.news.editor.upload") }}');
-            xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
+    /* ===== DARK MODE ===== */
+    skin: 'oxide-dark',
+    content_css: 'dark',
 
-            xhr.upload.onprogress = (e) => {
-                progress(e.loaded / e.total * 100);
-            };
+    /* ===== WORD-LIKE FEATURES ===== */
+    plugins: [
+        'advlist', 'autolink', 'lists', 'link', 'image',
+        'charmap', 'preview', 'anchor', 'searchreplace',
+        'visualblocks', 'code', 'fullscreen',
+        'insertdatetime', 'media', 'table', 'wordcount'
+    ],
 
-            xhr.onload = () => {
-                if (xhr.status === 403) {
-                    reject({ message: 'HTTP Error: ' + xhr.status, remove: true });
-                    return;
-                }
-                if (xhr.status < 200 || xhr.status >= 300) {
-                    reject('HTTP Error: ' + xhr.status);
-                    return;
-                }
-                const json = JSON.parse(xhr.responseText);
-                if (!json || typeof json.location != 'string') {
-                    reject('Invalid JSON: ' + xhr.responseText);
-                    return;
-                }
-                resolve(json.location);
-            };
+    toolbar: `
+        undo redo | blocks fontfamily fontsize |
+        bold italic underline strikethrough |
+        alignleft aligncenter alignright alignjustify |
+        bullist numlist outdent indent |
+        table image media link |
+        removeformat code
+    `,
 
-            const formData = new FormData();
-            formData.append('file', blobInfo.blob(), blobInfo.filename());
-            xhr.send(formData);
-        }),
+    menubar: 'file edit view insert format tools table help',
 
-        image_dimensions: true,
-        image_class_list: [
-            {title: 'Responsive', value: 'img-fluid'},
-            {title: 'None', value: ''}
-        ],
-        
-        height: 600,
-        
-        // Fallback: If styling fails, show the editor anyway
-        init_instance_callback: function (editor) {
-            editor.on('ExecCommand', function (e) {
-                console.log('Command executed: ' + e.command);
-            });
+    /* ===== TABLE POWER (THIS IS KEY) ===== */
+    table_default_attributes: {
+        border: '0'
+    },
+    table_default_styles: {
+        width: '100%'
+    },
+
+    table_toolbar: `
+        tableprops tabledelete |
+        tableinsertrowbefore tableinsertrowafter |
+        tabledeleterow |
+        tableinsertcolbefore tableinsertcolafter |
+        tabledeletecol
+    `,
+
+    /* ===== IMAGE HANDLING ===== */
+    image_dimensions: true,
+    image_advtab: true,
+    image_caption: true,
+
+    images_upload_url: '{{ route("admin.news.editor.upload") }}',
+    automatic_uploads: true,
+    file_picker_types: 'image',
+
+    images_upload_handler: (blobInfo, progress) => new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '{{ route("admin.news.editor.upload") }}');
+        xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
+
+        xhr.onload = () => {
+            if (xhr.status < 200 || xhr.status >= 300) {
+                reject('HTTP Error: ' + xhr.status);
+                return;
+            }
+            const json = JSON.parse(xhr.responseText);
+            if (!json.location) {
+                reject('Invalid response');
+                return;
+            }
+            resolve(json.location);
+        };
+
+        const formData = new FormData();
+        formData.append('file', blobInfo.blob(), blobInfo.filename());
+        xhr.send(formData);
+    }),
+
+    /* ===== VISUAL QUALITY ===== */
+    height: 600,
+    resize: true,
+
+    /* ===== TABLE LAYOUT TEMPLATES (🔥 IMPORTANT) ===== */
+    table_templates: [
+        {
+            title: 'Text | Image',
+            description: 'Two columns: text left, image right',
+            content:
+                '<table width="100%"><tr>' +
+                '<td width="70%">Write your text here...</td>' +
+                '<td width="30%"><p>Insert image here</p></td>' +
+                '</tr></table>'
+        },
+        {
+            title: 'Image | Text',
+            description: 'Two columns: image left, text right',
+            content:
+                '<table width="100%"><tr>' +
+                '<td width="30%"><p>Insert image here</p></td>' +
+                '<td width="70%">Write your text here...</td>' +
+                '</tr></table>'
+        },
+        {
+            title: 'Full Text',
+            description: 'Single column text',
+            content:
+                '<table width="100%"><tr>' +
+                '<td>Write your text here...</td>' +
+                '</tr></table>'
         }
-      });
-    </script>
+    ]
+});
+</script>
+
 </x-app-layout>
